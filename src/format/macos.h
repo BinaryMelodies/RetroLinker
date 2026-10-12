@@ -227,6 +227,46 @@ namespace Apple
 			uint32_t segment_relocation_offset;
 			uint32_t resource_size;
 
+			/**
+			 * @brief For near segments, stores all entries into the jump table
+			 *
+			 * @param jump_table Pointer to jump table resource
+			 * @param entry_relocations Collection of relocations that need fixing up
+			 * @param jump_table_offset Latest offset into the jump table where the entries must start, gets updated
+			 * @param starting_entry If this segment contains a dedicated entry point, places it as the first entry
+			 */
+			void StoreNearSegmentEntries(
+				std::shared_ptr<JumpTableCodeResource> jump_table,
+				std::map<std::shared_ptr<Linker::Segment>, std::map<uint32_t, std::vector<Linker::Relocation>>>& entry_relocations,
+				uint32_t& jump_table_offset,
+				std::optional<uint32_t> starting_entry = {});
+
+			/**
+			 * @brief For far segments, stores all near entries into the jump table
+			 *
+			 * @param jump_table Pointer to jump table resource
+			 * @param entry_relocations Collection of relocations that need fixing up
+			 * @param jump_table_offset Latest offset into the jump table where the entries must start, gets updated
+			 * @param starting_entry If this segment contains a dedicated entry point, places it as the first entry
+			 */
+			void StoreFarSegmentNearEntries(
+				std::shared_ptr<JumpTableCodeResource> jump_table,
+				std::map<std::shared_ptr<Linker::Segment>, std::map<uint32_t, std::vector<Linker::Relocation>>>& entry_relocations,
+				uint32_t& jump_table_offset,
+				std::optional<uint32_t> starting_entry = {});
+
+			/**
+			 * @brief For far segments, stores all far entries into the jump table
+			 *
+			 * @param jump_table Pointer to jump table resource
+			 * @param entry_relocations Collection of relocations that need fixing up
+			 * @param jump_table_offset Latest offset into the jump table where the entries must start, gets updated
+			 */
+			void StoreFarSegmentFarEntries(
+				std::shared_ptr<JumpTableCodeResource> jump_table,
+				std::map<std::shared_ptr<Linker::Segment>, std::map<uint32_t, std::vector<Linker::Relocation>>>& entry_relocations,
+				uint32_t& jump_table_offset);
+
 			void CalculateValues() override;
 
 			offset_t ImageSize() const override;

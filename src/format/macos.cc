@@ -287,6 +287,124 @@ void MacintoshResourceFileFormat::JumpTableCodeResource::Dump(Dumper::Dumper& du
 	}
 }
 
+void MacintoshResourceFileFormat::CodeResource::StoreNearSegmentEntries(
+	std::shared_ptr<JumpTableCodeResource> jump_table,
+	std::map<std::shared_ptr<Linker::Segment>, std::map<uint32_t, std::vector<Linker::Relocation>>>& entry_relocations,
+	uint32_t& jump_table_offset,
+	std::optional<uint32_t> starting_entry)
+{
+	if(header_format != CodeResource::Near)
+		return;
+
+	first_near_entry_offset = jump_table_offset;
+	if(starting_entry.has_value())
+	{
+		jump_table->near_entries.push_back(JumpTableCodeResource::Entry{id, starting_entry.value()});
+		jump_table_offset += 8;
+	}
+
+	for(uint16_t entry : near_entries)
+	{
+		if(starting_entry.has_value() && entry == starting_entry.value())
+			continue; /* already inserted */
+
+		jump_table->near_entries.push_back(JumpTableCodeResource::Entry{id, entry});
+
+		auto segment = std::dynamic_pointer_cast<Linker::Segment>(image);
+		auto resource_iter = entry_relocations.find(segment);
+		if(resource_iter != entry_relocations.end())
+		{
+			auto entry_iter = resource_iter->second.find(entry);
+			if(entry_iter != resource_iter->second.end())
+			{
+				for(auto& rel : entry_iter->second)
+				{
+					rel.WriteWord(jump_table_offset + 32 + 2);
+				}
+			}
+		}
+		jump_table_offset += 8;
+	}
+}
+
+void MacintoshResourceFileFormat::CodeResource::StoreFarSegmentNearEntries(
+	std::shared_ptr<JumpTableCodeResource> jump_table,
+	std::map<std::shared_ptr<Linker::Segment>, std::map<uint32_t, std::vector<Linker::Relocation>>>& entry_relocations,
+	uint32_t& jump_table_offset,
+	std::optional<uint32_t> starting_entry)
+{
+	if(header_format != CodeResource::Far)
+		return;
+
+	first_near_entry_offset = jump_table_offset;
+	if(starting_entry.has_value())
+	{
+		jump_table->far_entries.push_back(JumpTableCodeResource::Entry{id, CodeResource::FarSegmentHeaderSize + starting_entry.value()});
+		jump_table_offset += 8;
+	}
+
+	for(uint16_t entry : near_entries)
+	{
+		if(starting_entry.has_value() && entry == starting_entry.value())
+			continue; /* already inserted */
+
+		jump_table->far_entries.push_back(JumpTableCodeResource::Entry{id, CodeResource::FarSegmentHeaderSize + entry});
+
+		auto segment = std::dynamic_pointer_cast<Linker::Segment>(image);
+		auto resource_iter = entry_relocations.find(segment);
+		if(resource_iter != entry_relocations.end())
+		{
+			auto entry_iter = resource_iter->second.find(entry);
+			if(entry_iter != resource_iter->second.end())
+			{
+				for(auto& rel : entry_iter->second)
+				{
+					rel.WriteWord(jump_table_offset + 32 + 2);
+				}
+			}
+		}
+		jump_table_offset += 8;
+	}
+}
+
+void MacintoshResourceFileFormat::CodeResource::StoreFarSegmentFarEntries(
+	std::shared_ptr<JumpTableCodeResource> jump_table,
+	std::map<std::shared_ptr<Linker::Segment>, std::map<uint32_t, std::vector<Linker::Relocation>>>& entry_relocations,
+	uint32_t& jump_table_offset)
+{
+	if(header_format != CodeResource::Far)
+		return;
+
+	if(far_entries.size() == 0)
+	{
+		first_far_entry_offset = 0;
+	}
+	else
+	{
+		first_far_entry_offset = jump_table_offset;
+		for(uint32_t entry : far_entries)
+		{
+			jump_table->far_entries.push_back(JumpTableCodeResource::Entry{id, CodeResource::FarSegmentHeaderSize + entry});
+
+			auto segment = std::dynamic_pointer_cast<Linker::Segment>(image);
+			auto resource_iter = entry_relocations.find(segment);
+			if(resource_iter != entry_relocations.end())
+			{
+				auto entry_iter = resource_iter->second.find(entry);
+				if(entry_iter != resource_iter->second.end())
+				{
+					for(auto& rel : entry_iter->second)
+					{
+						rel.WriteWord(jump_table_offset + 32 + 2);
+					}
+				}
+			}
+
+			jump_table_offset += 8;
+		}
+	}
+}
+
 void MacintoshResourceFileFormat::CodeResource::CalculateValues()
 {
 	if(Linker::Segment * segment = dynamic_cast<Linker::Segment *>(image.get()))
@@ -1341,37 +1459,12 @@ for(auto section : module.Sections())
 		}
 	}
 
-	/* must be the first entry */
-	uint32_t jump_table_offset = 8;
-
-	jump_table->near_entries.push_back(JumpTableCodeResource::Entry{entry_segment->id, entry_offset});
+	uint32_t jump_table_offset = 0;
 
 	// near model: the startup segment
 	// far model: the init segment
 
-	entry_segment->first_near_entry_offset = 0;
-	for(uint16_t entry : entry_segment->near_entries)
-	{
-		if(entry == entry_offset)
-			continue; /* already inserted */
-
-		jump_table->near_entries.push_back(JumpTableCodeResource::Entry{entry_segment->id, entry});
-
-		auto segment = std::dynamic_pointer_cast<Linker::Segment>(entry_segment->image);
-		auto resource_iter = entry_relocations.find(segment);
-		if(resource_iter != entry_relocations.end())
-		{
-			auto entry_iter = resource_iter->second.find(entry);
-			if(entry_iter != resource_iter->second.end())
-			{
-				for(auto& rel : entry_iter->second)
-				{
-					rel.WriteWord(jump_table_offset + 32 + 2);
-				}
-			}
-		}
-		jump_table_offset += 8;
-	}
+	entry_segment->StoreNearSegmentEntries(jump_table, entry_relocations, jump_table_offset, entry_offset);
 
 	if(!use_far_segments)
 	{
@@ -1381,26 +1474,7 @@ for(auto section : module.Sections())
 			if(resource == entry_segment)
 				continue;
 
-			resource->first_near_entry_offset = jump_table_offset;
-			for(uint16_t entry : resource->near_entries)
-			{
-				jump_table->near_entries.push_back(JumpTableCodeResource::Entry{resource->id, entry});
-
-				auto segment = std::dynamic_pointer_cast<Linker::Segment>(resource->image);
-				auto resource_iter = entry_relocations.find(segment);
-				if(resource_iter != entry_relocations.end())
-				{
-					auto entry_iter = resource_iter->second.find(entry);
-					if(entry_iter != resource_iter->second.end())
-					{
-						for(auto& rel : entry_iter->second)
-						{
-							rel.WriteWord(jump_table_offset + 32 + 2);
-						}
-					}
-				}
-				jump_table_offset += 8;
-			}
+			resource->StoreNearSegmentEntries(jump_table, entry_relocations, jump_table_offset);
 		}
 	}
 
@@ -1408,121 +1482,24 @@ for(auto section : module.Sections())
 
 	if(use_far_segments)
 	{
-		jump_table->far_entries.push_back(JumpTableCodeResource::Entry{far_entry_segment->id, CodeResource::FarSegmentHeaderSize + far_entry_offset});
-
-		far_entry_segment->first_near_entry_offset = jump_table_offset;
-		jump_table_offset += 8;
-		for(uint16_t entry : far_entry_segment->near_entries)
-		{
-			if(entry == far_entry_offset)
-				continue; /* already inserted */
-
-			jump_table->far_entries.push_back(JumpTableCodeResource::Entry{far_entry_segment->id, CodeResource::FarSegmentHeaderSize + entry});
-
-			auto segment = std::dynamic_pointer_cast<Linker::Segment>(far_entry_segment->image);
-			auto resource_iter = entry_relocations.find(segment);
-			if(resource_iter != entry_relocations.end())
-			{
-				auto entry_iter = resource_iter->second.find(entry);
-				if(entry_iter != resource_iter->second.end())
-				{
-					for(auto& rel : entry_iter->second)
-					{
-						rel.WriteWord(jump_table_offset + 32 + 2);
-					}
-				}
-			}
-			jump_table_offset += 8;
-		}
+		far_entry_segment->StoreFarSegmentNearEntries(jump_table, entry_relocations, jump_table_offset, far_entry_offset);
 
 		for(auto& resource : codes)
 		{
-			if(resource->header_format == CodeResource::Near)
-				continue;
-
 			/* since the first entry is already loaded, we have to skip it */
 			if(resource == far_entry_segment)
 				continue;
 
-			resource->first_near_entry_offset = jump_table_offset;
-			for(uint16_t entry : resource->near_entries)
-			{
-				jump_table->far_entries.push_back(JumpTableCodeResource::Entry{resource->id, CodeResource::FarSegmentHeaderSize + entry});
-
-				auto segment = std::dynamic_pointer_cast<Linker::Segment>(resource->image);
-				auto resource_iter = entry_relocations.find(segment);
-				if(resource_iter != entry_relocations.end())
-				{
-					auto entry_iter = resource_iter->second.find(entry);
-					if(entry_iter != resource_iter->second.end())
-					{
-						for(auto& rel : entry_iter->second)
-						{
-							rel.WriteWord(jump_table_offset + 32 + 2);
-						}
-					}
-				}
-				jump_table_offset += 8;
-			}
+			resource->StoreFarSegmentNearEntries(jump_table, entry_relocations, jump_table_offset);
 		}
 
-		if(far_entry_segment->far_entries.size() != 0)
-		{
-			far_entry_segment->first_far_entry_offset = jump_table_offset;
-			for(uint32_t entry : far_entry_segment->far_entries)
-			{
-				jump_table->far_entries.push_back(JumpTableCodeResource::Entry{far_entry_segment->id, CodeResource::FarSegmentHeaderSize + entry});
-
-				auto segment = std::dynamic_pointer_cast<Linker::Segment>(far_entry_segment->image);
-				auto resource_iter = entry_relocations.find(segment);
-				if(resource_iter != entry_relocations.end())
-				{
-					auto entry_iter = resource_iter->second.find(entry);
-					if(entry_iter != resource_iter->second.end())
-					{
-						for(auto& rel : entry_iter->second)
-						{
-							rel.WriteWord(jump_table_offset + 32 + 2);
-						}
-					}
-				}
-				jump_table_offset += 8;
-			}
-		}
-		else
-		{
-			far_entry_segment->first_far_entry_offset = 0;
-		}
+		far_entry_segment->StoreFarSegmentFarEntries(jump_table, entry_relocations, jump_table_offset);
 
 		for(auto& resource : codes)
 		{
 			if(resource == far_entry_segment)
 				continue;
-			if(resource->far_entries.size() == 0)
-			{
-				resource->first_far_entry_offset = 0;
-				continue;
-			}
-			resource->first_far_entry_offset = jump_table_offset;
-			for(uint32_t entry : resource->far_entries)
-			{
-				jump_table->far_entries.push_back(JumpTableCodeResource::Entry{resource->id, CodeResource::FarSegmentHeaderSize + entry});
-
-				auto segment = std::dynamic_pointer_cast<Linker::Segment>(resource->image);
-				auto resource_iter = entry_relocations.find(segment);
-				if(resource_iter != entry_relocations.end())
-				{
-					auto entry_iter = resource_iter->second.find(entry);
-					if(entry_iter != resource_iter->second.end())
-					{
-						for(auto& rel : entry_iter->second)
-						{
-							rel.WriteWord(jump_table_offset + 32 + 2);
-						}
-					}
-				}
-				jump_table_offset += 8;
-			}
+			resource->StoreFarSegmentFarEntries(jump_table, entry_relocations, jump_table_offset);
 		}
 	}
 
