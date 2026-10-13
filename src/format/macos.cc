@@ -1303,7 +1303,7 @@ void MacintoshResourceFileFormat::CodeFragmentResource::CalculateValues()
 
 offset_t MacintoshResourceFileFormat::CodeFragmentResource::ImageSize() const
 {
-	offset_t total_size = 8;
+	offset_t total_size = 32;
 	for(auto member : members)
 	{
 		total_size += member->ImageSize();
@@ -2190,9 +2190,11 @@ offset_t MacintoshResourceFileFormat::WriteFile(const std::shared_ptr<Linker::Wr
 		for(auto& reference : type.references)
 		{
 			std::shared_ptr<Resource> resource = reference.data;
+			Linker::Debug << "Debug: Writing resource '" << std::string(type.type, 4) << "'" << std::dec << int16_t(reference.id) << " to " << std::hex << write_offset + data_offset + reference.data_offset + 4 << ", size " << resource->ImageSize() << std::endl;
 			wr->Seek(write_offset + data_offset + reference.data_offset);
 			wr->WriteWord(4, resource->ImageSize());
-			resource->WriteFile(wr);
+			auto wwr = std::make_shared<Linker::WindowWriter>(wr, wr->Tell(), resource->ImageSize());
+			resource->WriteFile(wwr);
 		}
 	}
 	/* map start */

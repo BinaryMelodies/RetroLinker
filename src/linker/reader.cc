@@ -210,33 +210,6 @@ offset_t StreamReader::Tell()
 	return in->tellg();
 }
 
-#if 0
-void WindowReader::_FixupWindow()
-{
-	if(auto window_reader = std::dynamic_pointer_cast<WindowReader>(reader))
-	{
-		// TODO: how to handle displacement?
-		if(window_reader->maximum_size != offset_t(-1))
-		{
-			if(start_offset > window_reader->maximum_size)
-			{
-				start_offset = window_reader->maximum_size;
-			}
-
-			if(maximum_size == offset_t(-1)
-			|| start_offset + maximum_size > maximum_size)
-			{
-				maximum_size = window_reader->maximum_size - start_offset;
-			}
-		}
-
-		start_offset += window_reader->start_offset;
-		displacement += window_reader->displacement;
-		reader = window_reader->reader;
-	}
-}
-#endif
-
 size_t WindowReader::Read(void * data, size_t max_count)
 {
 	offset_t current = reader->Tell();

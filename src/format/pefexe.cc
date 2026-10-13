@@ -2541,7 +2541,7 @@ void RSegResource::CalculateValues()
 	{
 		raw_data->CalculateValues();
 	}
-	std::visit([](auto&& pef)
+	std::visit([this](auto&& pef)
 	{
 		using T = std::decay_t<decltype(pef)>;
 		if constexpr(std::is_same_v<T, std::shared_ptr<PEFFormat>>)
@@ -2602,6 +2602,8 @@ void RSegResource::ReadFile(const std::shared_ptr<Linker::Reader>& rd, offset_t 
 
 offset_t RSegResource::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
+	Linker::Debug << "Debug: Writing 'rseg' resource to offset " << std::hex << wr->Tell() << ", expected: " << file_offset << std::endl;
+
 	return std::visit([&wr](auto&& pef)
 	{
 		return pef->WriteFile(wr);
@@ -2909,6 +2911,8 @@ void PEFOutputDriver::SetLinkScript(std::string script_file, std::map<std::strin
 void PEFOutputDriver::GenerateFile(std::string filename, Linker::Module& module)
 {
 	std::string basename = std::filesystem::path(filename).filename().string();
+
+	Linker::Debug << "Debug: using basename '" << basename << "'" << std::endl;
 
 	switch(module.cpu)
 	{

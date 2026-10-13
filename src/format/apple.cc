@@ -2136,19 +2136,22 @@ offset_t MacBinary::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 	/* secondary header */
 	if(auto entry = apple_single->FindEntry(AppleSingleDouble::ID_DataFork))
 	{
-		entry->WriteFile(wr);
+		auto wwr = std::make_shared<Linker::WindowWriter>(wr, wr->Tell(), entry->ImageSize());
+		entry->WriteFile(wwr);
 		wr->AlignTo(0x80);
 	}
 	if(auto entry = apple_single->FindEntry(AppleSingleDouble::ID_ResourceFork))
 	{
-		entry->WriteFile(wr);
+		auto wwr = std::make_shared<Linker::WindowWriter>(wr, wr->Tell(), entry->ImageSize());
+		entry->WriteFile(wwr);
 		wr->AlignTo(0x80);
 	}
 	if(version >= MACBIN1_GETINFO)
 	{
 		if(auto entry = apple_single->FindEntry(AppleSingleDouble::ID_Comment))
 		{
-			entry->WriteFile(wr);
+			auto wwr = std::make_shared<Linker::WindowWriter>(wr, wr->Tell(), entry->ImageSize());
+			entry->WriteFile(wwr);
 			wr->AlignTo(0x80);
 		}
 	}

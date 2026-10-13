@@ -145,6 +145,112 @@ offset_t StreamWriter::Tell()
 	return out->tellp();
 }
 
+void WindowWriter::WriteData(size_t count, const void * data)
+{
+	offset_t current = writer->Tell();
+//	Linker::Debug << "Debug: WindowWriter::Read." << std::hex << current << "(" << std::hex << count << ");" << std::endl;
+	if(current < start_offset)
+	{
+		writer->Seek(start_offset);
+		current = start_offset;
+	}
+
+	size_t permitted_count = count;
+	if(maximum_size != offset_t(-1) && current + permitted_count > start_offset + maximum_size)
+	{
+		permitted_count = start_offset + maximum_size - writer->Tell();
+	}
+//	Linker::Debug << "Debug: actual Write." << std::hex << current << "(" << std::hex << permitted_count << ");" << std::endl;
+	writer->WriteData(permitted_count, data);
+}
+
+void WindowWriter::Seek(offset_t offset)
+{
+	if(offset < window_offset)
+	{
+		offset = 0;
+	}
+	else
+	{
+		offset -= window_offset;
+	}
+
+	// check if the position overflows the read window limit
+	if(maximum_size != offset_t(-1) && offset > maximum_size)
+	{
+		offset = maximum_size;
+	}
+	writer->Seek(start_offset + offset);
+}
+
+void WindowWriter::Skip(relative_offset_t offset)
+{
+	// check if the position overflows the read window limit
+	if(maximum_size != offset_t(-1) && writer->Tell() + offset > start_offset + maximum_size)
+	{
+		offset = start_offset + maximum_size - writer->Tell();
+	}
+
+	if(start_offset != 0)
+	{
+		// do not permit seeking before the start of the read window
+		offset_t actual_offset = writer->Tell();
+		if(offset < 0 && offset_t(-offset) <= actual_offset)
+		{
+			actual_offset = 0;
+		}
+		else
+		{
+			actual_offset += offset;
+		}
+
+		if(actual_offset < start_offset)
+		{
+			actual_offset = start_offset;
+		}
+		writer->Seek(actual_offset);
+	}
+	else
+	{
+		writer->Skip(offset);
+	}
+}
+
+void WindowWriter::SeekEnd(relative_offset_t offset)
+{
+	if(maximum_size != offset_t(-1))
+	{
+		offset_t actual_offset = start_offset + maximum_size + offset;
+		if(actual_offset < start_offset)
+		{
+			actual_offset = start_offset;
+		}
+		else if(actual_offset > start_offset + maximum_size)
+		{
+			actual_offset = start_offset + maximum_size;
+		}
+		writer->Seek(actual_offset);
+	}
+	else
+	{
+		writer->SeekEnd(offset);
+	}
+}
+
+offset_t WindowWriter::Tell()
+{
+	offset_t actual_offset = writer->Tell();
+	if(actual_offset < start_offset)
+	{
+		actual_offset = 0;
+	}
+	else
+	{
+		actual_offset -= start_offset;
+	}
+	return actual_offset + window_offset;
+}
+
 void BufferWriter::WriteData(size_t count, const void * data)
 {
 	buffer->WriteData(count, position, reinterpret_cast<const char *>(data));
