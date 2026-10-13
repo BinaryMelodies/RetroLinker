@@ -2963,9 +2963,12 @@ void PEFOutputDriver::GenerateFile(std::string filename, Linker::Module& module)
 			auto rseg0 = std::make_shared<RSegResource>(fragment.pef_header);
 			rseg0->id = rseg_count ++; // should be 0
 			resource_fork->AddResource(rseg0);
+
 			auto rseg1 = std::make_shared<RSegResource>(fragment.pef_format);
 			rseg1->id = rseg_count ++; // should be 1
 			resource_fork->AddResource(rseg1);
+
+			fragment.pef_header->header->secondary_resource_id = rseg1->id;
 		}
 	}
 

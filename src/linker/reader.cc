@@ -318,13 +318,17 @@ offset_t WindowReader::Tell()
 
 offset_t WindowReader::GetImageEnd()
 {
-	if(maximum_size != offset_t(-1))
+	if(maximum_size == offset_t(-1))
 	{
-		return maximum_size;
+		return Reader::GetImageEnd();
+	}
+	else if(window_offset <= offset_t(-1) - maximum_size)
+	{
+		return window_offset + maximum_size;
 	}
 	else
 	{
-		return Reader::GetImageEnd();
+		return offset_t(-1);
 	}
 }
 
