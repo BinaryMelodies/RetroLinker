@@ -1377,11 +1377,11 @@ void PEFFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 	rd->endiantype = ::BigEndian;
 	file_offset = rd->Tell();
 	rd->Skip(8);
-	ReadBaseFields(rd);
+	header->ReadBaseFields(rd);
 	reserved = rd->ReadUnsigned(4);
 
 	section_name_table_end = GetSectionNameTableOffset();
-	for(uint16_t section_index = 0; section_index < section_count; section_index++)
+	for(uint16_t section_index = 0; section_index < header->section_count; section_index++)
 	{
 		auto section = std::make_shared<Section>();
 		section->ReadHeader(rd);
@@ -1408,7 +1408,7 @@ void PEFFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 			current_end = image_size;
 	}
 
-	if(architecture == M68K)
+	if(header->architecture == PEFHeaderBase::M68K)
 	{
 		// find the jump table
 		std::shared_ptr<Section> jump_table_section;
@@ -1463,21 +1463,21 @@ void PEFFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 				return;
 			}
 
-			a5_offset = below_a5_size;
+			a5_offset = header->below_a5_size;
 		}
 
 		jump_table = std::make_shared<MacintoshResourceFileFormat::JumpTableCodeResource>();
-		switch(type)
+		switch(header->type)
 		{
 		default: // TODO
-		case UnknownBinary: // TODO
-		case Application:
+		case PEFHeaderBase::UnknownBinary: // TODO
+		case PEFHeaderBase::Application:
 			jump_table->jump_table_format = MacintoshResourceFileFormat::JumpTableCodeResource::CFM_68K;
 			break;
-		case ImportLibrary:
+		case PEFHeaderBase::ImportLibrary:
 			jump_table->jump_table_format = MacintoshResourceFileFormat::JumpTableCodeResource::CFM_68K_Library;
 			break;
-		case UnflattenedLibrary:
+		case PEFHeaderBase::UnflattenedLibrary:
 			jump_table->jump_table_format = MacintoshResourceFileFormat::JumpTableCodeResource::CFM_68K_Unflattened_Library;
 			break;
 		}
@@ -1502,7 +1502,7 @@ offset_t PEFFormat::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	wr->endiantype = ::BigEndian;
 	wr->WriteData("Joy!peff");
-	WriteBaseFields(wr);
+	header->WriteBaseFields(wr);
 	wr->WriteWord(4, reserved);
 
 	for(auto section : sections)
@@ -1526,24 +1526,24 @@ offset_t PEFFormat::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 
 void PEFFormat::CalculateValues()
 {
-	format_version = 1;
+	header->format_version = 1;
 	reserved = 0;
 
-	section_count = sections.size();
-	inst_section_count = 0;
+	header->section_count = sections.size();
+	header->inst_section_count = 0;
 	// move all instantiated sections before all uninstantiated sections
 	for(uint16_t section_index = 0; section_index < sections.size(); section_index++)
 	{
 		if(sections[section_index]->IsInstantiated())
 		{
-			if(inst_section_count + 1 < section_index)
+			if(header->inst_section_count + 1 < section_index)
 			{
 				auto section = sections[section_index];
 				sections.erase(sections.begin() + section_index);
-				sections.insert(sections.begin() + inst_section_count, section);
+				sections.insert(sections.begin() + header->inst_section_count, section);
 			}
 
-			inst_section_count ++;
+			header->inst_section_count ++;
 		}
 	}
 
@@ -1742,7 +1742,7 @@ void PEFFormat::Dump(Dumper::Dumper& dump) const
 	file_region.Display(dump, Dumper::Header);
 
 	Dumper::Region header_region("Container header", file_offset, ContainerHeaderSize, 8);
-	AddBaseFields(header_region);
+	header->AddBaseFields(header_region);
 	header_region.AddOptionalField("Reserved field", Dumper::HexDisplay::Make(8), offset_t(reserved));
 	header_region.Display(dump, Dumper::Header);
 
@@ -2169,7 +2169,7 @@ void PEFFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 	}
 	else if(first_section->IsExecutable())
 	{
-		if(architecture == M68K)
+		if(header->architecture == PEFHeaderBase::M68K)
 		{
 			if(resource_fork == nullptr)
 			{
@@ -2252,12 +2252,12 @@ for execute
 	}
 	else
 	{
-		switch(architecture)
+		switch(header->architecture)
 		{
-		case M68K:
+		case PEFHeaderBase::M68K:
 			return Script::parse_string(DefaultScript_68K);
 		default:
-		case PPC:
+		case PEFHeaderBase::PPC:
 			return Script::parse_string(DefaultScript_PPC);
 		}
 	}
@@ -2457,10 +2457,10 @@ void PEFFormat::GenerateFile(std::string filename, Linker::Module& module)
 		{
 			Linker::Error << "Error: no resource fork generated, PEF file will not work properly" << std::endl;
 		}
-		architecture = M68K;
+		header->architecture = PEFHeaderBase::M68K;
 		break;
 	case Linker::Module::PPC:
-		architecture = PPC;
+		header->architecture = PEFHeaderBase::PPC;
 		break;
 	default:
 		Linker::Error << "Error: Unsupported CPU type" << std::endl;
@@ -2476,37 +2476,37 @@ void PEFHeader::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 	rd->endiantype = ::BigEndian;
 	rd->Skip(8);
-	ReadBaseFields(rd);
-	memory_address = rd->ReadUnsigned(4);
-	exported_symbol_count = rd->ReadUnsigned(4);
+	header->ReadBaseFields(rd);
+	header->memory_address = rd->ReadUnsigned(4);
+	header->exported_symbol_count = rd->ReadUnsigned(4);
 	rd->Skip(4);
-	secondary_resource_id = rd->ReadUnsigned(2);
-	last_valid_code_resource = rd->ReadUnsigned(2);
-	below_a5_size = rd->ReadUnsigned(4);
+	header->secondary_resource_id = rd->ReadUnsigned(2);
+	header->last_valid_code_resource = rd->ReadUnsigned(2);
+	header->below_a5_size = rd->ReadUnsigned(4);
 }
 
 offset_t PEFHeader::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	wr->endiantype = ::BigEndian;
 	wr->WriteData("JOA!rseg"); // TODO: not sure why "JOA!"
-	WriteBaseFields(wr);
-	wr->WriteWord(4, memory_address);
-	wr->WriteWord(4, exported_symbol_count);
+	header->WriteBaseFields(wr);
+	wr->WriteWord(4, header->memory_address);
+	wr->WriteWord(4, header->exported_symbol_count);
 	wr->WriteWord(4, 0);
-	wr->WriteWord(2, secondary_resource_id);
-	wr->WriteWord(2, last_valid_code_resource);
-	wr->WriteWord(4, below_a5_size);
+	wr->WriteWord(2, header->secondary_resource_id);
+	wr->WriteWord(2, header->last_valid_code_resource);
+	wr->WriteWord(4, header->below_a5_size);
 	return 0x38;
 }
 
 void PEFHeader::AddFields(Dumper::Region& header_region) const
 {
-	AddBaseFields(header_region);
-	header_region.AddField("Memory address", Dumper::HexDisplay::Make(8), offset_t(memory_address));
-	header_region.AddField("Exported symbol count", Dumper::DecDisplay::Make(), offset_t(exported_symbol_count));
-	header_region.AddField("Secondary resource ID", Dumper::DecDisplay::Make(), offset_t(secondary_resource_id));
-	header_region.AddField("Last valid CODE resource", Dumper::DecDisplay::Make(), offset_t(last_valid_code_resource));
-	header_region.AddField("Below A5 size", Dumper::HexDisplay::Make(8), offset_t(below_a5_size));
+	header->AddBaseFields(header_region);
+	header_region.AddField("Memory address", Dumper::HexDisplay::Make(8), offset_t(header->memory_address));
+	header_region.AddField("Exported symbol count", Dumper::DecDisplay::Make(), offset_t(header->exported_symbol_count));
+	header_region.AddField("Secondary resource ID", Dumper::DecDisplay::Make(), offset_t(header->secondary_resource_id));
+	header_region.AddField("Last valid CODE resource", Dumper::DecDisplay::Make(), offset_t(header->last_valid_code_resource));
+	header_region.AddField("Below A5 size", Dumper::HexDisplay::Make(8), offset_t(header->below_a5_size));
 }
 
 void PEFHeader::ReparseResource(MacintoshResourceFileFormat& format, const std::shared_ptr<Linker::Reader>& rd, offset_t offset, offset_t length)
@@ -2525,10 +2525,9 @@ void PEFHeader::ReparseResource(MacintoshResourceFileFormat& format, const std::
 
 	// convert the referenced resource
 
-	if(auto reference = format.FindResourceReference(Apple::OSType {'r', 's', 'e', 'g'}, secondary_resource_id)) // TODO: is this really what secondary resource ID means?
+	if(auto reference = format.FindResourceReference(Apple::OSType {'r', 's', 'e', 'g'}, header->secondary_resource_id)) // TODO: is this really what secondary resource ID means?
 	{
-		auto pef = std::make_shared<PEFFormat>(type);
-		pef->below_a5_size = below_a5_size;
+		auto pef = std::make_shared<PEFFormat>(*header);
 		auto rseg = std::make_shared<RSegResource>(pef, reference->data);
 		rseg->ReparseResource(format, rd, format.file_offset + format.data_offset + reference->data_offset + 4, reference->data->ImageSize());
 		reference->data = rseg;
@@ -2602,8 +2601,6 @@ void RSegResource::ReadFile(const std::shared_ptr<Linker::Reader>& rd, offset_t 
 
 offset_t RSegResource::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	Linker::Debug << "Debug: Writing 'rseg' resource to offset " << std::hex << wr->Tell() << ", expected: " << file_offset << std::endl;
-
 	return std::visit([&wr](auto&& pef)
 	{
 		return pef->WriteFile(wr);
@@ -2712,6 +2709,15 @@ PEFOutputDriver::CodeFragment PEFOutputDriver::CodeFragment::CreateEmptyPEF()
 	);
 }
 
+PEFOutputDriver::CodeFragment PEFOutputDriver::CodeFragment::CreateWithHeader(std::shared_ptr<MacintoshResourceFileFormat::CodeFragmentResource::Member> member, std::shared_ptr<PEFFormat> pef_format)
+{
+	return CodeFragment(
+		member,
+		pef_format,
+		std::make_shared<PEFHeader>(pef_format->header)
+	);
+}
+
 PEFOutputDriver::CodeFragment PEFOutputDriver::CodeFragment::CreateApplication(MacintoshResourceFileFormat::CodeFragmentResource::Member::architecture_type architecture, std::string name)
 {
 	switch(architecture)
@@ -2720,13 +2726,12 @@ PEFOutputDriver::CodeFragment PEFOutputDriver::CodeFragment::CreateApplication(M
 	default:
 		return CodeFragment(
 			MacintoshResourceFileFormat::CodeFragmentResource::Member::CreateApplication(architecture, name),
-			std::make_shared<PEFFormat>(PEFFormat::Application)
+			std::make_shared<PEFFormat>(PEFHeaderBase::Application)
 		);
 	case MacintoshResourceFileFormat::CodeFragmentResource::Member::Motorola68K:
-		return CodeFragment(
+		return CreateWithHeader(
 			MacintoshResourceFileFormat::CodeFragmentResource::Member::CreateApplication(architecture, name),
-			std::make_shared<PEFFormat>(PEFFormat::Application),
-			std::make_shared<PEFHeader>()
+			std::make_shared<PEFFormat>(PEFHeaderBase::Application)
 		);
 	}
 }
@@ -2735,7 +2740,7 @@ PEFOutputDriver::CodeFragment PEFOutputDriver::CodeFragment::CreateLibrary(Macin
 {
 	return CodeFragment(
 		MacintoshResourceFileFormat::CodeFragmentResource::Member::CreateLibrary(architecture, name, current_version, old_def_version),
-		std::make_shared<PEFFormat>(PEFFormat::ImportLibrary)
+		std::make_shared<PEFFormat>(PEFHeaderBase::ImportLibrary)
 	);
 }
 

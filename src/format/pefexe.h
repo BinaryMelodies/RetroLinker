@@ -18,6 +18,8 @@ namespace Apple
 {
 	/**
 	 * @brief Represents the common parts of a PEF container and the 'rseg'0 resource in a CFM-68K binary
+	 *
+	 * When generating 'rseg' resources, this structure will be shared between PEFFormat and PEFHeader
 	 */
 	class PEFHeaderBase
 	{
@@ -36,7 +38,10 @@ namespace Apple
 		uint32_t current_version = 0;
 		uint16_t section_count = 0;
 		uint16_t inst_section_count = 0;
-		uint32_t reserved = 0;
+		uint32_t memory_address = 0;
+		uint32_t exported_symbol_count = 0;
+		uint16_t secondary_resource_id = 0;
+		uint16_t last_valid_code_resource = 0;
 		uint32_t below_a5_size = 0;
 
 		enum binary_type
@@ -58,6 +63,8 @@ namespace Apple
 		{
 		}
 
+		PEFHeaderBase(const PEFHeaderBase&) = default;
+
 		void ReadBaseFields(const std::shared_ptr<Linker::Reader>& rd);
 		void WriteBaseFields(const std::shared_ptr<Linker::Writer>& wr) const;
 		void AddBaseFields(Dumper::Region& header_region) const;
@@ -66,13 +73,22 @@ namespace Apple
 	/**
 	 * @brief PowerPC Classic Mac OS "PEF" file format
 	 */
-	class PEFFormat : public virtual Linker::SegmentManager, public PEFHeaderBase
+	class PEFFormat : public virtual Linker::SegmentManager
 	{
 	public:
-		PEFFormat(binary_type type = UnknownBinary)
-			: PEFHeaderBase(type)
+		std::shared_ptr<PEFHeaderBase> header;
+
+		PEFFormat(PEFHeaderBase::binary_type type = PEFHeaderBase::UnknownBinary)
+			: header(std::make_shared<PEFHeaderBase>(type))
 		{
 		}
+
+		PEFFormat(const PEFHeaderBase& base)
+			: header(std::make_shared<PEFHeaderBase>(base))
+		{
+		}
+
+		uint32_t reserved = 0;
 
 		/** @brief Pattern initialization data
 		 *
@@ -758,18 +774,20 @@ namespace Apple
 	/**
 	 * @brief Represents the contents of an 'rseg'0 resource in a CFM-68K binary, a cut-down version of the full PEF container
 	 */
-	class PEFHeader : public PEFHeaderBase
+	class PEFHeader
 	{
 	private:
 		bool effect_handled = false;
 	public:
-		uint32_t memory_address = 0;
-		uint32_t exported_symbol_count = 0;
-		uint16_t secondary_resource_id = 0;
-		uint16_t last_valid_code_resource = 0;
+		std::shared_ptr<PEFHeaderBase> header;
 
-		PEFHeader(binary_type type = UnknownBinary)
-			: PEFHeaderBase(type)
+		PEFHeader(PEFHeaderBase::binary_type type = PEFHeaderBase::UnknownBinary)
+			: header(std::make_shared<PEFHeaderBase>(type))
+		{
+		}
+
+		PEFHeader(std::shared_ptr<PEFHeaderBase> header)
+			: header(header)
 		{
 		}
 
@@ -877,6 +895,10 @@ namespace Apple
 
 			/** @brief Initialize with default settings */
 			static CodeFragment CreateEmptyPEF();
+		protected:
+			/** @brief Initialize with header shared */
+			static CodeFragment CreateWithHeader(std::shared_ptr<MacintoshResourceFileFormat::CodeFragmentResource::Member> member, std::shared_ptr<PEFFormat> pef_format);
+		public:
 			/** @brief Initialize with default settings */
 			static CodeFragment CreateApplication(MacintoshResourceFileFormat::CodeFragmentResource::Member::architecture_type architecture, std::string name);
 			/** @brief Initialize with default settings */
