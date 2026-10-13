@@ -1855,9 +1855,13 @@ void MacintoshResourceFileFormat::ProcessModule(Linker::Module& module)
 
 		enum
 		{
+			// requires no adjustment aside from addend
 			SimpleRelocation,
+			// points to a jump table entry
 			JumpTableEntry,
+			// must add segment base to it
 			SegmentRelative,
+			// must add A5 to it
 			A5Relative,
 		} relocation_type = SimpleRelocation;
 

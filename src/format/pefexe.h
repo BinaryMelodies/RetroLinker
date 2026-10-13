@@ -30,7 +30,7 @@ namespace Apple
 			M68K = 0x6D36386B, // 'm68k'
 			PPC  = 0x70777063, // 'pwpc'
 		};
-		cpu_type architecture = PPC;
+		cpu_type architecture;
 		uint32_t format_version = 1;
 		::Timestamp<Macintosh_clock> date_time_stamp = { };
 		uint32_t old_def_version = 0;
@@ -58,8 +58,8 @@ namespace Apple
 		/** @brief Specifies the generated or parsed binary type */
 		binary_type type;
 
-		PEFHeaderBase(binary_type type = UnknownBinary)
-			: type(type)
+		PEFHeaderBase(binary_type type = UnknownBinary, cpu_type architecture = PPC)
+			: architecture(architecture), type(type)
 		{
 		}
 
@@ -78,8 +78,8 @@ namespace Apple
 	public:
 		std::shared_ptr<PEFHeaderBase> header;
 
-		PEFFormat(PEFHeaderBase::binary_type type = PEFHeaderBase::UnknownBinary)
-			: header(std::make_shared<PEFHeaderBase>(type))
+		PEFFormat(PEFHeaderBase::binary_type type = PEFHeaderBase::UnknownBinary, PEFHeaderBase::cpu_type architecture = PEFHeaderBase::PPC)
+			: header(std::make_shared<PEFHeaderBase>(type, architecture))
 		{
 		}
 
@@ -781,8 +781,8 @@ namespace Apple
 	public:
 		std::shared_ptr<PEFHeaderBase> header;
 
-		PEFHeader(PEFHeaderBase::binary_type type = PEFHeaderBase::UnknownBinary)
-			: header(std::make_shared<PEFHeaderBase>(type))
+		PEFHeader(PEFHeaderBase::binary_type type = PEFHeaderBase::UnknownBinary, PEFHeaderBase::cpu_type architecture = PEFHeaderBase::PPC)
+			: header(std::make_shared<PEFHeaderBase>(type, architecture))
 		{
 		}
 

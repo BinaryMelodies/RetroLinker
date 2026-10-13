@@ -2277,87 +2277,154 @@ void PEFFormat::SortImports()
 
 void PEFFormat::ProcessRelocations(Linker::Module& module)
 {
+	std::map<std::shared_ptr<Linker::Segment>, std::map<uint32_t, std::vector<Linker::Relocation>>> entry_relocations; // TODO
+
 	for(Linker::Relocation& rel : module.GetRelocations())
 	{
 		Linker::Resolution resolution;
 
-		if(rel.kind != Linker::Relocation::Direct)
+		if(segment_to_section_map.find(rel.source.GetPosition().segment) != segment_to_section_map.end())
 		{
-			Linker::Error << "Error: invalid external relocation, ignoring" << std::endl;
-			continue;
-		}
-		if(rel.size != 4)
-		{
-			Linker::Error << "Error: only 4-byte external relocation allowed, ignoring" << std::endl;
-			continue;
-		}
-		if((rel.mask & 0xFFFFFFFF) != 0xFFFFFFFF)
-		{
-			Linker::Error << "Error: relocation mask not supported, ignoring" << std::endl;
-			Linker::Error << rel.mask << std::endl;
-			continue;
-		}
-		if(rel.shift != 0)
-		{
-			Linker::Error << "Error: relocation shift not supported, ignoring" << std::endl;
-			continue;
-		}
-
-		auto source_position = rel.source.GetPosition();
-		auto source_section = segment_to_section_map[source_position.segment];
-		switch(source_section->section_kind)
-		{
-		case Section::Code:
-		case Section::Constant:
-			Linker::Error << "Error: relocation in read-only segment, proceeding" << std::endl;
-			break;
-		default:
-			break;
-		}
-
-		auto source_offset = source_position.address - source_position.segment->base_address;
-
-		if(rel.Resolve(module, resolution))
-		{
-			rel.WriteWord(resolution.value);
-
-			auto target_section = segment_to_section_map[resolution.target];
-			source_section->relocations[source_offset] = Relocation::ToSection(target_section);
-		}
-		else if(Linker::SymbolName * symbol = std::get_if<Linker::SymbolName>(&rel.target.target))
-		{
-			std::string library, name;
-			std::shared_ptr<ImportedSymbol> imported_symbol;
-			uint32_t relative = 0;
-
-			if(symbol->GetImportedName(library, name))
+			if(rel.kind != Linker::Relocation::Direct)
 			{
-				imported_symbol = FetchImportLibrary(library)->GetImportByName(name);
+				Linker::Error << "Error: invalid external relocation, ignoring" << std::endl;
+				continue;
 			}
-			else
+			if(rel.size != 4)
 			{
-				Linker::Error << "Error: undefined " << *symbol << std::endl;
+				Linker::Error << "Error: only 4-byte external relocation allowed, ignoring" << std::endl;
+				continue;
+			}
+			if((rel.mask & 0xFFFFFFFF) != 0xFFFFFFFF)
+			{
+				Linker::Error << "Error: relocation mask not supported, ignoring" << std::endl;
+				Linker::Error << rel.mask << std::endl;
+				continue;
+			}
+			if(rel.shift != 0)
+			{
+				Linker::Error << "Error: relocation shift not supported, ignoring" << std::endl;
 				continue;
 			}
 
-			Linker::Position reference;
-			if(!rel.reference.Lookup(module, reference))
+			auto source_position = rel.source.GetPosition();
+			auto source_section = segment_to_section_map[source_position.segment];
+			switch(source_section->section_kind)
 			{
-				Linker::Error << "Error: unable to resolve " << rel << std::endl;
-				continue;
+			case Section::Code:
+			case Section::Constant:
+				Linker::Error << "Error: relocation in read-only segment, proceeding" << std::endl;
+				break;
+			default:
+				break;
+			}
+
+			auto source_offset = source_position.address - source_position.segment->base_address;
+
+			if(rel.Resolve(module, resolution))
+			{
+				rel.WriteWord(resolution.value);
+
+				auto target_section = segment_to_section_map[resolution.target];
+				source_section->relocations[source_offset] = Relocation::ToSection(target_section);
+			}
+			else if(Linker::SymbolName * symbol = std::get_if<Linker::SymbolName>(&rel.target.target))
+			{
+				std::string library, name;
+				std::shared_ptr<ImportedSymbol> imported_symbol;
+				uint32_t relative = 0;
+
+				if(symbol->GetImportedName(library, name))
+				{
+					imported_symbol = FetchImportLibrary(library)->GetImportByName(name);
+				}
+				else
+				{
+					Linker::Error << "Error: undefined " << *symbol << std::endl;
+					continue;
+				}
+
+				Linker::Position reference;
+				if(!rel.reference.Lookup(module, reference))
+				{
+					Linker::Error << "Error: unable to resolve " << rel << std::endl;
+					continue;
+				}
+				else
+				{
+					relative = -reference.address;
+				}
+
+				rel.WriteWord(relative + rel.addend);
+
+				source_section->relocations[source_offset] = Relocation::ToSymbol(imported_symbol);
 			}
 			else
 			{
-				relative = -reference.address;
+				Linker::Error << "Error: Unable to resolve relocation: " << rel << ", ignoring" << std::endl;
+			}
+		}
+		else if(header->architecture == PEFHeaderBase::M68K)
+		{
+			if(!rel.Resolve(module, resolution))
+			{
+				Linker::Error << "Error: Unable to resolve relocation: " << rel << std::endl;
 			}
 
-			rel.WriteWord(relative + rel.addend);
+			enum
+			{
+				// requires no adjustment aside from addend
+				SimpleRelocation,
+				// points to a jump table entry
+				JumpTableEntry,
+			} relocation_type = SimpleRelocation;
 
-			source_section->relocations[source_offset] = Relocation::ToSymbol(imported_symbol);
+			if(resolution.target != nullptr /* relocation to a specific segment */
+			&& resolution.target->sections.size() > 0)
+			{
+				if(resolution.target->sections[0]->IsExecutable())
+				{
+					if(MacintoshResourceFileFormat::CheckA5Relative(rel))
+					{
+						relocation_type = JumpTableEntry;
+					}
+					else
+					{
+						Linker::Error << "Error: Invalid relocation: " << rel << std::endl;
+						continue;
+					}
+					// TODO: transition vector
+				}
+				else if(resolution.target == resource_fork->a5world) // TODO: a5world not assigned
+				{
+					if(!MacintoshResourceFileFormat::CheckA5Relative(rel))
+					{
+						Linker::Error << "Error: Invalid relocation: " << rel << std::endl;
+						continue;
+					}
+				}
+				else
+				{
+					Linker::Error << "Error: Invalid relocation: " << rel << std::endl;
+					continue;
+				}
+			}
+
+			switch(relocation_type)
+			{
+			case SimpleRelocation:
+				rel.WriteWord(resolution.value);
+				break;
+			case JumpTableEntry:
+				/* jsr method_name(a5) can be replaced by an entry */
+				Linker::Debug << "Debug: relocation from segment " << rel.source.GetPosition().segment->name << " to " << resolution.target->name << std::endl;
+				entry_relocations[resolution.target][resolution.value].push_back(rel); // TODO
+				break;
+			}
 		}
 		else
 		{
-			Linker::Error << "Error: Unable to resolve relocation: " << rel << ", ignoring" << std::endl;
+			Linker::Error << "Internal error: relocation in area not assigned to a PEF section" << std::endl;
 		}
 	}
 }
@@ -2726,12 +2793,12 @@ PEFOutputDriver::CodeFragment PEFOutputDriver::CodeFragment::CreateApplication(M
 	default:
 		return CodeFragment(
 			MacintoshResourceFileFormat::CodeFragmentResource::Member::CreateApplication(architecture, name),
-			std::make_shared<PEFFormat>(PEFHeaderBase::Application)
+			std::make_shared<PEFFormat>(PEFHeaderBase::Application, PEFHeaderBase::PPC)
 		);
 	case MacintoshResourceFileFormat::CodeFragmentResource::Member::Motorola68K:
 		return CreateWithHeader(
 			MacintoshResourceFileFormat::CodeFragmentResource::Member::CreateApplication(architecture, name),
-			std::make_shared<PEFFormat>(PEFHeaderBase::Application)
+			std::make_shared<PEFFormat>(PEFHeaderBase::Application, PEFHeaderBase::M68K)
 		);
 	}
 }
