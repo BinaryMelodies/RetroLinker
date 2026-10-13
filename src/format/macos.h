@@ -46,10 +46,8 @@ namespace Apple
 	class MacintoshResourceFileFormat : public virtual Linker::SegmentManager, public Runtime::ResourceManager, protected Runtime::ResourceIterable
 	{
 	public:
-		bool FormatSupportsResources() const override
-		{
-			return true;
-		}
+		bool FormatSupportsResources() const override;
+		bool FormatSupportsEntryTable() const override; // TODO: not yet implemented
 
 		enum memory_model_t
 		{
@@ -842,6 +840,7 @@ namespace Apple
 		}
 
 		bool FormatSupportsResources() const override;
+		bool FormatSupportsEntryTable() const override; // TODO: not yet implemented
 
 	private:
 		std::shared_ptr<FinderInfo> finder_info;

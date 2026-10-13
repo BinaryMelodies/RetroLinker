@@ -1,6 +1,7 @@
 #ifndef RELOCATION_H
 #define RELOCATION_H
 
+#include <optional>
 #include "../common.h"
 #include "location.h"
 #include "target.h"
@@ -57,6 +58,20 @@ namespace Linker
 			 */
 			PLTEntry, // TODO: unimplemented
 			/**
+			 * @brief An entry in an entry table is used instead of the actual value
+			 */
+			TableEntry,
+			/**
+			 * @brief A far entry in an entry table is used instead of the actual value
+			 */
+			FarTableEntry,
+			/**
+			 * @brief A transition vector in a transition vector table is used instead of the actual value
+			 *
+			 * This is intended for Classic Macintosh programs, mainly for Motorola 68K
+			 */
+			TransitionVector,
+			/**
 			 * @brief Size of the target
 			 */
 			SizeOf, // TODO: unimplemented
@@ -81,6 +96,10 @@ namespace Linker
 		 * @brief The symbol or location whose value is subtracted from the final value, used for self-relative and segment-relative addresses
 		 */
 		Target reference;
+		/**
+		 * @brief The symbol or location for a secondary target, used for the data address of a transition vector
+		 */
+		std::optional<Target> secondary_target;
 		/**
 		 * @brief A value to be added
 		 */
@@ -256,14 +275,14 @@ namespace Linker
 		bool IsRelative() const;
 
 		/**
-		 * @brief Determines if a relocation is absolute
+		 * @brief Determines if a relocation is an absolute relocation whose reference is the absolute 0 address
 		 *
 		 * Absolute relocations are contrasted with Offset relocations whose reference is their preferred segment
 		 */
 		bool IsAbsolute() const;
 
 		/**
-		 * @brief Determines if a relocation is an offset
+		 * @brief Determines if a relocation is an offset relocation whose reference is their preferred segment
 		 *
 		 * Offset relocations are contrasted with Absolute relocations whose reference is the absolute 0 address
 		 */
@@ -283,6 +302,16 @@ namespace Linker
 		void ReplaceTarget(Target new_target, Target new_reference);
 
 		/**
+		 * @brief Modifies the relocation to be a reference of the specified kind
+		 */
+		void ConvertTo(reference_kind new_kind, Target new_target);
+
+		/**
+		 * @brief Modifies the relocation to be a reference of the specified kind
+		 */
+		void ConvertTo(reference_kind new_kind, Target new_target, Target new_reference);
+
+		/**
 		 * @brief Modifies the relocation to be a reference to a paragraph address or selector index (x86)
 		 */
 		void ConvertToSegment(bool protected_mode, Target segment_target);
@@ -291,6 +320,11 @@ namespace Linker
 		 * @brief Modifies the relocation to be a paragraph difference between new_target and new_reference
 		 */
 		void ConvertToParagraphDifference(Target new_target, Target new_reference);
+
+		/**
+		 * @brief Modifies the relocation to point to a transition vector consisting of a code and data address
+		 */
+		void ConvertToTransitionVector(Target target_code, Target target_data);
 
 		/**
 		 * @brief Attempts to combine two relocations.

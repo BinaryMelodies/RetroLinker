@@ -29,6 +29,16 @@ void Apple::UInt32ToOSType(OSType& type, uint32_t value)
 
 // MacintoshResourceFileFormat
 
+bool MacintoshResourceFileFormat::FormatSupportsResources() const
+{
+	return true;
+}
+
+bool MacintoshResourceFileFormat::FormatSupportsEntryTable() const
+{
+	return true;
+}
+
 std::shared_ptr<Linker::OptionCollector> MacintoshResourceFileFormat::GetOptions()
 {
 	return std::make_shared<MacintoshOptionCollector>();
@@ -2371,6 +2381,11 @@ void MacintoshOutputDriver::GenerateFiles(std::string filename, std::shared_ptr<
 // Classic68KDriver
 
 bool Classic68KDriver::FormatSupportsResources() const
+{
+	return true;
+}
+
+bool Classic68KDriver::FormatSupportsEntryTable() const
 {
 	return true;
 }

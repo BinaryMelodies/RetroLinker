@@ -808,6 +808,8 @@ namespace Microsoft
 
 		bool FormatSupportsResources() const override;
 
+		bool FormatSupportsEntryTable() const override; // TODO: not yet implemented
+
 		unsigned FormatAdditionalSectionFlags(std::string section_name) const override;
 
 		std::shared_ptr<NEFormat> SimulateLinker(compatibility_type compatibility);

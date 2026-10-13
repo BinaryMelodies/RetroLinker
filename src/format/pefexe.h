@@ -725,6 +725,8 @@ namespace Apple
 
 		bool FormatSupportsLibraries() const override;
 		bool FormatSupportsResources() const override;
+		bool FormatSupportsEntryTable() const override; // TODO: not yet implemented
+		bool FormatSupportsTransitionVectors() const override; // TODO: not yet implemented
 
 		void ReadLoaderSection(const std::shared_ptr<Linker::Reader>& rd);
 		void WriteLoaderSection(const std::shared_ptr<Linker::Writer>& wr) const;
@@ -850,6 +852,8 @@ namespace Apple
 
 		bool FormatSupportsLibraries() const override;
 		bool FormatSupportsResources() const override;
+		bool FormatSupportsEntryTable() const override; // TODO: not yet implemented
+		bool FormatSupportsTransitionVectors() const override; // TODO: not yet implemented
 
 		class CodeFragment
 		{

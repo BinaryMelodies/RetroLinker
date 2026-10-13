@@ -808,6 +808,8 @@ namespace Microsoft
 
 		bool FormatSupportsResources() const override;
 
+		bool FormatSupportsEntryTable() const override; // TODO: not yet implemented
+
 		unsigned FormatAdditionalSectionFlags(std::string section_name) const override;
 
 		Resource& AddResource(Resource resource);

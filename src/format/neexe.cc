@@ -1376,6 +1376,11 @@ bool NEFormat::FormatSupportsResources() const
 	return true;
 }
 
+bool NEFormat::FormatSupportsEntryTable() const
+{
+	return true;
+}
+
 unsigned NEFormat::FormatAdditionalSectionFlags(std::string section_name) const
 {
 	if(section_name == ".stack" || section_name.rfind(".stack.", 0) == 0)

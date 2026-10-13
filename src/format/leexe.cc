@@ -2353,6 +2353,11 @@ bool LEFormat::FormatSupportsResources() const
 	return system == OS2;
 }
 
+bool LEFormat::FormatSupportsEntryTable() const
+{
+	return true;
+}
+
 unsigned LEFormat::FormatAdditionalSectionFlags(std::string section_name) const
 {
 	if(section_name == ".stack" || section_name.rfind(".stack.", 0) == 0)

@@ -158,7 +158,7 @@ namespace Linker
 		/**
 		 * @brief Whether the format is 16-bit or not
 		 *
-		 * This is needed for the ELF parser which can not distinguish between the 8086 and 80386 backends.
+		 * This is needed for the ELF parser which cannot distinguish between the 8086 and 80386 backends.
 		 */
 		virtual bool FormatIs16bit() const;
 		/**
@@ -176,6 +176,15 @@ namespace Linker
 		 * Typically, Intel 8086 backends are non-linear, the others are linear.
 		 */
 		virtual bool FormatIsLinear() const;
+		/* Macintosh only */
+		/**
+		 * @brief Whether the format supports generating transition vectors
+		 *
+		 * Transition vectors are a structure containing the address of a procedure alongside the address of the start of a data area.
+		 * 68K based software calls this the A5 world, accessed via the A5 register, PowerPC based software calls this the TOC or Table of Contents,
+		 * accessed via GPR2.
+		 */
+		virtual bool FormatSupportsTransitionVectors() const;
 		/* general */
 		/**
 		 * @brief Whether the format supports resources
@@ -188,6 +197,12 @@ namespace Linker
 		 * @brief Whether the format supports libraries
 		 */
 		virtual bool FormatSupportsLibraries() const; /* imports/exports, fileformat level support, not system support */
+		/**
+		 * @brief Whether the format supports a structure containing addresses of methods
+		 *
+		 * Formats such as NE, LE/LX and the Macintosh classic support an ordinal table or jump table that contains the addresses of certain methods.
+		 */
+		virtual bool FormatSupportsEntryTable() const;
 		virtual unsigned FormatAdditionalSectionFlags(std::string section_name) const;
 
 		/**
@@ -242,6 +257,15 @@ namespace Linker
 		 * @brief Whether the generated file might contain bugs that require fixing
 		 */
 		virtual bool FormatRequiresDataStreamFix() const;
+		/* Macintosh only */
+		/**
+		 * @brief Whether the format supports generating transition vectors
+		 *
+		 * Transition vectors are a structure containing the address of a procedure alongside the address of the start of a data area.
+		 * 68K based software calls this the A5 world, accessed via the A5 register, PowerPC based software calls this the TOC or Table of Contents,
+		 * accessed via GPR2.
+		 */
+		virtual bool FormatProvidesTransitionVectors() const;
 		/* general */
 		/**
 		 * @brief Whether the format supports resources
@@ -254,6 +278,12 @@ namespace Linker
 		 * @brief Whether the format enables importing/exporting libraries
 		 */
 		virtual bool FormatProvidesLibraries() const;
+		/**
+		 * @brief Whether the format supports a structure containing addresses of methods
+		 *
+		 * Formats such as NE, LE/LX and the Macintosh classic support an ordinal table or jump table that contains the addresses of certain methods.
+		 */
+		virtual bool FormatProvidesEntryTable() const;
 	};
 }
 

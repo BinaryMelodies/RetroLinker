@@ -153,6 +153,9 @@ bool Relocation::Resolve(Module& object, Resolution& resolution)
 	case SelectorIndex:
 	case GOTEntry:
 	case PLTEntry:
+	case TableEntry:
+	case FarTableEntry:
+	case TransitionVector:
 		resolution = Resolution(value,
 			target_position.segment,
 			reference_position.segment);
@@ -241,19 +244,35 @@ void Relocation::ReplaceTarget(Target new_target, Target new_reference)
 	reference = new_reference;
 }
 
-void Relocation::ConvertToSegment(bool protected_mode, Target segment_target)
+void Relocation::ConvertTo(reference_kind new_kind, Target new_target)
 {
-	kind = protected_mode ? SelectorIndex : ParagraphAddress;
-	target = segment_target;
+	kind = new_kind;
+	target = new_target;
 	// in case this was originally an Offset() relocation
 	reference = Target();
 }
 
-void Relocation::ConvertToParagraphDifference(Target new_target, Target new_reference)
+void Relocation::ConvertTo(reference_kind new_kind, Target new_target, Target new_reference)
 {
-	kind = Linker::Relocation::ParagraphAddress;
+	kind = new_kind;
 	target = new_target;
 	reference = new_reference;
+}
+
+void Relocation::ConvertToSegment(bool protected_mode, Target segment_target)
+{
+	ConvertTo(protected_mode ? SelectorIndex : ParagraphAddress, segment_target);
+}
+
+void Relocation::ConvertToParagraphDifference(Target new_target, Target new_reference)
+{
+	ConvertTo(Linker::Relocation::ParagraphAddress, new_target, new_reference);
+}
+
+void Relocation::ConvertToTransitionVector(Target target_code, Target target_data)
+{
+	ConvertTo(Linker::Relocation::TransitionVector, target_code);
+	secondary_target = target_data;
 }
 
 bool Relocation::Combine(const Relocation& other)
@@ -309,8 +328,21 @@ std::ostream& Linker::operator<<(std::ostream& out, const Relocation& relocation
 	case Relocation::SizeOf:
 		out << "size of ";
 		break;
+	case Relocation::TableEntry:
+		out << "table entry of ";
+		break;
+	case Relocation::FarTableEntry:
+		out << "far table entry of ";
+		break;
+	case Relocation::TransitionVector:
+		out << "transition vector of ";
+		break;
 	}
 	out << relocation.target;
+	if(relocation.secondary_target.has_value())
+	{
+		out << " and " << relocation.secondary_target.value();
+	}
 	out << " relative to " << relocation.reference;
 	if(relocation.addend)
 	{

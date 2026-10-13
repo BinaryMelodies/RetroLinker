@@ -170,6 +170,11 @@ bool OutputFormat::FormatIsLinear() const
 	return !FormatIs16bit();
 }
 
+bool OutputFormat::FormatSupportsTransitionVectors() const
+{
+	return false;
+}
+
 #if 0
 bool OutputFormat::FormatSupportsStackSection() const
 {
@@ -183,6 +188,11 @@ bool OutputFormat::FormatSupportsResources() const
 }
 
 bool OutputFormat::FormatSupportsLibraries() const
+{
+	return false;
+}
+
+bool OutputFormat::FormatSupportsEntryTable() const
 {
 	return false;
 }
@@ -238,12 +248,22 @@ bool InputFormat::FormatRequiresDataStreamFix() const
 	return false;
 }
 
+bool InputFormat::FormatProvidesTransitionVectors() const
+{
+	return false;
+}
+
 bool InputFormat::FormatProvidesResources() const
 {
 	return false;
 }
 
 bool InputFormat::FormatProvidesLibraries() const
+{
+	return false;
+}
+
+bool InputFormat::FormatProvidesEntryTable() const
 {
 	return false;
 }

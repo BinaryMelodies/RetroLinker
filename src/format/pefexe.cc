@@ -1011,6 +1011,16 @@ bool PEFFormat::FormatSupportsResources() const
 	return true; // Note: resource_fork must be set for this to work
 }
 
+bool PEFFormat::FormatSupportsEntryTable() const
+{
+	return true; // Note: only for 68K
+}
+
+bool PEFFormat::FormatSupportsTransitionVectors() const
+{
+	return true; // Note: only for 68K, but it could be implemented for PPC
+}
+
 void PEFFormat::ReadLoaderSection(const std::shared_ptr<Linker::Reader>& rd)
 {
 	rd->on_overflow = Linker::Reader::ReportOnOverflow;
@@ -2788,6 +2798,16 @@ bool PEFOutputDriver::FormatSupportsLibraries() const
 bool PEFOutputDriver::FormatSupportsResources() const
 {
 	return true;
+}
+
+bool PEFOutputDriver::FormatSupportsEntryTable() const
+{
+	return true; // Note: only for 68K
+}
+
+bool PEFOutputDriver::FormatSupportsTransitionVectors() const
+{
+	return true; // Note: only for 68K, but it could be implemented for PPC
 }
 
 #if 0

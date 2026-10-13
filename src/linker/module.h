@@ -146,25 +146,47 @@ namespace Linker
 		void SetupOptions(char special_char, std::shared_ptr<OutputFormat> output_format, std::shared_ptr<const InputFormat> input_format);
 
 	private:
-		/* GNU assembler can use '$', NASM must use '?' */
+		/** @brief Special character in symbol names to signal extensions
+		 *
+		 * GNU assembler can use '$', NASM must use '?'
+		 */
 		char special_prefix_char = '$';
 		std::weak_ptr<OutputFormat> output_format;
 		std::weak_ptr<const InputFormat> input_format;
 
-		/* symbols */
+		/** @brief $$SECT$<section name> --- Address of the named section */
 		std::string section_prefix();
+		/** @brief $$SEG$<section name> --- Base segment value of the named section, typically used for x86 segmentation */
 		std::string segment_prefix();
+		/** @brief $$SEGOF$<symbol name> --- Preferred segment base segment of the symbol, typically used for x86 segmentation */
 		std::string segment_of_prefix();
+		/** @brief $$SEGAT$<symbol name> --- Segment base value for a segment starting at the symbol, typically used for x86 real mode segmentation */
 		std::string segment_at_prefix();
+		/** @brief $$SECTSEG$<section name> --- Segment base value for a segment starting at the beginning of the named section, typically used for x86 real mode segmentation */
 		std::string segment_at_section_prefix();
+		/** @brief $$WRT$<symbol name>$<section name> --- Offset of symbol from the base segment of the named section, typically used for x86 real mode segmentation */
 		std::string with_respect_to_segment_prefix();
+		/** @brief $$SEGDIFF$<section name>$<section name> --- Segment value difference of the base segment of the two named sections, typically used for x86 real mode segmentation */
 		std::string segment_difference_prefix();
+		/** @brief $$ENTRY$<symbol name> --- Value of the table entry referencing the symbol */
+		std::string entry_prefix();
+		/** @brief $$FARENTRY$<symbol name> --- Value of the table far entry referencing the symbol */
+		std::string far_entry_prefix();
+		/** @brief $$DEFENTRY$<symbol name> TODO --- Instructs linker to create table entry for this symbol */
+		std::string define_entry_prefix();
+		/** @brief $$TV$<symbol name>$<section name> --- Value of a transition vector the symbol, with the data address specified as a section name */
+		std::string transition_vector_prefix();
+		/** @brief $$IMPORT$<library name>[$<ordinal>|$_<name>|$<name>$<hint>] --- Symbol for import library base or symbol imported by ordinal, by name and optionally a hint value */
 		std::string import_prefix();
+		/** @brief $$IMPSEG$<library name>[$<ordinal>|$_<name>|$<name>$<hint>] --- Segment value of symbol for import library base or symbol imported by ordinal, by name and optionally a hint value */
 		std::string segment_of_import_prefix();
+		/** @brief $$EXPORT$(<name>|<ordinal>|<ordinal>$_<name>) --- Instructs linker to register symbol as exported by name, ordinal or both */
 		std::string export_prefix();
+		/** @brief $$FIX$<byte>$<ignored> --- Replaces the following byte with the specified byte value */
 		std::string fix_byte_prefix();
 
 		/* sections */
+		/** @brief $$RSRC$(<typenum>|_<type>$(<idnum>|_<id>) --- Converts the section to a stored resource section */
 		std::string resource_prefix();
 
 		bool parse_imported_name(std::string reference_name, SymbolName& symbol);

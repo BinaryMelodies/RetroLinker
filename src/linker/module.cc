@@ -130,6 +130,34 @@ std::string Module::segment_difference_prefix()
 	return oss.str();
 }
 
+std::string Module::entry_prefix()
+{
+	std::ostringstream oss;
+	oss << special_prefix_char << special_prefix_char << "ENTRY" << special_prefix_char;
+	return oss.str();
+}
+
+std::string Module::far_entry_prefix()
+{
+	std::ostringstream oss;
+	oss << special_prefix_char << special_prefix_char << "FARENTRY" << special_prefix_char;
+	return oss.str();
+}
+
+std::string Module::define_entry_prefix()
+{
+	std::ostringstream oss;
+	oss << special_prefix_char << special_prefix_char << "DEFENTRY" << special_prefix_char;
+	return oss.str();
+}
+
+std::string Module::transition_vector_prefix()
+{
+	std::ostringstream oss;
+	oss << special_prefix_char << special_prefix_char << "TV" << special_prefix_char;
+	return oss.str();
+}
+
 std::string Module::import_prefix()
 {
 	std::ostringstream oss;
@@ -291,6 +319,13 @@ bool Module::AddGlobalSymbol(std::string name, Location location)
 		{
 			Linker::Error << "Error: Unable to parse export name " << name << ", proceeding" << std::endl;
 		}
+	}
+
+	if(output_format != nullptr && output_format->FormatSupportsEntryTable()
+	&& input_format != nullptr && !input_format->FormatProvidesEntryTable()
+	&& name.rfind(define_entry_prefix(), 0) == 0)
+	{
+		// TODO
 	}
 
 	return AddGlobalSymbol(SymbolDefinition::CreateGlobal(name, location));
@@ -600,6 +635,27 @@ bool Module::AddUndefinedSymbol(std::string symbol_name)
 		}
 	}
 
+	if(output_format != nullptr && output_format->FormatSupportsEntryTable()
+	&& input_format != nullptr && !input_format->FormatProvidesEntryTable())
+	{
+		if(symbol_name.rfind(entry_prefix(), 0) == 0
+		|| symbol_name.rfind(far_entry_prefix(), 0) == 0)
+		{
+			/* these are used for relocations, we do not need to include them in the module symbol table */
+			return false;
+		}
+	}
+
+	if(output_format != nullptr && output_format->FormatSupportsTransitionVectors()
+	&& input_format != nullptr && !input_format->FormatProvidesTransitionVectors())
+	{
+		if(symbol_name.rfind(transition_vector_prefix(), 0) == 0)
+		{
+			/* these are used for relocations, we do not need to include them in the module symbol table */
+			return false;
+		}
+	}
+
 	return AddUndefinedSymbol(SymbolDefinition::CreateUndefined(symbol_name));
 }
 
@@ -662,18 +718,6 @@ void Module::AddRelocation(Relocation relocation)
 					}
 					else
 					{
-#if 0
-						relocation =
-							output_format->FormatIsProtectedMode()
-							? Linker::Relocation::Absolute(relocation.size, relocation.source, Linker::Target(Linker::Location(section)), relocation.addend)
-							: Linker::Relocation::Offset(relocation.size, relocation.source, Linker::Target(Linker::Location(section)), relocation.addend);
-#endif
-#if 0
-						bool is_offset = relocation.IsOffset();
-						relocation.target = Linker::Target(Linker::Location(section));
-						if(is_offset)
-							relocation.reference = Linker::Target(Linker::Location(section)).GetSegment();
-#endif
 						relocation.ReplaceTarget(Linker::Target(Linker::Location(section)));
 					}
 				}
@@ -689,18 +733,6 @@ void Module::AddRelocation(Relocation relocation)
 					}
 					else
 					{
-#if 0
-						relocation =
-							output_format->FormatIsProtectedMode()
-							? Linker::Relocation::Selector(relocation.source, Linker::Target(Linker::Location(section)).GetSegment(), relocation.addend)
-							: Linker::Relocation::Paragraph(relocation.source, Linker::Target(Linker::Location(section)).GetSegment(), relocation.addend);
-#endif
-#if 0
-						relocation.kind = output_format->FormatIsProtectedMode() ? Linker::Relocation::SelectorIndex : Linker::Relocation::ParagraphAddress;
-						relocation.target = Linker::Target(Linker::Location(section)).GetSegment();
-						// in case this was originally an Offset() relocation
-						relocation.reference = Target();
-#endif
 						relocation.ConvertToSegment(output_format->FormatIsProtectedMode(), Linker::Target(Linker::Location(section)).GetSegment());
 					}
 				}
@@ -708,36 +740,12 @@ void Module::AddRelocation(Relocation relocation)
 				{
 					/* $$SEGOF$<symbol name> */
 					std::string symbol_name = unparsed_name.substr(segment_of_prefix().size());
-#if 0
-					relocation =
-						output_format->FormatIsProtectedMode()
-						? Linker::Relocation::Selector(relocation.source, Linker::Target(Linker::SymbolName(symbol_name)).GetSegment(), relocation.addend)
-						: Linker::Relocation::Paragraph(relocation.source, Linker::Target(Linker::SymbolName(symbol_name)).GetSegment(), relocation.addend);
-#endif
-#if 0
-					relocation.kind = output_format->FormatIsProtectedMode() ? Linker::Relocation::SelectorIndex : Linker::Relocation::ParagraphAddress;
-					relocation.target = Linker::Target(Linker::SymbolName(symbol_name)).GetSegment();
-					// in case this was originally an Offset() relocation
-					relocation.reference = Target();
-#endif
 					relocation.ConvertToSegment(output_format->FormatIsProtectedMode(), Linker::Target(Linker::SymbolName(symbol_name)).GetSegment());
 				}
 				else if(unparsed_name.rfind(segment_at_prefix(), 0) == 0 && relocation.size == 2)
 				{
 					/* $$SEGAT$<symbol name> */
 					std::string symbol_name = unparsed_name.substr(segment_of_prefix().size());
-#if 0
-					relocation =
-						output_format->FormatIsProtectedMode()
-						? Linker::Relocation::Selector(relocation.source, Linker::Target(Linker::SymbolName(symbol_name)), relocation.addend)
-						: Linker::Relocation::Paragraph(relocation.source, Linker::Target(Linker::SymbolName(symbol_name)), relocation.addend);
-#endif
-#if 0
-					relocation.kind = output_format->FormatIsProtectedMode() ? Linker::Relocation::SelectorIndex : Linker::Relocation::ParagraphAddress;
-					relocation.target = Linker::Target(Linker::SymbolName(symbol_name));
-					// in case this was originally an Offset() relocation
-					relocation.reference = Target();
-#endif
 					relocation.ConvertToSegment(output_format->FormatIsProtectedMode(), Linker::Target(Linker::SymbolName(symbol_name)));
 				}
 				else if(unparsed_name.rfind(segment_at_section_prefix(), 0) == 0 && relocation.size == 2)
@@ -751,18 +759,6 @@ void Module::AddRelocation(Relocation relocation)
 					}
 					else
 					{
-#if 0
-						relocation =
-							output_format->FormatIsProtectedMode()
-							? Linker::Relocation::Selector(relocation.source, Linker::Target(Linker::Location(section)), relocation.addend)
-							: Linker::Relocation::Paragraph(relocation.source, Linker::Target(Linker::Location(section)), relocation.addend);
-#endif
-#if 0
-						relocation.kind = output_format->FormatIsProtectedMode() ? Linker::Relocation::SelectorIndex : Linker::Relocation::ParagraphAddress;
-						relocation.target = Linker::Target(Linker::Location(section));
-						// in case this was originally an Offset() relocation
-						relocation.reference = Target();
-#endif
 						relocation.ConvertToSegment(output_format->FormatIsProtectedMode(), Linker::Target(Linker::Location(section)));
 					}
 				}
@@ -781,14 +777,6 @@ void Module::AddRelocation(Relocation relocation)
 					}
 					else
 					{
-#if 0
-						relocation = Linker::Relocation::OffsetFrom(relocation.size, relocation.source,
-							Linker::Target(Linker::SymbolName(symbol_name)), Linker::Target(Linker::Location(section)).GetSegment(), relocation.addend, ::LittleEndian);
-#endif
-#if 0
-						relocation.target = Linker::Target(Linker::SymbolName(symbol_name));
-						relocation.reference = Linker::Target(Linker::Location(section)).GetSegment();
-#endif
 						relocation.ReplaceTarget(Linker::Target(Linker::SymbolName(symbol_name)), Linker::Target(Linker::Location(section)).GetSegment());
 					}
 				}
@@ -811,15 +799,6 @@ void Module::AddRelocation(Relocation relocation)
 					}
 					else
 					{
-#if 0
-						relocation = Linker::Relocation::ParagraphDifference(relocation.source,
-							Linker::Target(Linker::Location(section1)).GetSegment(), Linker::Target(Linker::Location(section2)).GetSegment(), relocation.addend);
-#endif
-#if 0
-						relocation.kind = Linker::Relocation::ParagraphAddress;
-						relocation.target = Linker::Target(Linker::Location(section1)).GetSegment();
-						relocation.reference = Linker::Target(Linker::Location(section2)).GetSegment();
-#endif
 						relocation.ConvertToParagraphDifference(Linker::Target(Linker::Location(section1)).GetSegment(), Linker::Target(Linker::Location(section2)).GetSegment());
 					}
 				}
@@ -834,20 +813,6 @@ void Module::AddRelocation(Relocation relocation)
 					Linker::SymbolName symbol("");
 					if(parse_imported_name(reference_name, symbol))
 					{
-#if 0
-						relocation =
-							relocation.IsRelative()
-							? Linker::Relocation::Relative(relocation.size, relocation.source, Linker::Target(symbol), relocation.addend)
-							: output_format->FormatIsLinear()
-								? Linker::Relocation::Absolute(relocation.size, relocation.source, Linker::Target(symbol), relocation.addend)
-								: Linker::Relocation::Offset(relocation.size, relocation.source, Linker::Target(symbol), relocation.addend);
-#endif
-#if 0
-						bool is_offset = relocation.IsOffset();
-						relocation.target = Linker::Target(symbol);
-						if(is_offset)
-							relocation.reference = Linker::Target(symbol).GetSegment();
-#endif
 						relocation.ReplaceTarget(Linker::Target(symbol));
 					}
 					else
@@ -863,23 +828,47 @@ void Module::AddRelocation(Relocation relocation)
 					Linker::SymbolName symbol("");
 					if(parse_imported_name(reference_name, symbol))
 					{
-#if 0
-						relocation =
-							output_format->FormatIsProtectedMode()
-							? Linker::Relocation::Selector(relocation.source, Linker::Target(symbol), relocation.addend)
-							: Linker::Relocation::Paragraph(relocation.source, Linker::Target(symbol), relocation.addend);
-#endif
-#if 0
-						relocation.kind = output_format->FormatIsProtectedMode() ? Linker::Relocation::SelectorIndex : Linker::Relocation::ParagraphAddress;
-						relocation.target = Linker::Target(symbol);
-						// in case this was originally an Offset() relocation
-						relocation.reference = Target();
-#endif
 						relocation.ConvertToSegment(output_format->FormatIsProtectedMode(), Linker::Target(symbol));
 					}
 					else
 					{
 						Linker::Error << "Error: Unable to parse import name " << unparsed_name << ", proceeding" << std::endl;
+					}
+				}
+			}
+			if(output_format->FormatSupportsEntryTable() && !input_format->FormatProvidesEntryTable())
+			{
+				if(unparsed_name.rfind(entry_prefix(), 0) == 0)
+				{
+					/* $$ENTRY$<symbol name> */
+					std::string symbol_name = unparsed_name.substr(entry_prefix().size());
+					relocation.ConvertTo(Relocation::TableEntry, Linker::Target(Linker::SymbolName(symbol_name)));
+				}
+				else if(unparsed_name.rfind(far_entry_prefix(), 0) == 0)
+				{
+					/* $$FARENTRY$<symbol name> */
+					std::string symbol_name = unparsed_name.substr(far_entry_prefix().size());
+					relocation.ConvertTo(Relocation::TableEntry, Linker::Target(Linker::SymbolName(symbol_name)));
+				}
+			}
+			if(output_format->FormatSupportsTransitionVectors() && !input_format->FormatProvidesTransitionVectors())
+			{
+				if(unparsed_name.rfind(transition_vector_prefix(), 0))
+				{
+					/* $$TV$<symbol name>$<section name> */
+					size_t sep = unparsed_name.rfind(special_prefix_char);
+					std::string symbol_name = unparsed_name.substr(transition_vector_prefix().size(),
+						sep - transition_vector_prefix().size());
+					std::string section_name = unparsed_name.substr(sep + 1);
+					//Linker::Debug << "Debug: " << symbol_name << " wrt " << section_name << std::endl;
+					std::shared_ptr<Linker::Section> section = FindSection(section_name);
+					if(section == nullptr)
+					{
+						Linker::Error << "Error: invalid section in extended relocation `" << section_name << "'" << std::endl;
+					}
+					else
+					{
+						relocation.ConvertToTransitionVector(Linker::Target(Linker::SymbolName(symbol_name)), Linker::Target(Linker::Location(section)));
 					}
 				}
 			}
