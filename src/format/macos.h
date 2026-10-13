@@ -305,12 +305,13 @@ namespace Apple
 			// used for generation
 			std::set<uint16_t> near_entries;
 			uint16_t near_entry_count = 0;
-			// used for generation
 			std::set<uint32_t> far_entries;
 			uint16_t far_entry_count = 0;
 			std::set<uint32_t> a5_relocations;
 			std::set<uint32_t> segment_relocations;
 			uint32_t transition_vector_count = 0;
+			// stored when processing a module, which offsets require a jump table entry
+			std::map<uint32_t, std::vector<Linker::Relocation>> entry_relocations;
 
 			/* filled in after calculation */
 			uint32_t first_near_entry_offset;
@@ -324,13 +325,11 @@ namespace Apple
 			 * @brief For near segments, stores all entries into the jump table
 			 *
 			 * @param jump_table Pointer to jump table resource
-			 * @param entry_relocations Collection of relocations that need fixing up
 			 * @param jump_table_offset Latest offset into the jump table where the entries must start, gets updated
 			 * @param starting_entry If this segment contains a dedicated entry point, places it as the first entry
 			 */
 			void StoreNearSegmentEntries(
 				std::shared_ptr<JumpTableCodeResource> jump_table,
-				std::map<uint32_t, std::vector<Linker::Relocation>> * entry_relocations,
 				uint32_t& jump_table_offset,
 				std::optional<uint32_t> starting_entry = {});
 
@@ -338,13 +337,11 @@ namespace Apple
 			 * @brief For far segments, stores all near entries into the jump table
 			 *
 			 * @param jump_table Pointer to jump table resource
-			 * @param entry_relocations Collection of relocations that need fixing up
 			 * @param jump_table_offset Latest offset into the jump table where the entries must start, gets updated
 			 * @param starting_entry If this segment contains a dedicated entry point, places it as the first entry
 			 */
 			void StoreFarSegmentNearEntries(
 				std::shared_ptr<JumpTableCodeResource> jump_table,
-				std::map<uint32_t, std::vector<Linker::Relocation>> * entry_relocations,
 				uint32_t& jump_table_offset,
 				std::optional<uint32_t> starting_entry = {});
 
@@ -352,12 +349,10 @@ namespace Apple
 			 * @brief For far segments, stores all far entries into the jump table
 			 *
 			 * @param jump_table Pointer to jump table resource
-			 * @param entry_relocations Collection of relocations that need fixing up
 			 * @param jump_table_offset Latest offset into the jump table where the entries must start, gets updated
 			 */
 			void StoreFarSegmentFarEntries(
 				std::shared_ptr<JumpTableCodeResource> jump_table,
-				std::map<uint32_t, std::vector<Linker::Relocation>> * entry_relocations,
 				uint32_t& jump_table_offset);
 
 			void CalculateValues() override;

@@ -2277,8 +2277,6 @@ void PEFFormat::SortImports()
 
 void PEFFormat::ProcessRelocations(Linker::Module& module)
 {
-	std::map<std::shared_ptr<Linker::Segment>, std::map<uint32_t, std::vector<Linker::Relocation>>> entry_relocations; // TODO
-
 	for(Linker::Relocation& rel : module.GetRelocations())
 	{
 		Linker::Resolution resolution;
@@ -2418,7 +2416,7 @@ void PEFFormat::ProcessRelocations(Linker::Module& module)
 			case JumpTableEntry:
 				/* jsr method_name(a5) can be replaced by an entry */
 				Linker::Debug << "Debug: relocation from segment " << rel.source.GetPosition().segment->name << " to " << resolution.target->name << std::endl;
-				entry_relocations[resolution.target][resolution.value].push_back(rel); // TODO
+				resource_fork->segments[resolution.target]->entry_relocations[resolution.value].push_back(rel);
 				break;
 			}
 		}

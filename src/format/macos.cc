@@ -736,7 +736,6 @@ void MacintoshResourceFileFormat::JumpTableCodeResource::Dump(Dumper::Dumper& du
 
 void MacintoshResourceFileFormat::CodeResource::StoreNearSegmentEntries(
 	std::shared_ptr<JumpTableCodeResource> jump_table,
-	std::map<uint32_t, std::vector<Linker::Relocation>> * entry_relocations,
 	uint32_t& jump_table_offset,
 	std::optional<uint32_t> starting_entry)
 {
@@ -757,15 +756,12 @@ void MacintoshResourceFileFormat::CodeResource::StoreNearSegmentEntries(
 
 		jump_table->jump_table->legacy_entries.push_back(JumpTable::Entry{id, entry});
 
-		if(entry_relocations != nullptr)
+		auto entry_iter = entry_relocations.find(entry);
+		if(entry_iter != entry_relocations.end())
 		{
-			auto entry_iter = entry_relocations->find(entry);
-			if(entry_iter != entry_relocations->end())
+			for(auto& rel : entry_iter->second)
 			{
-				for(auto& rel : entry_iter->second)
-				{
-					rel.WriteWord(jump_table_offset + 32 + 2);
-				}
+				rel.WriteWord(jump_table_offset + 32 + 2);
 			}
 		}
 		jump_table_offset += 8;
@@ -774,7 +770,6 @@ void MacintoshResourceFileFormat::CodeResource::StoreNearSegmentEntries(
 
 void MacintoshResourceFileFormat::CodeResource::StoreFarSegmentNearEntries(
 	std::shared_ptr<JumpTableCodeResource> jump_table,
-	std::map<uint32_t, std::vector<Linker::Relocation>> * entry_relocations,
 	uint32_t& jump_table_offset,
 	std::optional<uint32_t> starting_entry)
 {
@@ -795,15 +790,12 @@ void MacintoshResourceFileFormat::CodeResource::StoreFarSegmentNearEntries(
 
 		jump_table->jump_table->extended_entries.push_back(JumpTable::Entry{id, CodeResource::FarSegmentHeaderSize + entry});
 
-		if(entry_relocations != nullptr)
+		auto entry_iter = entry_relocations.find(entry);
+		if(entry_iter != entry_relocations.end())
 		{
-			auto entry_iter = entry_relocations->find(entry);
-			if(entry_iter != entry_relocations->end())
+			for(auto& rel : entry_iter->second)
 			{
-				for(auto& rel : entry_iter->second)
-				{
-					rel.WriteWord(jump_table_offset + 32 + 2);
-				}
+				rel.WriteWord(jump_table_offset + 32 + 2);
 			}
 		}
 		jump_table_offset += 8;
@@ -812,7 +804,6 @@ void MacintoshResourceFileFormat::CodeResource::StoreFarSegmentNearEntries(
 
 void MacintoshResourceFileFormat::CodeResource::StoreFarSegmentFarEntries(
 	std::shared_ptr<JumpTableCodeResource> jump_table,
-	std::map<uint32_t, std::vector<Linker::Relocation>> * entry_relocations,
 	uint32_t& jump_table_offset)
 {
 	if(header_format != CodeResource::Far)
@@ -829,15 +820,12 @@ void MacintoshResourceFileFormat::CodeResource::StoreFarSegmentFarEntries(
 		{
 			jump_table->jump_table->extended_entries.push_back(JumpTable::Entry{id, CodeResource::FarSegmentHeaderSize + entry});
 
-			if(entry_relocations != nullptr)
+			auto entry_iter = entry_relocations.find(entry);
+			if(entry_iter != entry_relocations.end())
 			{
-				auto entry_iter = entry_relocations->find(entry);
-				if(entry_iter != entry_relocations->end())
+				for(auto& rel : entry_iter->second)
 				{
-					for(auto& rel : entry_iter->second)
-					{
-						rel.WriteWord(jump_table_offset + 32 + 2);
-					}
+					rel.WriteWord(jump_table_offset + 32 + 2);
 				}
 			}
 
@@ -1780,14 +1768,6 @@ bool MacintoshResourceFileFormat::CheckA5Relative(Linker::Relocation& rel)
 	return false;
 }
 
-static inline std::map<uint32_t, std::vector<Linker::Relocation>> * find_segment_specific_entry_relocations(
-	std::map<std::shared_ptr<Linker::Segment>, std::map<uint32_t, std::vector<Linker::Relocation>>>& entry_relocations,
-	std::shared_ptr<MacintoshResourceFileFormat::CodeResource> code_resource)
-{
-	auto resource_iter = entry_relocations.find(std::dynamic_pointer_cast<Linker::Segment>(code_resource->image));
-	return resource_iter != entry_relocations.end() ? &resource_iter->second : nullptr;
-}
-
 void MacintoshResourceFileFormat::ProcessModule(Linker::Module& module)
 {
 	jump_table = std::make_shared<JumpTableCodeResource>();
@@ -1842,8 +1822,6 @@ void MacintoshResourceFileFormat::ProcessModule(Linker::Module& module)
 		}
 		far_entry_segment->near_entries.insert(far_entry_offset);
 	}
-
-	std::map<std::shared_ptr<Linker::Segment>, std::map<uint32_t, std::vector<Linker::Relocation>>> entry_relocations;
 
 	for(Linker::Relocation& rel : module.GetRelocations())
 	{
@@ -1906,7 +1884,7 @@ void MacintoshResourceFileFormat::ProcessModule(Linker::Module& module)
 		case JumpTableEntry:
 			/* jsr method_name(a5) can be replaced by an entry */
 			Linker::Debug << "Debug: relocation from segment " << rel.source.GetPosition().segment->name << " to " << resolution.target->name << std::endl;
-			entry_relocations[resolution.target][resolution.value].push_back(rel);
+			segments[resolution.target]->entry_relocations[resolution.value].push_back(rel);
 			break;
 		case SegmentRelative:
 			if(!use_far_segments)
@@ -1951,11 +1929,7 @@ void MacintoshResourceFileFormat::ProcessModule(Linker::Module& module)
 	{
 		auto segment = std::dynamic_pointer_cast<Linker::Segment>(resource->image);
 
-		auto iter = entry_relocations.find(segment);
-		if(iter == entry_relocations.end())
-			continue;
-
-		for(auto entry_offset : iter->second)
+		for(auto entry_offset : resource->entry_relocations)
 		{
 			offset_t offset = entry_offset.first;
 			if(offset <= 0xFFFF)
@@ -1978,7 +1952,7 @@ void MacintoshResourceFileFormat::ProcessModule(Linker::Module& module)
 	// near model: the startup segment
 	// far model: the init segment
 
-	entry_segment->StoreNearSegmentEntries(jump_table, find_segment_specific_entry_relocations(entry_relocations, entry_segment), jump_table_offset, entry_offset);
+	entry_segment->StoreNearSegmentEntries(jump_table, jump_table_offset, entry_offset);
 
 	if(!use_far_segments)
 	{
@@ -1988,7 +1962,7 @@ void MacintoshResourceFileFormat::ProcessModule(Linker::Module& module)
 			if(resource == entry_segment)
 				continue;
 
-			resource->StoreNearSegmentEntries(jump_table, find_segment_specific_entry_relocations(entry_relocations, resource), jump_table_offset);
+			resource->StoreNearSegmentEntries(jump_table, jump_table_offset);
 		}
 	}
 
@@ -1998,7 +1972,7 @@ void MacintoshResourceFileFormat::ProcessModule(Linker::Module& module)
 	{
 		jump_table->jump_table_format = JumpTableCodeResource::Far;
 
-		far_entry_segment->StoreFarSegmentNearEntries(jump_table, find_segment_specific_entry_relocations(entry_relocations, far_entry_segment), jump_table_offset, far_entry_offset);
+		far_entry_segment->StoreFarSegmentNearEntries(jump_table, jump_table_offset, far_entry_offset);
 
 		for(auto& resource : codes)
 		{
@@ -2006,17 +1980,17 @@ void MacintoshResourceFileFormat::ProcessModule(Linker::Module& module)
 			if(resource == far_entry_segment)
 				continue;
 
-			resource->StoreFarSegmentNearEntries(jump_table, find_segment_specific_entry_relocations(entry_relocations, resource), jump_table_offset);
+			resource->StoreFarSegmentNearEntries(jump_table, jump_table_offset);
 		}
 
-		far_entry_segment->StoreFarSegmentFarEntries(jump_table, find_segment_specific_entry_relocations(entry_relocations, far_entry_segment), jump_table_offset);
+		far_entry_segment->StoreFarSegmentFarEntries(jump_table, jump_table_offset);
 
 		for(auto& resource : codes)
 		{
 			if(resource == far_entry_segment)
 				continue;
 
-			resource->StoreFarSegmentFarEntries(jump_table, find_segment_specific_entry_relocations(entry_relocations, resource), jump_table_offset);
+			resource->StoreFarSegmentFarEntries(jump_table, jump_table_offset);
 		}
 	}
 
