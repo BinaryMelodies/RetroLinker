@@ -38,6 +38,7 @@ namespace Apple
 		uint32_t current_version = 0;
 		uint16_t section_count = 0;
 		uint16_t inst_section_count = 0;
+		// only for PEF stored in the resource fork
 		uint32_t memory_address = 0;
 		uint32_t exported_symbol_count = 0;
 		uint16_t secondary_resource_id = 0;
@@ -455,12 +456,12 @@ namespace Apple
 				case UnpackedData:
 				case Constant:
 				case ExecutableData:
-					return 16;
+					return 4;
 				case PatternInitializedData:
 				case Loader:
-					return 4;
-				default:
 					return 1;
+				default:
+					return 0;
 				}
 			}
 
@@ -606,6 +607,7 @@ namespace Apple
 		std::vector<std::shared_ptr<ImportedLibrary>> imported_libraries;
 		// only for CFM-68K
 		std::shared_ptr<MacintoshResourceFileFormat::JumpTableCodeResource> jump_table;
+		std::shared_ptr<Section> jump_table_section;
 		// only used for generation
 		std::map<std::string, std::shared_ptr<ImportedLibrary>> named_imported_libraries;
 		std::vector<std::shared_ptr<ImportedSymbol>> imported_symbols;

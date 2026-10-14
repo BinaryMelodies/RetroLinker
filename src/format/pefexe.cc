@@ -1630,18 +1630,37 @@ void PEFFormat::CalculateValues()
 					if(relocation.second.type == Relocation::Section)
 					{
 						section->reloc_opcodes.push_back(RelocOpcode(RelocOpcode::SetPosition, relocation.first, 0));
-						if(relocation.second.number == csegment)
+						if(sections[relocation.second.number]->section_kind == Section::Code)
 						{
+							if(relocation.second.number != csegment)
+							{
+								if(relocation.second.number <= 0x1FF)
+								{
+									section->reloc_opcodes.push_back(RelocOpcode(RelocOpcode::SmSetSectC, relocation.second.number, 0));
+								}
+								else
+								{
+									section->reloc_opcodes.push_back(RelocOpcode(RelocOpcode::LgSetSectC, relocation.second.number, 0));
+								}
+								csegment = relocation.second.number;
+							}
 							section->reloc_opcodes.push_back(RelocOpcode(RelocOpcode::BySectC, 0, 1));
-						}
-						else if(relocation.second.number == dsegment)
-						{
-							section->reloc_opcodes.push_back(RelocOpcode(RelocOpcode::BySectD, 0, 1));
 						}
 						else
 						{
-							// TODO: generalize for more sections (not urgent)
-							Linker::Error << "Error: unexpected target section to relocation, ignoring" << std::endl;
+							if(relocation.second.number != dsegment)
+							{
+								if(relocation.second.number <= 0x1FF)
+								{
+									section->reloc_opcodes.push_back(RelocOpcode(RelocOpcode::SmSetSectD, relocation.second.number, 0));
+								}
+								else
+								{
+									section->reloc_opcodes.push_back(RelocOpcode(RelocOpcode::LgSetSectD, relocation.second.number, 0));
+								}
+								dsegment = relocation.second.number;
+							}
+							section->reloc_opcodes.push_back(RelocOpcode(RelocOpcode::BySectD, 0, 1));
 						}
 					}
 				}
@@ -1726,6 +1745,25 @@ void PEFFormat::CalculateValues()
 	main_symbol.StoreSectionIndex();
 	init_symbol.StoreSectionIndex();
 	term_symbol.StoreSectionIndex();
+
+	// PEFHeader related values
+
+	header->memory_address = 0; // TODO
+	header->exported_symbol_count = exported_symbols.size();
+
+	header->last_valid_code_resource = 0;
+	if(resource_fork != nullptr)
+	{
+		for(auto code : resource_fork->codes)
+		{
+			if(code->id > header->last_valid_code_resource)
+			{
+				header->last_valid_code_resource = code->id;
+			}
+		}
+
+		header->below_a5_size = resource_fork->jump_table->jump_table->below_a5;
+	}
 }
 
 offset_t PEFFormat::ImageSize() const
@@ -2169,7 +2207,9 @@ void PEFFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 	}
 	else if(first_section->IsExecutable())
 	{
-		if(header->architecture == PEFHeaderBase::M68K)
+		// the .init section contains the near segment startup code
+		// the .load section is supposed to contain the segLoader section
+		if(header->architecture == PEFHeaderBase::M68K && segment->name != ".load")
 		{
 			if(resource_fork == nullptr)
 			{
@@ -2177,13 +2217,30 @@ void PEFFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 			}
 			else
 			{
-				unsigned segment_id = resource_fork->codes.size() + 1;
-				// reserve 'CODE'6 for the loader
-				if(segment_id >= 6)
+				unsigned segment_id;
+				if(segment->name == ".init")
 				{
-					segment_id ++;
+					segment_id = 6;
 				}
-				std::shared_ptr<MacintoshResourceFileFormat::CodeResource> codeN = std::make_shared<MacintoshResourceFileFormat::CodeResource>(segment_id, nullptr /*jump_table*/); // TODO: the runtime jump table (found in the PEF container) is different from the startup jump table (stored in 'CODE'0)
+				else
+				{
+					segment_id = resource_fork->codes.size() + 1;
+					// reserve 'CODE'6 for the loader
+					if(segment_id >= 6)
+					{
+						segment_id ++;
+					}
+
+					for(auto code : resource_fork->codes)
+					{
+						if(code->id == 6)
+						{
+							segment_id--;
+							break;
+						}
+					}
+				}
+				std::shared_ptr<MacintoshResourceFileFormat::CodeResource> codeN = std::make_shared<MacintoshResourceFileFormat::CodeResource>(segment_id, jump_table); // the runtime jump table (found in the PEF container) is different from the startup jump table (stored in 'CODE'0)
 				codeN->image = segment;
 				resource_fork->codes.push_back(codeN);
 				resource_fork->segments[segment] = codeN;
@@ -2198,6 +2255,10 @@ void PEFFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 	else
 	{
 		sections.push_back(std::make_shared<Section>(Section::UnpackedData, Section::ProcessShare, segment));
+		if(header->architecture == PEFHeaderBase::M68K && segment->name == ".data")
+		{
+			jump_table_section = sections.back();
+		}
 	}
 }
 
@@ -2226,24 +2287,41 @@ std::unique_ptr<Script::List> PEFFormat::GetScript(Linker::Module& module)
 )";
 
 	static const char * DefaultScript_68K = R"(
-for execute
+for ".load"
 {
-	all any;
+	at 0;
+	all ".load";
 	at align(here, ?code_section_align?);
+};
+
+for execute and not ".init"
+{
+	at 0;
+	all any
+		align 2;
+	align 2;
 };
 
 ".data"
 {
 	at 0;
-	all not zero and not resource;
-	all zero and not resource;
+	all not zero and not resource and not ".init";
+	all zero and not resource and not ".init";
 	at align(here, ?data_section_align?);
 };
 
 ".rsrc"
 {
-	all resource; // TODO
-}
+	all resource and not ".init"; // TODO
+};
+
+for ".init"
+{
+	at 0;
+	all ".init"
+		align 2;
+	align 2;
+};
 )";
 
 	if(linker_script != "")
@@ -2393,7 +2471,7 @@ void PEFFormat::ProcessRelocations(Linker::Module& module)
 					}
 					// TODO: transition vector
 				}
-				else if(resolution.target == resource_fork->a5world) // TODO: a5world not assigned
+				else if(resolution.target == jump_table_section->image)
 				{
 					if(!MacintoshResourceFileFormat::CheckA5Relative(rel))
 					{
@@ -2432,6 +2510,21 @@ void PEFFormat::ProcessModule(Linker::Module& module)
 	Link(module);
 
 	sections.push_back(std::make_shared<Section>(Section::Loader, Section::GlobalShare, nullptr));
+
+	if(header->architecture == PEFHeaderBase::M68K)
+	{
+		jump_table = std::make_shared<MacintoshResourceFileFormat::JumpTableCodeResource>();
+		jump_table->jump_table_format = MacintoshResourceFileFormat::JumpTableCodeResource::CFM_68K;
+		// same contents (at least for the shared fields), but different layout
+		resource_fork->jump_table = std::make_shared<MacintoshResourceFileFormat::JumpTableCodeResource>(jump_table->jump_table);
+		//resource_fork->jump_table->jump_table_format = MacintoshResourceFileFormat::JumpTableCodeResource::CFM_68K_StartUp; // this will be set up later
+		resource_fork->AddResource(resource_fork->jump_table);
+
+		if(!jump_table_section)
+		{
+			jump_table_section = std::make_shared<Section>(Section::UnpackedData, Section::ProcessShare, std::make_shared<Linker::Segment>(".data", 0));
+		}
+	}
 
 	for(auto section : sections)
 	{
@@ -2497,16 +2590,92 @@ void PEFFormat::ProcessModule(Linker::Module& module)
 			hash_table_entry.chain.end());
 	}
 
-	Linker::Location entry;
-	if(module.FindGlobalSymbol(".entry", entry))
+	if(header->architecture == PEFHeaderBase::M68K)
 	{
-		main_symbol.SetPosition(*this, entry.GetPosition());
+		uint32_t entry_offset = 0;
+		std::shared_ptr<MacintoshResourceFileFormat::CodeResource> entry_segment = resource_fork->codes[0]; // TODO: pick better default
+		Linker::Location entry;
+		if(module.FindGlobalSymbol(".entry", entry))
+		{
+			Linker::Position position = entry.GetPosition();
+			entry_offset = position.address;
+			entry_segment = resource_fork->segments[position.segment];
+		}
+
+		std::shared_ptr<MacintoshResourceFileFormat::CodeResource> init_segment;
+		uint32_t init_offset = 0;
+
+		Linker::Location init;
+		if(module.FindGlobalSymbol(".init", init) || module.FindGlobalSymbol("init", init))
+		{
+			Linker::Position position = init.GetPosition();
+			init_segment = resource_fork->segments[position.segment];
+			init_offset = position.address;
+		}
+		else
+		{
+			Linker::Error << "Error: no init entry found, generating anyway" << std::endl;
+		}
+
+		std::shared_ptr<Section> segLoader_section;
+		uint32_t segLoader_offset = 0;
+
+		Linker::Location segLoader;
+		if(module.FindGlobalSymbol(".segLoader", segLoader) || module.FindGlobalSymbol("_segLoader", segLoader))
+		{
+			Linker::Position position = segLoader.GetPosition();
+			segLoader_section = segment_to_section_map[position.segment];
+			segLoader_offset = position.address;
+		}
+		else
+		{
+			Linker::Error << "Error: no segLoader entry found, generating anyway" << std::endl;
+		}
+
+		uint32_t a5_offset = jump_table_section->image->ImageSize();
+		jump_table->jump_table->below_a5 = a5_offset;
+
+		resource_fork->BuildCFM68KJumpTable(init_segment, init_offset, entry_segment, entry_offset,
+			segLoader_section ? std::find(sections.begin(), sections.end(), segLoader_section) - sections.begin() : 0,
+			segLoader_offset,
+			std::find(sections.begin(), sections.end(), jump_table_section) - sections.begin(),
+			a5_offset);
+
+		// generate jump table
+		auto jt = std::make_shared<Linker::Section>(".jt", Linker::Section::Readable | Linker::Section::Writable);
+		jt->SetAlign(4);
+		auto bwr = std::make_shared<Linker::BufferWriter>(::BigEndian, jt);
+		jump_table->WriteFile(bwr);
+		// append to the jump table section
+		auto jump_table_segment = std::dynamic_pointer_cast<Linker::Segment>(jump_table_section->image);
+		jump_table_segment->Append(jt);
+		// collect relocations
+		std::map<offset_t, offset_t> jt_relocations;
+		jump_table->CollectRelocations(jt_relocations);
+		for(auto& rel : jt_relocations)
+		{
+			jump_table_section->relocations[a5_offset + rel.first] = Relocation::ToSection(rel.second);
+		}
+
+		// first transition vector is the entry vector
+		main_symbol.SetPosition(*this,
+			Linker::Position(
+				a5_offset + 32 + 8 * jump_table->jump_table->legacy_entries.size() + 16 + jump_table->jump_table->extended_entries.size() * 8,
+				jump_table_segment));
 	}
 	else
 	{
-		if(exported_symbols.size() == 0)
+		Linker::Location entry;
+		if(module.FindGlobalSymbol(".entry", entry))
 		{
-			Linker::Warning << "Warning: no entry point or exported symbols specified specified" << std::endl;
+			main_symbol.SetPosition(*this, entry.GetPosition());
+		}
+		else
+		{
+			if(exported_symbols.size() == 0)
+			{
+				Linker::Warning << "Warning: no entry point or exported symbols specified specified" << std::endl;
+			}
 		}
 	}
 
@@ -2553,7 +2722,7 @@ void PEFHeader::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 offset_t PEFHeader::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
 	wr->endiantype = ::BigEndian;
-	wr->WriteData("JOA!rseg"); // TODO: not sure why "JOA!"
+	wr->WriteData("JOA!rseg");
 	header->WriteBaseFields(wr);
 	wr->WriteWord(4, header->memory_address);
 	wr->WriteWord(4, header->exported_symbol_count);

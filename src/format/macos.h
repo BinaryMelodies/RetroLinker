@@ -261,7 +261,7 @@ namespace Apple
 			void ReadJumpTable(const std::shared_ptr<Linker::Reader>& rd, offset_t length, jump_table_parse_mode mode, std::map<offset_t, offset_t> section_relocations = {});
 
 			/** @brief Generate the section relocations in a PEF container data section */
-			void CollectRelocations(std::map<offset_t, offset_t>& section_relocations); // TODO: untested
+			void CollectRelocations(std::map<offset_t, offset_t>& section_relocations);
 
 			using Linker::Format::WriteFile;
 			offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
@@ -686,9 +686,10 @@ namespace Apple
 
 		void ProcessRelocations(Linker::Module& module);
 
-		void AllocateJumpTableEntries(bool allow_far_entries);
+		void AllocateJumpTableEntries(JumpTableCodeResource::JumpTableFormat format);
 		void BuildNearModelJumpTable(std::shared_ptr<CodeResource> entry_segment, uint32_t entry_offset);
 		void BuildFarModelJumpTable(std::shared_ptr<CodeResource> init_segment, uint32_t init_offset, std::shared_ptr<CodeResource> entry_segment, uint32_t entry_offset);
+		void BuildCFM68KJumpTable(std::shared_ptr<CodeResource> init_segment, uint32_t init_offset, std::shared_ptr<CodeResource> entry_segment, uint32_t entry_offset, std::optional<uint32_t> seg_loader_section, uint32_t seg_loader_offset, std::optional<uint32_t> a5_section, uint32_t a5_offset);
 
 		void ProcessModule(Linker::Module& module) override;
 

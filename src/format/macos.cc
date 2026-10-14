@@ -1870,7 +1870,7 @@ void MacintoshResourceFileFormat::ProcessRelocations(Linker::Module& module)
 	}
 }
 
-void MacintoshResourceFileFormat::AllocateJumpTableEntries(bool allow_far_entries)
+void MacintoshResourceFileFormat::AllocateJumpTableEntries(JumpTableCodeResource::JumpTableFormat format)
 {
 	// allocate jump table entries
 	for(auto& resource : codes)
@@ -1880,11 +1880,11 @@ void MacintoshResourceFileFormat::AllocateJumpTableEntries(bool allow_far_entrie
 		for(auto entry_offset : resource->entry_relocations)
 		{
 			offset_t offset = entry_offset.first;
-			if(offset <= 0xFFFF)
+			if(offset <= 0xFFFF || format == JumpTableCodeResource::CFM_68K)
 			{
 				resource->near_entries.insert(offset);
 			}
-			else if(allow_far_entries)
+			else if(format == JumpTableCodeResource::Far)
 			{
 				resource->far_entries.insert(offset);
 			}
@@ -1900,7 +1900,7 @@ void MacintoshResourceFileFormat::BuildNearModelJumpTable(std::shared_ptr<CodeRe
 {
 	entry_segment->near_entries.insert(entry_offset);
 
-	AllocateJumpTableEntries(false);
+	AllocateJumpTableEntries(JumpTableCodeResource::Near);
 
 	uint32_t jump_table_offset = 0;
 
@@ -1927,7 +1927,7 @@ void MacintoshResourceFileFormat::BuildFarModelJumpTable(std::shared_ptr<CodeRes
 	}
 	entry_segment->near_entries.insert(entry_offset);
 
-	AllocateJumpTableEntries(true);
+	AllocateJumpTableEntries(JumpTableCodeResource::Far);
 
 	uint32_t jump_table_offset = 0;
 
@@ -1959,6 +1959,35 @@ void MacintoshResourceFileFormat::BuildFarModelJumpTable(std::shared_ptr<CodeRes
 	}
 }
 
+void MacintoshResourceFileFormat::BuildCFM68KJumpTable(std::shared_ptr<CodeResource> init_segment, uint32_t init_offset, std::shared_ptr<CodeResource> entry_segment, uint32_t entry_offset, std::optional<uint32_t> seg_loader_section, uint32_t seg_loader_offset, std::optional<uint32_t> a5_section, uint32_t a5_offset)
+{
+	init_segment->near_entries.insert(init_offset);
+
+	AllocateJumpTableEntries(JumpTableCodeResource::CFM_68K);
+
+	uint32_t jump_table_offset = 0;
+
+	// the PEF container must use the same table but as format CFM_68K
+	jump_table->jump_table_format = JumpTableCodeResource::CFM_68K_StartUp;
+
+	init_segment->StoreNearSegmentEntries(jump_table, jump_table_offset, init_offset);
+
+	jump_table_offset += 16;
+
+	for(auto& resource : codes)
+	{
+		resource->StoreFarSegmentNearEntries(jump_table, jump_table_offset);
+	}
+
+	// TODO: transition vectors
+
+	jump_table->jump_table->transition_vectors.push_back(JumpTable::TransitionVector{
+		seg_loader_section, seg_loader_offset,
+		a5_section, a5_offset,
+		entry_segment->id, {}, entry_offset
+	});
+}
+
 void MacintoshResourceFileFormat::ProcessModule(Linker::Module& module)
 {
 	jump_table = std::make_shared<JumpTableCodeResource>();
@@ -1976,7 +2005,7 @@ void MacintoshResourceFileFormat::ProcessModule(Linker::Module& module)
 	ProcessRelocations(module);
 
 	uint32_t entry_offset = 0;
-	std::shared_ptr<CodeResource> entry_segment = codes[0];
+	std::shared_ptr<CodeResource> entry_segment = codes[0]; // TODO: what about far model default?
 	Linker::Location entry;
 	if(module.FindGlobalSymbol(".entry", entry))
 	{
