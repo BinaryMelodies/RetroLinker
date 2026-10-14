@@ -684,6 +684,12 @@ namespace Apple
 		/** @brief Checks if this relocation belongs to an A5-relative addressing mode */
 		static bool CheckA5Relative(Linker::Relocation& rel);
 
+		void ProcessRelocations(Linker::Module& module);
+
+		void AllocateJumpTableEntries(bool allow_far_entries);
+		void BuildNearModelJumpTable(std::shared_ptr<CodeResource> entry_segment, uint32_t entry_offset);
+		void BuildFarModelJumpTable(std::shared_ptr<CodeResource> init_segment, uint32_t init_offset, std::shared_ptr<CodeResource> entry_segment, uint32_t entry_offset);
+
 		void ProcessModule(Linker::Module& module) override;
 
 		void CalculateValues() override;

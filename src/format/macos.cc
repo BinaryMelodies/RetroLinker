@@ -773,7 +773,7 @@ void MacintoshResourceFileFormat::CodeResource::StoreFarSegmentNearEntries(
 	uint32_t& jump_table_offset,
 	std::optional<uint32_t> starting_entry)
 {
-	if(header_format != CodeResource::Far)
+	if(header_format != CodeResource::Far && header_format != CodeResource::CFM_68K)
 		return;
 
 	first_near_entry_offset = jump_table_offset;
@@ -890,7 +890,6 @@ uint32_t MacintoshResourceFileFormat::CodeResource::MeasureRelocations(std::set<
 
 void MacintoshResourceFileFormat::CodeResource::ReadRelocations(const std::shared_ptr<Linker::Reader>& rd, std::set<uint32_t>& relocations) const
 {
-	/* TODO: test */
 	uint32_t last_relocation = 0;
 	while(true)
 	{
@@ -916,7 +915,6 @@ void MacintoshResourceFileFormat::CodeResource::ReadRelocations(const std::share
 
 void MacintoshResourceFileFormat::CodeResource::WriteRelocations(const std::shared_ptr<Linker::Writer>& wr, const std::set<uint32_t>& relocations) const
 {
-	/* TODO: test */
 	uint32_t last_relocation = 0;
 	for(uint32_t relocation : relocations)
 	{
@@ -1095,7 +1093,7 @@ void MacintoshResourceFileFormat::CodeResource::Dump(Dumper::Dumper& dump, offse
 		"Segment",
 		file_offset + (header_format == Near ? CodeResource::NearSegmentHeaderSize : CodeResource::FarSegmentHeaderSize),
 		image->AsImage(),
-		base_address + (header_format == Near ? 0 : CodeResource::FarSegmentHeaderSize), // TODO: entries in near segments start after the header, far segments include the size of header
+		base_address + (header_format == Near ? 0 : CodeResource::FarSegmentHeaderSize), // entries in near segments start after the header, far segments include the size of header
 		8);
 
 	for(auto offset : segment_relocations)
@@ -1768,61 +1766,8 @@ bool MacintoshResourceFileFormat::CheckA5Relative(Linker::Relocation& rel)
 	return false;
 }
 
-void MacintoshResourceFileFormat::ProcessModule(Linker::Module& module)
+void MacintoshResourceFileFormat::ProcessRelocations(Linker::Module& module)
 {
-	jump_table = std::make_shared<JumpTableCodeResource>();
-	AddResource(jump_table);
-
-	for(auto section : module.Sections())
-	{
-		Linker::Debug << "Debug: " << *section << std::endl;
-	}
-
-	Link(module);
-	jump_table->jump_table->below_a5 = a5world->zero_fill;
-	Linker::Debug << "Debug: Setting the A5 world to " << a5world->zero_fill << std::endl;
-
-	uint32_t entry_offset = 0;
-	std::shared_ptr<CodeResource> entry_segment = codes[0];
-	Linker::Location entry;
-	if(module.FindGlobalSymbol(".entry", entry))
-	{
-		Linker::Position position = entry.GetPosition();
-		entry_offset = position.address;
-		entry_segment = segments[position.segment];
-	}
-
-	std::shared_ptr<CodeResource> far_entry_segment;
-	uint32_t far_entry_offset = 0;
-	if(use_far_segments)
-	{
-		Linker::Location init;
-		if(module.FindGlobalSymbol(".init", init))
-		{
-			Linker::Position position = init.GetPosition();
-			// move .entry to the far_entry_* variables
-			far_entry_segment = entry_segment;
-			far_entry_offset = entry_offset;
-			// fill the entry_* variables with .init
-			entry_segment = segments[position.segment];
-			entry_offset = position.address;
-		}
-		else
-		{
-			Linker::Error << "Error: no .init segment found, generating anyway" << std::endl;
-		}
-	}
-
-	entry_segment->near_entries.insert(entry_offset);
-	if(use_far_segments)
-	{
-		if(far_entry_offset > 0xFFFF)
-		{
-			Linker::Error << "Error: starting point beyond the 64 KiB boundary" << std::endl; // TODO: is it possible to enable this?
-		}
-		far_entry_segment->near_entries.insert(far_entry_offset);
-	}
-
 	for(Linker::Relocation& rel : module.GetRelocations())
 	{
 		Linker::Resolution resolution;
@@ -1923,7 +1868,10 @@ void MacintoshResourceFileFormat::ProcessModule(Linker::Module& module)
 			break;
 		}
 	}
+}
 
+void MacintoshResourceFileFormat::AllocateJumpTableEntries(bool allow_far_entries)
+{
 	// allocate jump table entries
 	for(auto& resource : codes)
 	{
@@ -1936,7 +1884,7 @@ void MacintoshResourceFileFormat::ProcessModule(Linker::Module& module)
 			{
 				resource->near_entries.insert(offset);
 			}
-			else if(use_far_segments)
+			else if(allow_far_entries)
 			{
 				resource->far_entries.insert(offset);
 			}
@@ -1946,60 +1894,124 @@ void MacintoshResourceFileFormat::ProcessModule(Linker::Module& module)
 			}
 		}
 	}
+}
+
+void MacintoshResourceFileFormat::BuildNearModelJumpTable(std::shared_ptr<CodeResource> entry_segment, uint32_t entry_offset)
+{
+	entry_segment->near_entries.insert(entry_offset);
+
+	AllocateJumpTableEntries(false);
 
 	uint32_t jump_table_offset = 0;
 
-	// near model: the startup segment
-	// far model: the init segment
+	jump_table->jump_table_format = JumpTableCodeResource::Near;
 
 	entry_segment->StoreNearSegmentEntries(jump_table, jump_table_offset, entry_offset);
 
-	if(!use_far_segments)
+	for(auto& resource : codes)
 	{
-		for(auto& resource : codes)
-		{
-			/* since the first entry is already loaded, we have to skip it */
-			if(resource == entry_segment)
-				continue;
+		/* since the first entry is already loaded, we have to skip it */
+		if(resource == entry_segment)
+			continue;
 
-			resource->StoreNearSegmentEntries(jump_table, jump_table_offset);
-		}
+		resource->StoreNearSegmentEntries(jump_table, jump_table_offset);
 	}
+}
+
+void MacintoshResourceFileFormat::BuildFarModelJumpTable(std::shared_ptr<CodeResource> init_segment, uint32_t init_offset, std::shared_ptr<CodeResource> entry_segment, uint32_t entry_offset)
+{
+	init_segment->near_entries.insert(init_offset);
+	if(entry_offset > 0xFFFF)
+	{
+		Linker::Error << "Error: starting point beyond the 64 KiB boundary" << std::endl; // TODO: is it possible to enable this?
+	}
+	entry_segment->near_entries.insert(entry_offset);
+
+	AllocateJumpTableEntries(true);
+
+	uint32_t jump_table_offset = 0;
+
+	jump_table->jump_table_format = JumpTableCodeResource::Far;
+
+	init_segment->StoreNearSegmentEntries(jump_table, jump_table_offset, init_offset);
 
 	jump_table_offset += 8;
 
-	if(use_far_segments)
+	entry_segment->StoreFarSegmentNearEntries(jump_table, jump_table_offset, entry_offset);
+
+	for(auto& resource : codes)
 	{
-		jump_table->jump_table_format = JumpTableCodeResource::Far;
+		/* since the first entry is already loaded, we have to skip it */
+		if(resource == entry_segment)
+			continue;
 
-		far_entry_segment->StoreFarSegmentNearEntries(jump_table, jump_table_offset, far_entry_offset);
+		resource->StoreFarSegmentNearEntries(jump_table, jump_table_offset);
+	}
 
-		for(auto& resource : codes)
+	entry_segment->StoreFarSegmentFarEntries(jump_table, jump_table_offset);
+
+	for(auto& resource : codes)
+	{
+		if(resource == entry_segment)
+			continue;
+
+		resource->StoreFarSegmentFarEntries(jump_table, jump_table_offset);
+	}
+}
+
+void MacintoshResourceFileFormat::ProcessModule(Linker::Module& module)
+{
+	jump_table = std::make_shared<JumpTableCodeResource>();
+	AddResource(jump_table);
+
+	for(auto section : module.Sections())
+	{
+		Linker::Debug << "Debug: " << *section << std::endl;
+	}
+
+	Link(module);
+	jump_table->jump_table->below_a5 = a5world->zero_fill;
+	Linker::Debug << "Debug: Setting the A5 world to " << a5world->zero_fill << std::endl;
+
+	ProcessRelocations(module);
+
+	uint32_t entry_offset = 0;
+	std::shared_ptr<CodeResource> entry_segment = codes[0];
+	Linker::Location entry;
+	if(module.FindGlobalSymbol(".entry", entry))
+	{
+		Linker::Position position = entry.GetPosition();
+		entry_offset = position.address;
+		entry_segment = segments[position.segment];
+	}
+
+	if(!use_far_segments)
+	{
+		BuildNearModelJumpTable(entry_segment, entry_offset);
+	}
+	else
+	{
+		std::shared_ptr<CodeResource> init_segment;
+		uint32_t init_offset = 0;
+
+		Linker::Location init;
+		if(module.FindGlobalSymbol(".init", init) || module.FindGlobalSymbol("init", init))
 		{
-			/* since the first entry is already loaded, we have to skip it */
-			if(resource == far_entry_segment)
-				continue;
-
-			resource->StoreFarSegmentNearEntries(jump_table, jump_table_offset);
+			Linker::Position position = init.GetPosition();
+			init_segment = segments[position.segment];
+			init_offset = position.address;
+		}
+		else
+		{
+			Linker::Error << "Error: no init entry found, generating anyway" << std::endl;
 		}
 
-		far_entry_segment->StoreFarSegmentFarEntries(jump_table, jump_table_offset);
-
-		for(auto& resource : codes)
-		{
-			if(resource == far_entry_segment)
-				continue;
-
-			resource->StoreFarSegmentFarEntries(jump_table, jump_table_offset);
-		}
+		BuildFarModelJumpTable(init_segment, init_offset, entry_segment, entry_offset);
 	}
 
 	for(auto& resource : codes)
 	{
-		if(resource->far_entries.size() != 0
-		|| resource->a5_relocations.size() != 0
-		|| resource->segment_relocations.size() != 0
-		|| (use_far_segments && resource != entry_segment))
+		if(resource->header_format == CodeResource::Far)
 		{
 			resource->base_address = std::dynamic_pointer_cast<Linker::Segment>(resource->image)->base_address;
 			if(a5world)
