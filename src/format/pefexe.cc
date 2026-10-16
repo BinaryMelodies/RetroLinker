@@ -2361,8 +2361,13 @@ void PEFFormat::ProcessRelocations(Linker::Module& module)
 
 		if(segment_to_section_map.find(rel.source.GetPosition().segment) != segment_to_section_map.end())
 		{
-			if(rel.kind != Linker::Relocation::Direct)
+			switch(rel.kind)
 			{
+			case Linker::Relocation::Direct:
+				break;
+			case Linker::Relocation::TransitionVector:
+				break;
+			default:
 				Linker::Error << "Error: invalid external relocation, ignoring" << std::endl;
 				continue;
 			}

@@ -218,6 +218,19 @@ namespace Apple
 			};
 			JumpTableFormat jump_table_format = Near;
 
+			bool IsResource() const
+			{
+				switch(jump_table_format)
+				{
+				case Near:
+				case Far:
+				case CFM_68K_StartUp:
+					return true;
+				default:
+					return false;
+				}
+			}
+
 			void CalculateValues() override;
 
 			offset_t JumpTableSize() const;
@@ -269,6 +282,7 @@ namespace Apple
 			int GetDisplayOptions() const override;
 			void Dump(Dumper::Dumper& dump, offset_t file_offset) const override;
 			void AddFields(Dumper::Dumper& dump, Dumper::Region& region, offset_t file_offset) const override;
+			std::unique_ptr<Dumper::Region> CreateRegion(std::string name, offset_t offset, offset_t length, unsigned display_width) const override;
 		};
 
 		/** @brief Stores as 68K code segment, found in 'CODE' resources */
@@ -303,12 +317,13 @@ namespace Apple
 			uint32_t base_address = 0;
 
 			// used for generation
-			std::set<uint16_t> near_entries;
+			std::set<uint32_t> near_entries;
 			uint16_t near_entry_count = 0;
 			std::set<uint32_t> far_entries;
 			uint16_t far_entry_count = 0;
 			std::set<uint32_t> a5_relocations;
 			std::set<uint32_t> segment_relocations;
+			std::set<std::tuple<uint32_t, uint32_t>> transition_vectors;
 			uint32_t transition_vector_count = 0;
 			// stored when processing a module, which offsets require a jump table entry
 			std::map<uint32_t, std::vector<Linker::Relocation>> entry_relocations;

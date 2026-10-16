@@ -853,7 +853,7 @@ void Module::AddRelocation(Relocation relocation)
 			}
 			if(output_format->FormatSupportsTransitionVectors() && !input_format->FormatProvidesTransitionVectors())
 			{
-				if(unparsed_name.rfind(transition_vector_prefix(), 0))
+				if(unparsed_name.rfind(transition_vector_prefix(), 0) == 0)
 				{
 					/* $$TV$<symbol name>$<section name> */
 					size_t sep = unparsed_name.rfind(special_prefix_char);

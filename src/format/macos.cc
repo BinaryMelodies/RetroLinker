@@ -162,9 +162,9 @@ offset_t MacintoshResourceFileFormat::JumpTableCodeResource::JumpTableSize() con
 	switch(jump_table_format)
 	{
 	case Near:
-	case CFM_68K_StartUp:
 		return 8 * jump_table->legacy_entries.size();
 	case Far:
+	case CFM_68K_StartUp:
 	case CFM_68K:
 		return 8 + 8 * (jump_table->legacy_entries.size() + jump_table->extended_entries.size()) + 12 * jump_table->transition_vectors.size();
 	case CFM_68K_Library:
@@ -188,8 +188,9 @@ offset_t MacintoshResourceFileFormat::JumpTableCodeResource::ImageSize() const
 	{
 	case Near:
 	case Far:
-	case CFM_68K_StartUp:
 		return 16 + JumpTableSize();
+	case CFM_68K_StartUp:
+		return 16 + 8 * jump_table->legacy_entries.size();
 	case CFM_68K:
 	case CFM_68K_Library:
 	case CFM_68K_Unflattened_Library:
@@ -407,14 +408,9 @@ void MacintoshResourceFileFormat::JumpTableCodeResource::ReadJumpTable(const std
 
 void MacintoshResourceFileFormat::JumpTableCodeResource::CollectRelocations(std::map<offset_t, offset_t>& section_relocations)
 {
-	switch(jump_table_format)
+	if(IsResource())
 	{
-	case Near:
-	case Far:
-	case CFM_68K_StartUp:
 		return;
-	default:
-		break;
 	}
 
 	offset_t table_offset = 32 + 8 * jump_table->legacy_entries.size() + 16;
@@ -475,21 +471,16 @@ void MacintoshResourceFileFormat::JumpTableCodeResource::CollectRelocations(std:
 
 offset_t MacintoshResourceFileFormat::JumpTableCodeResource::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	switch(jump_table_format)
+	if(IsResource())
 	{
-	case Near:
-	case Far:
-	case CFM_68K_StartUp:
 		wr->WriteWord(4, jump_table->above_a5);
 		wr->WriteWord(4, jump_table->below_a5);
 		wr->WriteWord(4, jump_table->jump_table_size);
 		wr->WriteWord(4, jump_table->jump_table_offset);
-		break;
-	case CFM_68K:
-	case CFM_68K_Library:
-	case CFM_68K_Unflattened_Library:
+	}
+	else
+	{
 		wr->Skip(32);
-		break;
 	}
 
 	for(const JumpTable::Entry& entry : jump_table->legacy_entries)
@@ -586,10 +577,13 @@ void MacintoshResourceFileFormat::JumpTableCodeResource::AddFields(Dumper::Dumpe
 	};
 
 	region.AddField("Jump table format", Dumper::ChoiceDisplay::Make(jump_table_format_names), offset_t(jump_table_format));
-	region.AddField("Above A5", Dumper::HexDisplay::Make(8), offset_t(jump_table->above_a5));
-	region.AddField("Below A5", Dumper::HexDisplay::Make(8), offset_t(jump_table->below_a5));
-	region.AddField("Jump table size", Dumper::HexDisplay::Make(8), offset_t(jump_table->jump_table_size));
-	region.AddField("Jump table offset", Dumper::HexDisplay::Make(8), offset_t(jump_table->jump_table_offset));
+	if(IsResource())
+	{
+		region.AddField("Above A5", Dumper::HexDisplay::Make(8), offset_t(jump_table->above_a5));
+		region.AddField("Below A5", Dumper::HexDisplay::Make(8), offset_t(jump_table->below_a5));
+		region.AddField("Jump table size", Dumper::HexDisplay::Make(8), offset_t(jump_table->jump_table_size));
+		region.AddField("Jump table offset", Dumper::HexDisplay::Make(8), offset_t(jump_table->jump_table_offset));
+	}
 }
 
 int MacintoshResourceFileFormat::JumpTableCodeResource::GetDisplayOptions() const
@@ -732,6 +726,11 @@ void MacintoshResourceFileFormat::JumpTableCodeResource::Dump(Dumper::Dumper& du
 		tvector_entry.Display(dump, GetDisplayOptions());
 		i++;
 	}
+}
+
+std::unique_ptr<Dumper::Region> MacintoshResourceFileFormat::JumpTableCodeResource::CreateRegion(std::string name, offset_t offset, offset_t length, unsigned display_width) const
+{
+	return Resource::CreateRegion(IsResource() ? name : "Jump table", offset, length, display_width);
 }
 
 void MacintoshResourceFileFormat::CodeResource::StoreNearSegmentEntries(
