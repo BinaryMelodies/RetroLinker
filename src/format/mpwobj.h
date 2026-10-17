@@ -11,6 +11,7 @@
 #include "../linker/reader.h"
 #include "../linker/writer.h"
 #include "../dumper/dumper.h"
+#include "apple.h"
 
 // TODO: attempt at parsing MPW object files
 
@@ -241,8 +242,8 @@ namespace MPW
 				: Record(type, record_offset)
 			{
 			}
-			uint16_t id = 0;
-			uint32_t modified = 0; // TODO: format
+			uint16_t file_id = 0;
+			::Timestamp<Macintosh_clock> modification;
 
 			void ReadBody(const std::shared_ptr<Linker::Reader>& rd) override;
 			offset_t ImageSize() const override;
@@ -294,7 +295,7 @@ namespace MPW
 				Function = 4,
 				DataModule = 5,
 			};
-			module_kind_type module_type = module_kind_type(0);
+			module_kind_type module_kind = module_kind_type(0);
 
 			void ReadBody(const std::shared_ptr<Linker::Reader>& rd) override;
 			offset_t ImageSize() const override;

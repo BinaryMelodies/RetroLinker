@@ -330,6 +330,9 @@ void ObjectFormat::ModuleRecord::Dump(Dumper::Dumper& dump, offset_t record_inde
 
 void ObjectFormat::EntryPointRecord::ReadBody(const std::shared_ptr<Linker::Reader>& rd)
 {
+	flags = rd->ReadUnsigned(1);
+	entry_id = rd->ReadUnsigned(2);
+	offset = rd->ReadUnsigned(4);
 	// TODO
 	Linker::Error << "Error: Unimplemented record type " << int(type) << std::endl;
 }
@@ -353,6 +356,8 @@ void ObjectFormat::EntryPointRecord::Dump(Dumper::Dumper& dump, offset_t record_
 
 void ObjectFormat::SizeRecord::ReadBody(const std::shared_ptr<Linker::Reader>& rd)
 {
+	flags = rd->ReadUnsigned(1);
+	module_size = rd->ReadUnsigned(4);
 	// TODO
 	Linker::Error << "Error: Unimplemented record type " << int(type) << std::endl;
 }
@@ -461,8 +466,11 @@ void ObjectFormat::ContentsRecord::Dump(Dumper::Dumper& dump, offset_t record_in
 
 void ObjectFormat::ReferenceRecord::ReadBody(const std::shared_ptr<Linker::Reader>& rd)
 {
+	rd->ReadUnsigned(1);
+	uint16_t record_size = rd->ReadUnsigned(2);
 	// TODO
 	Linker::Error << "Error: Unimplemented record type " << int(type) << std::endl;
+	rd->Skip(record_size - 4);
 }
 
 offset_t ObjectFormat::ReferenceRecord::ImageSize() const
@@ -484,31 +492,41 @@ void ObjectFormat::ReferenceRecord::Dump(Dumper::Dumper& dump, offset_t record_i
 
 void ObjectFormat::FilenameRecord::ReadBody(const std::shared_ptr<Linker::Reader>& rd)
 {
-	// TODO
-	Linker::Error << "Error: Unimplemented record type " << int(type) << std::endl;
+	rd->Skip(1);
+	file_id = rd->ReadUnsigned(2);
+	modification = rd->ReadTimestamp<Macintosh_clock>();
 }
 
 offset_t ObjectFormat::FilenameRecord::ImageSize() const
 {
-	// TODO
-	return offset_t(-1);
+	return 6;
 }
 
 offset_t ObjectFormat::FilenameRecord::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	// TODO
-	return offset_t(-1);
+	wr->WriteWord(1, type);
+	wr->WriteWord(1, 0);
+	wr->WriteWord(2, file_id);
+	wr->WriteTimestamp(modification);
+	return 6;
 }
 
 void ObjectFormat::FilenameRecord::Dump(Dumper::Dumper& dump, offset_t record_index) const
 {
-	// TODO
+	Dumper::Region record_region("Filename", record_offset, ImageSize(), 8);
+	record_region.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(record_index + 1));
+	record_region.AddField("File ID", Dumper::HexDisplay::Make(4), offset_t(file_id));
+	record_region.AddField("Modification", Dumper::TimestampDisplay<Macintosh_clock>::Make(), modification);
+	record_region.Display(dump, Dumper::Header);
 }
 
 void ObjectFormat::SourceStatementRecord::ReadBody(const std::shared_ptr<Linker::Reader>& rd)
 {
+	rd->ReadUnsigned(1);
+	uint16_t record_size = rd->ReadUnsigned(2);
 	// TODO
 	Linker::Error << "Error: Unimplemented record type " << int(type) << std::endl;
+	rd->Skip(record_size - 4);
 }
 
 offset_t ObjectFormat::SourceStatementRecord::ImageSize() const
@@ -530,29 +548,72 @@ void ObjectFormat::SourceStatementRecord::Dump(Dumper::Dumper& dump, offset_t re
 
 void ObjectFormat::ModuleBeginRecord::ReadBody(const std::shared_ptr<Linker::Reader>& rd)
 {
-	// TODO
-	Linker::Error << "Error: Unimplemented record type " << int(type) << std::endl;
+	flags = rd->ReadUnsigned(1);
+	/*uint16_t record_size =*/ rd->ReadUnsigned(2);
+	module_id = rd->ReadUnsigned(2);
+	parent_id = rd->ReadUnsigned(2);
+	file_id = rd->ReadUnsigned(2);
+	if(flags & FileOffset16Flag)
+	{
+		file_offset = rd->ReadUnsigned(2);
+	}
+	else
+	{
+		file_offset = rd->ReadUnsigned(4);
+	}
+	module_kind = module_kind_type(rd->ReadUnsigned(1));
+	rd->Skip(1);
 }
 
 offset_t ObjectFormat::ModuleBeginRecord::ImageSize() const
 {
-	// TODO
-	return offset_t(-1);
+	return flags & FileOffset16Flag ? 14 : 16;
 }
 
 offset_t ObjectFormat::ModuleBeginRecord::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	// TODO
-	return offset_t(-1);
+	wr->WriteWord(1, type);
+	wr->WriteWord(1, flags);
+	wr->WriteWord(2, ImageSize());
+	wr->WriteWord(2, module_id);
+	wr->WriteWord(2, parent_id);
+	wr->WriteWord(2, file_id);
+	wr->WriteWord(flags & FileOffset16Flag ? 2 : 4, file_offset);
+	wr->WriteWord(1, module_kind);
+	wr->WriteWord(1, 0);
+	return ImageSize();
 }
 
 void ObjectFormat::ModuleBeginRecord::Dump(Dumper::Dumper& dump, offset_t record_index) const
 {
-	// TODO
+	Dumper::Region record_region("Module Begin", record_offset, ImageSize(), 8);
+	record_region.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(record_index + 1));
+	record_region.AddField("Flags",
+		Dumper::BitFieldDisplay::Make(2)
+			->AddBitField(2, 1, Dumper::ChoiceDisplay::Make("declaration"), true)
+			->AddBitField(7, 1, "file offset size", Dumper::ChoiceDisplay::Make("16-bit", "32-bit"), false),
+		offset_t(flags));
+	record_region.AddField("Module ID", Dumper::HexDisplay::Make(4), offset_t(module_id));
+	record_region.AddField("Parent ID", Dumper::HexDisplay::Make(4), offset_t(parent_id));
+	record_region.AddField("File ID", Dumper::HexDisplay::Make(4), offset_t(file_id));
+	record_region.AddField("File offset", Dumper::HexDisplay::Make(flags & FileOffset16Flag ? 4 : 8), offset_t(module_id));
+	static const std::map<offset_t, std::string> module_kind_names =
+	{
+		{ None,       "none" },
+		{ Unit,       "unit" },
+		{ Procedure,  "procedure" },
+		{ Function,   "function" },
+		{ DataModule, "data module" },
+	};
+	record_region.AddField("Module kind", Dumper::ChoiceDisplay::Make(module_kind_names, Dumper::HexDisplay::Make(4)), offset_t(module_kind));
+	record_region.Display(dump, Dumper::Header);
 }
 
 void ObjectFormat::ModuleEndRecord::ReadBody(const std::shared_ptr<Linker::Reader>& rd)
 {
+	flags = rd->ReadUnsigned(1);
+	module_id = rd->ReadUnsigned(2);
+	file_offset = rd->ReadUnsigned(4);
 	// TODO
 	Linker::Error << "Error: Unimplemented record type " << int(type) << std::endl;
 }
@@ -576,8 +637,11 @@ void ObjectFormat::ModuleEndRecord::Dump(Dumper::Dumper& dump, offset_t record_i
 
 void ObjectFormat::BlockBeginRecord::ReadBody(const std::shared_ptr<Linker::Reader>& rd)
 {
+	rd->ReadUnsigned(1);
+	uint16_t record_size = rd->ReadUnsigned(2);
 	// TODO
 	Linker::Error << "Error: Unimplemented record type " << int(type) << std::endl;
+	rd->Skip(record_size - 4);
 }
 
 offset_t ObjectFormat::BlockBeginRecord::ImageSize() const
@@ -599,6 +663,10 @@ void ObjectFormat::BlockBeginRecord::Dump(Dumper::Dumper& dump, offset_t record_
 
 void ObjectFormat::BlockEndRecord::ReadBody(const std::shared_ptr<Linker::Reader>& rd)
 {
+	rd->Skip(1);
+	block_id = rd->ReadUnsigned(2);
+	file_offset = rd->ReadUnsigned(4);
+	code_offset = rd->ReadUnsigned(4);
 	// TODO
 	Linker::Error << "Error: Unimplemented record type " << int(type) << std::endl;
 }
@@ -622,8 +690,11 @@ void ObjectFormat::BlockEndRecord::Dump(Dumper::Dumper& dump, offset_t record_in
 
 void ObjectFormat::LocalIdentifierRecord::ReadBody(const std::shared_ptr<Linker::Reader>& rd)
 {
+	rd->ReadUnsigned(1);
+	uint16_t record_size = rd->ReadUnsigned(2);
 	// TODO
 	Linker::Error << "Error: Unimplemented record type " << int(type) << std::endl;
+	rd->Skip(record_size - 4);
 }
 
 offset_t ObjectFormat::LocalIdentifierRecord::ImageSize() const
@@ -645,8 +716,11 @@ void ObjectFormat::LocalIdentifierRecord::Dump(Dumper::Dumper& dump, offset_t re
 
 void ObjectFormat::LocalLabelRecord::ReadBody(const std::shared_ptr<Linker::Reader>& rd)
 {
+	rd->ReadUnsigned(1);
+	uint16_t record_size = rd->ReadUnsigned(2);
 	// TODO
 	Linker::Error << "Error: Unimplemented record type " << int(type) << std::endl;
+	rd->Skip(record_size - 4);
 }
 
 offset_t ObjectFormat::LocalLabelRecord::ImageSize() const
@@ -668,8 +742,11 @@ void ObjectFormat::LocalLabelRecord::Dump(Dumper::Dumper& dump, offset_t record_
 
 void ObjectFormat::LocalTypeRecord::ReadBody(const std::shared_ptr<Linker::Reader>& rd)
 {
+	rd->ReadUnsigned(1);
+	uint16_t record_size = rd->ReadUnsigned(2);
 	// TODO
 	Linker::Error << "Error: Unimplemented record type " << int(type) << std::endl;
+	rd->Skip(record_size - 4);
 }
 
 offset_t ObjectFormat::LocalTypeRecord::ImageSize() const
