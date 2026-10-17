@@ -1,0 +1,740 @@
+
+#include "mpwobj.h"
+#include "../linker/buffer.h"
+
+using namespace MPW;
+
+std::shared_ptr<ObjectFormat::Record> ObjectFormat::Record::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
+{
+	std::shared_ptr<Record> record;
+	offset_t record_offset = rd->Tell();
+	uint8_t type = rd->ReadUnsigned(1);
+	Linker::Debug << "Debug: Record type " << int(type) << std::endl;
+	switch(type)
+	{
+	case Pad:
+		record = std::make_shared<Record>(record_type(type), record_offset);
+		break;
+	case First:
+		record = std::make_shared<FirstRecord>(record_type(type), record_offset);
+		break;
+	case Last:
+		record = std::make_shared<Record>(record_type(type), record_offset);
+		break;
+	case Comment:
+		record = std::make_shared<CommentRecord>(record_type(type), record_offset);
+		break;
+	case Dictionary:
+		record = std::make_shared<DictionaryRecord>(record_type(type), record_offset);
+		break;
+	case Module:
+		record = std::make_shared<ModuleRecord>(record_type(type), record_offset);
+		break;
+	case EntryPoint:
+		record = std::make_shared<EntryPointRecord>(record_type(type), record_offset);
+		break;
+	case Size:
+		record = std::make_shared<SizeRecord>(record_type(type), record_offset);
+		break;
+	case Contents:
+		record = std::make_shared<ContentsRecord>(record_type(type), record_offset);
+		break;
+	case Reference:
+		record = std::make_shared<ReferenceRecord>(record_type(type), record_offset);
+		break;
+	case ComputedReference:
+		record = std::make_shared<ReferenceRecord>(record_type(type), record_offset);
+		break;
+	case Filename:
+		record = std::make_shared<FilenameRecord>(record_type(type), record_offset);
+		break;
+	case SourceStatement:
+		record = std::make_shared<SourceStatementRecord>(record_type(type), record_offset);
+		break;
+	case ModuleBegin:
+		record = std::make_shared<ModuleBeginRecord>(record_type(type), record_offset);
+		break;
+	case ModuleEnd:
+		record = std::make_shared<ModuleEndRecord>(record_type(type), record_offset);
+		break;
+	case BlockBegin:
+		record = std::make_shared<BlockBeginRecord>(record_type(type), record_offset);
+		break;
+	case BlockEnd:
+		record = std::make_shared<BlockEndRecord>(record_type(type), record_offset);
+		break;
+	case LocalIdentifier:
+		record = std::make_shared<LocalIdentifierRecord>(record_type(type), record_offset);
+		break;
+	case LocalLabel:
+		record = std::make_shared<LocalLabelRecord>(record_type(type), record_offset);
+		break;
+	case LocalType:
+		record = std::make_shared<LocalTypeRecord>(record_type(type), record_offset);
+		break;
+	default:
+		record = std::make_shared<Record>(record_type(type), record_offset);
+		break;
+	}
+	record->ReadBody(rd);
+	return record;
+}
+
+void ObjectFormat::Record::ReadBody(const std::shared_ptr<Linker::Reader>& rd)
+{
+	switch(type)
+	{
+	case Pad:
+		break;
+	case Last:
+		rd->Skip(1);
+		break;
+	default:
+		Linker::Error << "Error: Unimplemented record type " << int(type) << std::endl;
+		break;
+	}
+}
+
+offset_t ObjectFormat::Record::ImageSize() const
+{
+	switch(type)
+	{
+	case Pad:
+		return 1;
+	case Last:
+		return 2;
+	default:
+		return offset_t(-1);
+	}
+}
+
+offset_t ObjectFormat::Record::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
+{
+	switch(type)
+	{
+	case Pad:
+		wr->WriteWord(1, type);
+		return 1;
+	case Last:
+		wr->WriteWord(1, type);
+		wr->WriteWord(1, 0);
+		return 2;
+	default:
+		return offset_t(-1);
+	}
+}
+
+void ObjectFormat::Record::Dump(Dumper::Dumper& dump, offset_t record_index) const
+{
+	std::string record_name;
+	switch(type)
+	{
+	case Pad:
+		record_name = "Pad";
+		break;
+	case Last:
+		record_name = "Last";
+		break;
+	default:
+		record_name = "Unknown record";
+		break;
+	}
+
+	Dumper::Region record_region(record_name, record_offset, ImageSize(), 8);
+	record_region.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(record_index + 1));
+	if(record_name == "Unknown record")
+	{
+		record_region.AddField("Record type", Dumper::HexDisplay::Make(2), offset_t(type));
+	}
+	record_region.Display(dump, Dumper::Header);
+}
+
+void ObjectFormat::FirstRecord::ReadBody(const std::shared_ptr<Linker::Reader>& rd)
+{
+	flags = rd->ReadUnsigned(1);
+	version = version_type(rd->ReadUnsigned(2));
+}
+
+offset_t ObjectFormat::FirstRecord::ImageSize() const
+{
+	return 4;
+}
+
+offset_t ObjectFormat::FirstRecord::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
+{
+	wr->WriteWord(1, type);
+	wr->WriteWord(1, flags);
+	wr->WriteWord(2, version);
+	return ImageSize();
+}
+
+void ObjectFormat::FirstRecord::Dump(Dumper::Dumper& dump, offset_t record_index) const
+{
+	Dumper::Region record_region("First", record_offset, ImageSize(), 8);
+	record_region.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(record_index + 1));
+	record_region.AddField("Flags",
+		Dumper::BitFieldDisplay::Make(2)
+			->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("nested"), true),
+		offset_t(flags));
+	static const std::map<offset_t, std::string> version_names =
+	{
+		{ offset_t(Nonsymbolic_2_0), "Nonsymbolic MPW 2.0 OMF file" },
+		{ offset_t(Nonsymbolic_3_0), "Nonsymbolic MPW 3.0 OMF file" },
+		{ offset_t(Symbolic),        "OMF file containing symbolic information" },
+	};
+	record_region.AddField("Version", Dumper::ChoiceDisplay::Make(version_names, Dumper::HexDisplay::Make(4)), offset_t(version));
+	record_region.Display(dump, Dumper::Header);
+}
+
+void ObjectFormat::CommentRecord::ReadBody(const std::shared_ptr<Linker::Reader>& rd)
+{
+	rd->Skip(1);
+	uint16_t record_size = rd->ReadUnsigned(2);
+	if(record_size < 4)
+	{
+		Linker::Error << "Error: Invalid size for Comment record" << std::endl;
+		return;
+	}
+	comments = Linker::Buffer::ReadFromFile(rd, record_size - 4);
+}
+
+offset_t ObjectFormat::CommentRecord::ImageSize() const
+{
+	return 4 + comments->ImageSize();
+}
+
+offset_t ObjectFormat::CommentRecord::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
+{
+	wr->WriteWord(1, type);
+	wr->WriteWord(1, 0);
+	wr->WriteWord(2, comments->ImageSize() + 4);
+	return comments->WriteFile(wr) + 4;
+}
+
+void ObjectFormat::CommentRecord::Dump(Dumper::Dumper& dump, offset_t record_index) const
+{
+	Dumper::Region record_region("Comment", record_offset, ImageSize(), 8);
+	record_region.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(record_index + 1));
+	record_region.Display(dump, Dumper::Header);
+
+	Dumper::Block record_block("Comment", record_offset + 4, comments->AsImage(), 0, 8);
+	record_block.Display(dump, Dumper::Header);
+}
+
+void ObjectFormat::DictionaryRecord::ReadBody(const std::shared_ptr<Linker::Reader>& rd)
+{
+	flags = rd->ReadUnsigned(1);
+	uint16_t record_size = rd->ReadUnsigned(2);
+	first_id = rd->ReadUnsigned(2);
+	if(record_size < 6)
+	{
+		Linker::Error << "Error: Invalid size for Dictionary record" << std::endl;
+		return;
+	}
+	record_size -= 6;
+	while(record_size > 1)
+	{
+		uint8_t length = rd->ReadUnsigned(1);
+		std::string name = rd->ReadData(std::max(offset_t(record_size - 1), offset_t(length)));
+		record_size -= 1 + name.size();
+		names.push_back(name);
+	}
+}
+
+offset_t ObjectFormat::DictionaryRecord::ImageSize() const
+{
+	offset_t size = 6 + names.size();
+	for(auto& name : names)
+	{
+		size += name.size();
+	}
+	return size;
+}
+
+offset_t ObjectFormat::DictionaryRecord::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
+{
+	offset_t size = 6 + names.size();
+	wr->WriteWord(1, type);
+	wr->WriteWord(1, flags);
+	wr->WriteWord(2, ImageSize());
+	wr->WriteWord(2, first_id);
+	for(auto& name : names)
+	{
+		wr->WriteWord(1, name.size());
+		wr->WriteData(name);
+		size += name.size();
+	}
+	return size;
+}
+
+void ObjectFormat::DictionaryRecord::Dump(Dumper::Dumper& dump, offset_t record_index) const
+{
+	Dumper::Region record_region("Dictionary", record_offset, ImageSize(), 8);
+	record_region.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(record_index + 1));
+	record_region.AddField("Flags",
+		Dumper::BitFieldDisplay::Make(2)
+			->AddBitField(7, 1, Dumper::ChoiceDisplay::Make("Debug", "Link"), false),
+		offset_t(flags));
+	record_region.AddField("First ID", Dumper::HexDisplay::Make(4), offset_t(first_id));
+	record_region.Display(dump, Dumper::Header);
+
+	offset_t name_index = 0;
+	offset_t name_offset = 6;
+	for(auto& name : names)
+	{
+		Dumper::Entry name_entry("Name", offset_t(name_index + 1), offset_t(name_offset), 8);
+		name_entry.AddField("ID", Dumper::HexDisplay::Make(4), offset_t(first_id + name_index));
+		name_entry.AddField("Text", Dumper::StringDisplay::Make("'"), name);
+		name_entry.Display(dump, Dumper::Symbol);
+		name_offset += 1 + name.size();
+		name_index ++;
+	}
+}
+
+void ObjectFormat::ModuleRecord::ReadBody(const std::shared_ptr<Linker::Reader>& rd)
+{
+	flags = rd->ReadUnsigned(1);
+	module_id = rd->ReadUnsigned(2);
+	segment.id = rd->ReadUnsigned(2);
+}
+
+offset_t ObjectFormat::ModuleRecord::ImageSize() const
+{
+	return 6;
+}
+
+offset_t ObjectFormat::ModuleRecord::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
+{
+	wr->WriteWord(1, type);
+	wr->WriteWord(1, flags);
+	wr->WriteWord(2, module_id);
+	wr->WriteWord(2, segment.id);
+	return 6;
+}
+
+void ObjectFormat::ModuleRecord::Dump(Dumper::Dumper& dump, offset_t record_index) const
+{
+	Dumper::Region record_region("Module", record_offset, ImageSize(), 8);
+	record_region.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(record_index + 1));
+	record_region.AddField("Flags",
+		Dumper::BitFieldDisplay::Make(2)
+			->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("data", "code"), false)
+			->AddBitField(3, 1, Dumper::ChoiceDisplay::Make("extern", "local"), false)
+			->AddBitField(4, 1, Dumper::ChoiceDisplay::Make("main"), true)
+			->AddBitField(7, 1, Dumper::ChoiceDisplay::Make("force active"), true),
+		offset_t(flags));
+	record_region.AddField("Module ID", Dumper::HexDisplay::Make(4), offset_t(module_id));
+	record_region.AddField(flags & DataFlag ? "Segment size" : "Segment ID", Dumper::HexDisplay::Make(4), offset_t(segment.id));
+	record_region.Display(dump, Dumper::Header);
+}
+
+void ObjectFormat::EntryPointRecord::ReadBody(const std::shared_ptr<Linker::Reader>& rd)
+{
+	// TODO
+	Linker::Error << "Error: Unimplemented record type " << int(type) << std::endl;
+}
+
+offset_t ObjectFormat::EntryPointRecord::ImageSize() const
+{
+	// TODO
+	return offset_t(-1);
+}
+
+offset_t ObjectFormat::EntryPointRecord::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
+{
+	// TODO
+	return offset_t(-1);
+}
+
+void ObjectFormat::EntryPointRecord::Dump(Dumper::Dumper& dump, offset_t record_index) const
+{
+	// TODO
+}
+
+void ObjectFormat::SizeRecord::ReadBody(const std::shared_ptr<Linker::Reader>& rd)
+{
+	// TODO
+	Linker::Error << "Error: Unimplemented record type " << int(type) << std::endl;
+}
+
+offset_t ObjectFormat::SizeRecord::ImageSize() const
+{
+	// TODO
+	return offset_t(-1);
+}
+
+offset_t ObjectFormat::SizeRecord::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
+{
+	// TODO
+	return offset_t(-1);
+}
+
+void ObjectFormat::SizeRecord::Dump(Dumper::Dumper& dump, offset_t record_index) const
+{
+	// TODO
+}
+
+void ObjectFormat::ContentsRecord::ReadBody(const std::shared_ptr<Linker::Reader>& rd)
+{
+	flags = rd->ReadUnsigned(1);
+	uint16_t record_size = rd->ReadUnsigned(2);
+	uint16_t record_bytes = 4;
+	if(flags & PartialFlag)
+	{
+		offset = rd->ReadUnsigned(4);
+		record_bytes += 4;
+	}
+	if(flags & RepeatFlag)
+	{
+		repeat = rd->ReadUnsigned(2);
+		record_bytes += 2;
+	}
+	if(record_size < record_bytes)
+	{
+		Linker::Error << "Error: Invalid size for Contents record" << std::endl;
+		return;
+	}
+	contents = Linker::Buffer::ReadFromFile(rd, record_size - record_bytes);
+}
+
+offset_t ObjectFormat::ContentsRecord::ImageSize() const
+{
+	offset_t size = 4 + contents->ImageSize();
+	if(flags & PartialFlag)
+	{
+		size += 4;
+	}
+	if(flags & RepeatFlag)
+	{
+		size += 2;
+	}
+	return size;
+}
+
+offset_t ObjectFormat::ContentsRecord::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
+{
+	offset_t size = 4;
+	wr->WriteWord(1, type);
+	wr->WriteWord(1, flags);
+	wr->WriteWord(2, ImageSize());
+	if(flags & PartialFlag)
+	{
+		wr->WriteWord(4, offset);
+		size += 8;
+	}
+	if(flags & RepeatFlag)
+	{
+		wr->WriteWord(2, repeat);
+		size += 2;
+	}
+	return contents->WriteFile(wr) + size;
+}
+
+void ObjectFormat::ContentsRecord::Dump(Dumper::Dumper& dump, offset_t record_index) const
+{
+	Dumper::Region record_region("Contents", record_offset, ImageSize(), 8);
+	record_region.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(record_index + 1));
+	record_region.AddField("Flags",
+		Dumper::BitFieldDisplay::Make(2)
+			->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("data", "code"), false)
+			->AddBitField(3, 1, Dumper::ChoiceDisplay::Make("partial", "complete"), false)
+			->AddBitField(4, 1, Dumper::ChoiceDisplay::Make("repeat"), true),
+		offset_t(flags));
+	record_region.AddOptionalField("Offset", Dumper::HexDisplay::Make(8), offset_t(offset));
+	record_region.AddOptionalField("Repeat", Dumper::DecDisplay::Make(), offset_t(repeat));
+	record_region.Display(dump, Dumper::Header);
+
+	uint16_t contents_offset = 4;
+	if(flags & PartialFlag)
+	{
+		contents_offset += 4;
+	}
+	if(flags & RepeatFlag)
+	{
+		contents_offset += 2;
+	}
+
+	Dumper::Block record_block("Contents", record_offset + contents_offset, contents->AsImage(), offset_t(offset), 8);
+	// TODO: repeat
+	record_block.Display(dump, Dumper::Header);
+}
+
+void ObjectFormat::ReferenceRecord::ReadBody(const std::shared_ptr<Linker::Reader>& rd)
+{
+	// TODO
+	Linker::Error << "Error: Unimplemented record type " << int(type) << std::endl;
+}
+
+offset_t ObjectFormat::ReferenceRecord::ImageSize() const
+{
+	// TODO
+	return offset_t(-1);
+}
+
+offset_t ObjectFormat::ReferenceRecord::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
+{
+	// TODO
+	return offset_t(-1);
+}
+
+void ObjectFormat::ReferenceRecord::Dump(Dumper::Dumper& dump, offset_t record_index) const
+{
+	// TODO
+}
+
+void ObjectFormat::FilenameRecord::ReadBody(const std::shared_ptr<Linker::Reader>& rd)
+{
+	// TODO
+	Linker::Error << "Error: Unimplemented record type " << int(type) << std::endl;
+}
+
+offset_t ObjectFormat::FilenameRecord::ImageSize() const
+{
+	// TODO
+	return offset_t(-1);
+}
+
+offset_t ObjectFormat::FilenameRecord::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
+{
+	// TODO
+	return offset_t(-1);
+}
+
+void ObjectFormat::FilenameRecord::Dump(Dumper::Dumper& dump, offset_t record_index) const
+{
+	// TODO
+}
+
+void ObjectFormat::SourceStatementRecord::ReadBody(const std::shared_ptr<Linker::Reader>& rd)
+{
+	// TODO
+	Linker::Error << "Error: Unimplemented record type " << int(type) << std::endl;
+}
+
+offset_t ObjectFormat::SourceStatementRecord::ImageSize() const
+{
+	// TODO
+	return offset_t(-1);
+}
+
+offset_t ObjectFormat::SourceStatementRecord::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
+{
+	// TODO
+	return offset_t(-1);
+}
+
+void ObjectFormat::SourceStatementRecord::Dump(Dumper::Dumper& dump, offset_t record_index) const
+{
+	// TODO
+}
+
+void ObjectFormat::ModuleBeginRecord::ReadBody(const std::shared_ptr<Linker::Reader>& rd)
+{
+	// TODO
+	Linker::Error << "Error: Unimplemented record type " << int(type) << std::endl;
+}
+
+offset_t ObjectFormat::ModuleBeginRecord::ImageSize() const
+{
+	// TODO
+	return offset_t(-1);
+}
+
+offset_t ObjectFormat::ModuleBeginRecord::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
+{
+	// TODO
+	return offset_t(-1);
+}
+
+void ObjectFormat::ModuleBeginRecord::Dump(Dumper::Dumper& dump, offset_t record_index) const
+{
+	// TODO
+}
+
+void ObjectFormat::ModuleEndRecord::ReadBody(const std::shared_ptr<Linker::Reader>& rd)
+{
+	// TODO
+	Linker::Error << "Error: Unimplemented record type " << int(type) << std::endl;
+}
+
+offset_t ObjectFormat::ModuleEndRecord::ImageSize() const
+{
+	// TODO
+	return offset_t(-1);
+}
+
+offset_t ObjectFormat::ModuleEndRecord::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
+{
+	// TODO
+	return offset_t(-1);
+}
+
+void ObjectFormat::ModuleEndRecord::Dump(Dumper::Dumper& dump, offset_t record_index) const
+{
+	// TODO
+}
+
+void ObjectFormat::BlockBeginRecord::ReadBody(const std::shared_ptr<Linker::Reader>& rd)
+{
+	// TODO
+	Linker::Error << "Error: Unimplemented record type " << int(type) << std::endl;
+}
+
+offset_t ObjectFormat::BlockBeginRecord::ImageSize() const
+{
+	// TODO
+	return offset_t(-1);
+}
+
+offset_t ObjectFormat::BlockBeginRecord::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
+{
+	// TODO
+	return offset_t(-1);
+}
+
+void ObjectFormat::BlockBeginRecord::Dump(Dumper::Dumper& dump, offset_t record_index) const
+{
+	// TODO
+}
+
+void ObjectFormat::BlockEndRecord::ReadBody(const std::shared_ptr<Linker::Reader>& rd)
+{
+	// TODO
+	Linker::Error << "Error: Unimplemented record type " << int(type) << std::endl;
+}
+
+offset_t ObjectFormat::BlockEndRecord::ImageSize() const
+{
+	// TODO
+	return offset_t(-1);
+}
+
+offset_t ObjectFormat::BlockEndRecord::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
+{
+	// TODO
+	return offset_t(-1);
+}
+
+void ObjectFormat::BlockEndRecord::Dump(Dumper::Dumper& dump, offset_t record_index) const
+{
+	// TODO
+}
+
+void ObjectFormat::LocalIdentifierRecord::ReadBody(const std::shared_ptr<Linker::Reader>& rd)
+{
+	// TODO
+	Linker::Error << "Error: Unimplemented record type " << int(type) << std::endl;
+}
+
+offset_t ObjectFormat::LocalIdentifierRecord::ImageSize() const
+{
+	// TODO
+	return offset_t(-1);
+}
+
+offset_t ObjectFormat::LocalIdentifierRecord::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
+{
+	// TODO
+	return offset_t(-1);
+}
+
+void ObjectFormat::LocalIdentifierRecord::Dump(Dumper::Dumper& dump, offset_t record_index) const
+{
+	// TODO
+}
+
+void ObjectFormat::LocalLabelRecord::ReadBody(const std::shared_ptr<Linker::Reader>& rd)
+{
+	// TODO
+	Linker::Error << "Error: Unimplemented record type " << int(type) << std::endl;
+}
+
+offset_t ObjectFormat::LocalLabelRecord::ImageSize() const
+{
+	// TODO
+	return offset_t(-1);
+}
+
+offset_t ObjectFormat::LocalLabelRecord::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
+{
+	// TODO
+	return offset_t(-1);
+}
+
+void ObjectFormat::LocalLabelRecord::Dump(Dumper::Dumper& dump, offset_t record_index) const
+{
+	// TODO
+}
+
+void ObjectFormat::LocalTypeRecord::ReadBody(const std::shared_ptr<Linker::Reader>& rd)
+{
+	// TODO
+	Linker::Error << "Error: Unimplemented record type " << int(type) << std::endl;
+}
+
+offset_t ObjectFormat::LocalTypeRecord::ImageSize() const
+{
+	// TODO
+	return offset_t(-1);
+}
+
+offset_t ObjectFormat::LocalTypeRecord::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
+{
+	// TODO
+	return offset_t(-1);
+}
+
+void ObjectFormat::LocalTypeRecord::Dump(Dumper::Dumper& dump, offset_t record_index) const
+{
+	// TODO
+}
+
+void ObjectFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
+{
+	rd->endiantype = ::BigEndian;
+
+	file_offset = rd->Tell();
+	offset_t image_end = rd->GetImageEnd();
+
+	while(rd->Tell() < image_end)
+	{
+		records.push_back(Record::ReadFile(rd));
+	}
+}
+
+offset_t ObjectFormat::ImageSize() const
+{
+	offset_t size = 0;
+	for(auto record : records)
+	{
+		size += record->ImageSize();
+	}
+	return size;
+}
+
+offset_t ObjectFormat::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
+{
+	offset_t size = 0;
+	for(auto record : records)
+	{
+		size += record->WriteFile(wr);
+	}
+	return size;
+}
+
+void ObjectFormat::Dump(Dumper::Dumper& dump) const
+{
+	dump.SetEncoding(Dumper::Block::encoding_macroman);
+
+	dump.SetTitle("Apple MPW Object Format format");
+	Dumper::Region file_region("File", file_offset, ImageSize(), 8);
+	file_region.Display(dump, Dumper::Header);
+
+	size_t record_index = 0;
+	for(auto record : records)
+	{
+		record->Dump(dump, record_index);
+		record_index++;
+	}
+}
+

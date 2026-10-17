@@ -26,6 +26,7 @@
 #include "format/macho.h" /* TODO: not implemented */
 #include "format/macos.h" /* Mac OS Classic for 68000 */
 #include "format/minix.h"
+#include "format/mpwobj.h" /* TODO: testing */
 #include "format/mzexe.h" /* .exe (MS-DOS "MZ") */
 #include "format/neexe.h" /* .exe (Win16 "NE") */
 #include "format/o65.h" /* TODO: not implemented */
@@ -627,6 +628,9 @@ format_specification formats[] =
 	/* BFLT */
 	{ "bflt", []() -> std::shared_ptr<Format> { return std::make_shared<BFLT::BFLTFormat>(); },
 		"BFLT Binary Flat Format for uCLinux" },
+	/* assorted */
+	{ "mpwobj", []() -> std::shared_ptr<Format> { return std::make_shared<MPW::ObjectFormat>(); },
+		"Apple MPW Object Format" },
 
 	// not executable formats
 	/* Windows and OS/2 resource files */
