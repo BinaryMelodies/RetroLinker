@@ -232,7 +232,7 @@ void ObjectFormat::DictionaryRecord::ReadBody(const std::shared_ptr<Linker::Read
 		return;
 	}
 	record_size -= 6;
-	while(record_size > 1)
+	while(record_size > 0)
 	{
 		uint8_t length = rd->ReadUnsigned(1);
 		std::string name = rd->ReadData(std::max(offset_t(record_size - 1), offset_t(length)));
@@ -279,7 +279,7 @@ void ObjectFormat::DictionaryRecord::Dump(Dumper::Dumper& dump, offset_t record_
 	record_region.Display(dump, Dumper::Header);
 
 	offset_t name_index = 0;
-	offset_t name_offset = 6;
+	offset_t name_offset = record_offset + 6;
 	for(auto& name : names)
 	{
 		Dumper::Entry name_entry("Name", offset_t(name_index + 1), offset_t(name_offset), 8);
@@ -553,14 +553,7 @@ void ObjectFormat::ModuleBeginRecord::ReadBody(const std::shared_ptr<Linker::Rea
 	module_id = rd->ReadUnsigned(2);
 	parent_id = rd->ReadUnsigned(2);
 	file_id = rd->ReadUnsigned(2);
-	if(flags & FileOffset16Flag)
-	{
-		file_offset = rd->ReadUnsigned(2);
-	}
-	else
-	{
-		file_offset = rd->ReadUnsigned(4);
-	}
+	file_offset = rd->ReadUnsigned(flags & FileOffset16Flag ? 2 : 4);
 	module_kind = module_kind_type(rd->ReadUnsigned(1));
 	rd->Skip(1);
 }
@@ -596,7 +589,7 @@ void ObjectFormat::ModuleBeginRecord::Dump(Dumper::Dumper& dump, offset_t record
 	record_region.AddField("Module ID", Dumper::HexDisplay::Make(4), offset_t(module_id));
 	record_region.AddField("Parent ID", Dumper::HexDisplay::Make(4), offset_t(parent_id));
 	record_region.AddField("File ID", Dumper::HexDisplay::Make(4), offset_t(file_id));
-	record_region.AddField("File offset", Dumper::HexDisplay::Make(flags & FileOffset16Flag ? 4 : 8), offset_t(module_id));
+	record_region.AddField("File offset", Dumper::HexDisplay::Make(flags & FileOffset16Flag ? 4 : 8), offset_t(file_offset));
 	static const std::map<offset_t, std::string> module_kind_names =
 	{
 		{ None,       "none" },
@@ -690,28 +683,153 @@ void ObjectFormat::BlockEndRecord::Dump(Dumper::Dumper& dump, offset_t record_in
 
 void ObjectFormat::LocalIdentifierRecord::ReadBody(const std::shared_ptr<Linker::Reader>& rd)
 {
-	rd->ReadUnsigned(1);
+	flags = rd->ReadUnsigned(1);
 	uint16_t record_size = rd->ReadUnsigned(2);
-	// TODO
-	Linker::Error << "Error: Unimplemented record type " << int(type) << std::endl;
-	rd->Skip(record_size - 4);
+	parent_id = rd->ReadUnsigned(2);
+	file_id = rd->ReadUnsigned(2);
+	file_offset = rd->ReadUnsigned(flags & FileOffset16Flag ? 2 : 4);
+	if(record_size < (flags & FileOffset16Flag ? 10 : 12))
+	{
+		Linker::Error << "Error: Invalid size for Comment record" << std::endl;
+		return;
+	}
+	record_size -= (flags & FileOffset16Flag ? 10 : 12);
+	while(record_size > 0)
+	{
+		Identifier identifier;
+		identifier.id = rd->ReadUnsigned(2);
+		identifier.type = rd->ReadUnsigned(2);
+		identifier.file_delta = rd->ReadUnsigned(1);
+//		std::cerr << "[" << std::hex << int(identifier.file_delta) << "]" << std::endl;
+		uint8_t kind = rd->ReadUnsigned(1);
+		identifier.storage_class = Identifier::storage_class_type(kind & 0xF);
+		identifier.value = (kind & 0x10) != 0;
+		identifier.reference = (kind & 0x20) != 0;
+		identifier.offset_size = Identifier::offset_size_type(kind >> 6);
+		record_size -= 6;
+		switch(identifier.offset_size)
+		{
+		case Identifier::NoOffset:
+			break;
+		case Identifier::Offset16:
+			rd->ReadData(2, identifier.offset_data);
+			record_size -= 2;
+			break;
+		case Identifier::Offset32:
+			rd->ReadData(4, identifier.offset_data);
+			record_size -= 4;
+			break;
+		case Identifier::VariableOffset:
+			{
+				uint16_t size = rd->ReadUnsigned(2);
+				rd->ReadData(size, identifier.offset_data);
+				record_size -= size;
+			}
+			break;
+		}
+		identifiers.push_back(identifier);
+	}
 }
 
 offset_t ObjectFormat::LocalIdentifierRecord::ImageSize() const
 {
-	// TODO
-	return offset_t(-1);
+	offset_t size = flags & FileOffset16Flag ? 10 : 12;
+	for(auto& identifier : identifiers)
+	{
+		size += 6 + identifier.offset_data.size();
+		if(identifier.offset_size == Identifier::VariableOffset)
+		{
+			size += 2;
+		}
+	}
+	return size;
 }
 
 offset_t ObjectFormat::LocalIdentifierRecord::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	// TODO
-	return offset_t(-1);
+	wr->WriteWord(1, type);
+	wr->WriteWord(1, flags);
+	wr->WriteWord(2, ImageSize());
+	wr->WriteWord(2, parent_id);
+	wr->WriteWord(2, file_id);
+	wr->WriteWord(flags & FileOffset16Flag ? 2 : 4, file_offset);
+	for(auto& identifier : identifiers)
+	{
+		wr->WriteWord(2, identifier.id);
+		wr->WriteWord(2, identifier.type);
+		wr->WriteWord(1, identifier.file_delta);
+		uint8_t kind =
+			identifier.storage_class
+			| (identifier.value ? 0x10 : 0)
+			| (identifier.reference ? 0x20 : 0)
+			| (identifier.offset_size << 6);
+		wr->WriteWord(1, kind);
+		if(identifier.offset_size == Identifier::VariableOffset)
+		{
+			wr->WriteWord(2, identifier.offset_data.size());
+		}
+		wr->WriteData(identifier.offset_data);
+	}
+	return ImageSize();
 }
 
 void ObjectFormat::LocalIdentifierRecord::Dump(Dumper::Dumper& dump, offset_t record_index) const
 {
-	// TODO
+	Dumper::Region record_region("Local Identifier", record_offset, ImageSize(), 8);
+	record_region.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(record_index + 1));
+	record_region.AddField("Flags",
+		Dumper::BitFieldDisplay::Make(2)
+			->AddBitField(7, 1, "file offset size", Dumper::ChoiceDisplay::Make("16-bit", "32-bit"), false),
+		offset_t(flags));
+	record_region.AddField("Parent ID", Dumper::HexDisplay::Make(4), offset_t(parent_id));
+	record_region.AddField("File ID", Dumper::HexDisplay::Make(4), offset_t(file_id));
+	record_region.AddField("File offset", Dumper::HexDisplay::Make(flags & FileOffset16Flag ? 4 : 8), offset_t(file_offset));
+	record_region.Display(dump, Dumper::Header);
+
+	offset_t identifier_index = 0;
+	offset_t identifier_offset = record_offset + (flags & FileOffset16Flag ? 10 : 12);
+	for(auto& identifier : identifiers)
+	{
+		Dumper::Entry identifier_entry("Identifier", offset_t(identifier_index + 1), offset_t(identifier_offset), 8);
+		identifier_entry.AddField("ID", Dumper::HexDisplay::Make(4), offset_t(identifier.id));
+		identifier_entry.AddField("Type", Dumper::HexDisplay::Make(4), offset_t(identifier.type));
+		identifier_entry.AddOptionalField("File delta", Dumper::HexDisplay::Make(2), offset_t(identifier.file_delta));
+		static const std::map<offset_t, std::string> storage_class_names =
+		{
+			{ Identifier::Register,   "register" },
+			{ Identifier::A5Relative, "A5-relative" },
+			{ Identifier::A6Relative, "A6-relative" },
+			{ Identifier::A7Relative, "A7-relative" },
+			{ Identifier::Absolute,   "absolute" },
+			{ Identifier::Constant,   "constant" },
+		};
+		static const std::map<offset_t, std::string> offset_size_names =
+		{
+			{ Identifier::NoOffset,       "no offset" },
+			{ Identifier::Offset16,       "2-byte" },
+			{ Identifier::Offset32,       "4-byte" },
+			{ Identifier::VariableOffset, "variable size" },
+		};
+		identifier_entry.AddField("Kind",
+			Dumper::BitFieldDisplay::Make(4)
+				->AddBitField(0, 4, "storage class", Dumper::ChoiceDisplay::Make(storage_class_names, Dumper::HexDisplay::Make(1)), false)
+				->AddBitField(4, 1, Dumper::ChoiceDisplay::Make("value"), true)
+				->AddBitField(5, 1, Dumper::ChoiceDisplay::Make("reference"), true)
+				->AddBitField(6, 2, "offset size", Dumper::ChoiceDisplay::Make(offset_size_names), true),
+			offset_t(identifier.storage_class
+				| (identifier.value ? 0x10 : 0)
+				| (identifier.reference ? 0x20 : 0)
+				| (identifier.offset_size << 6)));
+		identifier_entry.AddField("Offset data", Dumper::BlobDisplay::Make(identifier.offset_data.size(), Dumper::StringDisplay::Make("'")), identifier.offset_data);
+		identifier_entry.Display(dump, Dumper::Symbol);
+
+		identifier_offset += 6 + identifier.offset_data.size();
+		if(identifier.offset_size == Identifier::VariableOffset)
+		{
+			identifier_offset += 2;
+		}
+		identifier_index ++;
+	}
 }
 
 void ObjectFormat::LocalLabelRecord::ReadBody(const std::shared_ptr<Linker::Reader>& rd)

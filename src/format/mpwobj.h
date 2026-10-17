@@ -394,7 +394,7 @@ namespace MPW
 					VariableOffset = 3,
 				};
 				offset_size_type offset_size = offset_size_type(0);
-				std::shared_ptr<Linker::Contents> offset_data;
+				std::vector<uint8_t> offset_data;
 			};
 
 			static constexpr uint8_t FileOffset16Flag = 0x80;
@@ -402,8 +402,7 @@ namespace MPW
 			uint8_t flags = 0;
 			uint16_t parent_id = 0;
 			uint16_t file_id = 0;
-			uint16_t file_offset = 0;
-			uint16_t code_offset = 0;
+			uint32_t file_offset = 0;
 			std::vector<Identifier> identifiers;
 
 			void ReadBody(const std::shared_ptr<Linker::Reader>& rd) override;
@@ -419,33 +418,6 @@ namespace MPW
 				: Record(type, record_offset)
 			{
 			}
-			struct Identifier
-			{
-				uint16_t id = 0;
-				uint16_t type = 0;
-				uint8_t file_delta = 0;
-				enum storage_class_type : uint8_t
-				{
-					Register = 0,
-					A5Relative = 1,
-					A6Relative = 2,
-					A7Relative = 3,
-					Absolute = 4,
-					Constant = 5,
-				};
-				storage_class_type storage_class = storage_class_type(0);
-				bool value = false;
-				bool reference = false;
-				enum offset_size_type : uint8_t
-				{
-					NoOffset = 0,
-					Offset16 = 1,
-					Offset32 = 2,
-					VariableOffset = 3,
-				};
-				offset_size_type offset_size = offset_size_type(0);
-				std::shared_ptr<Linker::Contents> offset_data;
-			};
 
 			static constexpr uint8_t IsEntryFlag = 0x08;
 			static constexpr uint8_t CodeOffset16Flag = 0x40;
