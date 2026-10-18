@@ -237,7 +237,7 @@ void MacintoshResourceFileFormat::JumpTableCodeResource::ReadJumpTable(const std
 
 	for(; read_offset < length; read_offset += 8)
 	{
-		JumpTable::Entry entry;
+		Location entry;
 		entry.offset = rd->ReadUnsigned(2);
 		uint16_t _move_data_sp = rd->ReadUnsigned(2); // MOVE_DATA_SP
 		entry.segment = rd->ReadUnsigned(2);
@@ -265,13 +265,13 @@ void MacintoshResourceFileFormat::JumpTableCodeResource::ReadJumpTable(const std
 				break;
 			}
 		}
-		jump_table->legacy_entries.push_back(entry);
+		jump_table->AddLegacyEntry(entry);
 	}
 
 	bool still_reading_table = true;
 	for(; read_offset < length && still_reading_table; read_offset += 8)
 	{
-		JumpTable::Entry entry;
+		Location entry;
 		entry.segment = rd->ReadUnsigned(2);
 		uint16_t insn = rd->ReadUnsigned(2);
 		switch(mode)
@@ -333,7 +333,7 @@ void MacintoshResourceFileFormat::JumpTableCodeResource::ReadJumpTable(const std
 				entry.section = section_relocation->second;
 			}
 		}
-		jump_table->extended_entries.push_back(entry);
+		jump_table->AddExtendedEntry(entry);
 	}
 
 	if(mode == FromPEFContainer)
@@ -744,7 +744,7 @@ void MacintoshResourceFileFormat::CodeResource::StoreNearSegmentEntries(
 	first_near_entry_offset = jump_table_offset;
 	if(starting_entry.has_value())
 	{
-		jump_table->jump_table->legacy_entries.push_back(JumpTable::Entry{id, starting_entry.value()});
+		jump_table->jump_table->AddLegacyEntry(Location::Segmented(id, starting_entry.value()));
 		jump_table_offset += 8;
 	}
 
@@ -753,7 +753,7 @@ void MacintoshResourceFileFormat::CodeResource::StoreNearSegmentEntries(
 		if(starting_entry.has_value() && entry == starting_entry.value())
 			continue; /* already inserted */
 
-		jump_table->jump_table->legacy_entries.push_back(JumpTable::Entry{id, entry});
+		jump_table->jump_table->AddLegacyEntry(Location::Segmented(id, entry));
 
 		auto entry_iter = entry_relocations.find(entry);
 		if(entry_iter != entry_relocations.end())
@@ -778,7 +778,7 @@ void MacintoshResourceFileFormat::CodeResource::StoreFarSegmentNearEntries(
 	first_near_entry_offset = jump_table_offset;
 	if(starting_entry.has_value())
 	{
-		jump_table->jump_table->extended_entries.push_back(JumpTable::Entry{id, CodeResource::FarSegmentHeaderSize + starting_entry.value()});
+		jump_table->jump_table->AddExtendedEntry(Location::Segmented(id, CodeResource::FarSegmentHeaderSize + starting_entry.value()));
 		jump_table_offset += 8;
 	}
 
@@ -787,7 +787,7 @@ void MacintoshResourceFileFormat::CodeResource::StoreFarSegmentNearEntries(
 		if(starting_entry.has_value() && entry == starting_entry.value())
 			continue; /* already inserted */
 
-		jump_table->jump_table->extended_entries.push_back(JumpTable::Entry{id, CodeResource::FarSegmentHeaderSize + entry});
+		jump_table->jump_table->AddExtendedEntry(Location::Segmented(id, CodeResource::FarSegmentHeaderSize + entry));
 
 		auto entry_iter = entry_relocations.find(entry);
 		if(entry_iter != entry_relocations.end())
@@ -798,6 +798,45 @@ void MacintoshResourceFileFormat::CodeResource::StoreFarSegmentNearEntries(
 			}
 		}
 		jump_table_offset += 8;
+	}
+}
+
+void MacintoshResourceFileFormat::CodeResource::StoreTransitionVectorEntries(
+	std::shared_ptr<JumpTableCodeResource> jump_table,
+	uint32_t& jump_table_offset,
+	Location seg_loader,
+	std::optional<TransitionVector> starting_tvector)
+{
+	if(header_format != CodeResource::CFM_68K)
+		return;
+
+	assert(seg_loader.IsSectioned());
+
+	first_transition_vector_offset = jump_table_offset;
+	if(starting_tvector.has_value())
+	{
+		assert(starting_tvector->a5_world.IsSectioned());
+		jump_table->jump_table->AddApplicationTransitionVector(seg_loader, starting_tvector->a5_world, Location::Segmented(id, starting_tvector->offset));
+		jump_table_offset += 12;
+	}
+
+	for(auto& tvector : transition_vectors)
+	{
+		if(starting_tvector.has_value() && tvector == starting_tvector.value())
+			continue; /* already inserted */
+
+		assert(tvector.a5_world.IsSectioned());
+		jump_table->jump_table->AddApplicationTransitionVector(seg_loader, tvector.a5_world, Location::Segmented(id, tvector.offset));
+
+		auto tvector_iter = tvector_relocations.find(tvector);
+		if(tvector_iter != tvector_relocations.end())
+		{
+			for(auto& rel : tvector_iter->second)
+			{
+				rel.WriteWord(jump_table_offset + 32);
+			}
+		}
+		jump_table_offset += 12;
 	}
 }
 

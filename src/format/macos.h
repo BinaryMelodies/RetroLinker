@@ -145,10 +145,95 @@ namespace Apple
 			std::unique_ptr<Dumper::Region> CreateRegion(std::string name, offset_t offset, offset_t length, unsigned display_width) const override;
 		};
 
+		/** @brief Convenience structure to handle locations occuring in Macintosh 68K binaries */
+		struct Location
+		{
+			enum location_type
+			{
+				/** @brief Contains a segment and offset, the section field should be ignored */
+				segmented,
+				/** @brief Contains a section and offset, the segment field should be ignored */
+				sectioned,
+				/** @brief Both the segment and section fields should be ignored (not used, only included for completeness's sake) */
+				absolute,
+			};
+			location_type type = segmented;
+
+			uint16_t segment = 0;
+			uint32_t section = 0;
+			uint32_t offset = 0;
+
+			bool IsSegmented() const
+			{
+				return type == segmented;
+			}
+
+			bool IsSectioned() const
+			{
+				return type == sectioned;
+			}
+
+			bool IsAbsolute() const
+			{
+				return type == absolute;
+			}
+
+			/** @brief Create a location inside a CODE segment resource, containing a segment number (resource ID) and an offset */
+			static Location Segmented(uint16_t segment, uint32_t offset)
+			{
+				return Location{segmented, segment, 0, offset};
+			}
+
+			/** @brief Create a location inside a PEF section, containing a section number and an offset */
+			static Location Sectioned(uint32_t section, uint32_t offset)
+			{
+				return Location{sectioned, 0, section, offset};
+			}
+
+			bool operator ==(const Location& other) const
+			{
+				if(type != other.type)
+					return false;
+				switch(type)
+				{
+				case segmented:
+					return offset == other.offset && segment == other.segment;
+				case sectioned:
+					return offset == other.offset && section == other.section;
+				case absolute:
+					return offset == other.offset;
+				default:
+					assert(false);
+				}
+			}
+
+			bool operator <(const Location& other) const
+			{
+				// should not compare locations of different types, but this will do as a fallback
+				if(type < other.type)
+					return true;
+				else if(type > other.type)
+					return false;
+
+				switch(type)
+				{
+				case segmented:
+					return segment < other.segment || (segment == other.segment && offset < other.offset);
+				case sectioned:
+					return section < other.section || (section == other.section && offset < other.offset);
+				case absolute:
+					return offset < other.offset;
+				default:
+					assert(false);
+				}
+			}
+		};
+
 		/** @brief Represents the information stored in a jump table */
 		class JumpTable
 		{
 		public:
+			/** @brief Describes a single jump table entry */
 			struct Entry
 			{
 				uint16_t segment;
@@ -157,6 +242,7 @@ namespace Apple
 				std::optional<uint32_t> section;
 			};
 
+			/** @brief Describes a single transition vector entry */
 			struct TransitionVector
 			{
 				std::optional<uint32_t> seg_loader_section;
@@ -177,6 +263,74 @@ namespace Apple
 			/** @brief Entries with a 32-bit segment offset, used for far model format entries in far model jump tables and regular format entries in CFM-68K jump tables */
 			std::vector<Entry> extended_entries;
 			std::vector<TransitionVector> transition_vectors;
+
+			/**
+			 * @brief Attaches a legacy entry type, consisting of a 16-bit segment value and a 16-bit offset value
+			 */
+			void AddLegacyEntry(Location entry)
+			{
+				assert(entry.IsSegmented());
+				legacy_entries.push_back(Entry{entry.segment, entry.offset});
+			}
+
+			/**
+			 * @brief Attaches an extended entry type, consisting of a 16-bit segment value and a 32-bit offset value
+			 *
+			 * Note that using these during runtime requires patching the LoadSeg routine.
+			 */
+			void AddExtendedEntry(Location entry)
+			{
+				assert(entry.IsSegmented());
+				extended_entries.push_back(Entry{entry.segment, entry.offset});
+			}
+
+			/**
+			 * @brief Attaches a flattened entry type, consisting of a 32-bit relocated address value
+			 *
+			 * Note that these only occur in (flattened) shared libraries, used by CFM-68K.
+			 */
+			void AddFlattenedEntry(Location entry)
+			{
+				assert(entry.IsSectioned());
+				extended_entries.push_back(Entry{0, entry.offset, entry.section});
+			}
+
+			/**
+			 * @brief Attaches a transition vector to an application, consisting of a location of the segLoader routine, the A5 world, and the 16-bit segment and 32-bit offset of an entry point
+			 *
+			 * Required for CFM-68K applications.
+			 */
+			void AddApplicationTransitionVector(Location seg_loader, Location a5_world, Location entry)
+			{
+				assert(seg_loader.IsSectioned());
+				assert(a5_world.IsSectioned());
+				assert(entry.IsSegmented());
+				transition_vectors.push_back(TransitionVector{seg_loader.section, seg_loader.offset, a5_world.section, a5_world.offset, entry.segment, {}, entry.offset});
+			}
+
+			/**
+			 * @brief Attaches an unflattened library transition vector, consisting of a location of A5 world, and the 16-bit segment and 32-bit offset of an entry point
+			 *
+			 * Required for CFM-68K.
+			 */
+			void AddUnflattenedTransitionVector(Location a5_world, Location entry)
+			{
+				assert(a5_world.IsSectioned());
+				assert(entry.IsSegmented());
+				transition_vectors.push_back(TransitionVector{{}, 0, a5_world.section, a5_world.offset, entry.segment, {}, entry.offset});
+			}
+
+			/**
+			 * @brief Attaches a (flattened) library transition vector, consisting of a location of A5 world, and the 32-bit relocated addres to an entry point
+			 *
+			 * Required for CFM-68K libraries.
+			 */
+			void AddFlattenedTransitionVector(Location a5_world, Location entry)
+			{
+				assert(a5_world.IsSectioned());
+				assert(entry.IsSectioned());
+				transition_vectors.push_back(TransitionVector{{}, 0, a5_world.section, a5_world.offset, 0, entry.section, entry.offset});
+			}
 		};
 
 		/** @brief Stores a 68K jump table, found in 'CODE'0 resources */
@@ -323,10 +477,29 @@ namespace Apple
 			uint16_t far_entry_count = 0;
 			std::set<uint32_t> a5_relocations;
 			std::set<uint32_t> segment_relocations;
-			std::set<std::tuple<uint32_t, uint32_t>> transition_vectors;
+			/** @brief Convenience structure to handle transition vectors belonging to this segment */
+			struct TransitionVector
+			{
+				uint32_t offset = 0;
+				Location a5_world { Location::segmented };
+
+				bool operator ==(const TransitionVector& other) const
+				{
+					return offset == other.offset && a5_world == other.a5_world;
+				}
+
+				bool operator <(const TransitionVector& other) const
+				{
+					// TODO: normally we could expect two transition vectors with identical offsets to have the same A5 world (is this true?),
+					// but technically it is possible to have separate ones, so we need to compare them as well
+					return offset < other.offset || (offset == other.offset && a5_world < other.a5_world);
+				}
+			};
+			std::set<TransitionVector> transition_vectors;
 			uint32_t transition_vector_count = 0;
 			// stored when processing a module, which offsets require a jump table entry
 			std::map<uint32_t, std::vector<Linker::Relocation>> entry_relocations;
+			std::map<TransitionVector, std::vector<Linker::Relocation>> tvector_relocations;
 
 			/* filled in after calculation */
 			uint32_t first_near_entry_offset;
@@ -369,6 +542,20 @@ namespace Apple
 			void StoreFarSegmentFarEntries(
 				std::shared_ptr<JumpTableCodeResource> jump_table,
 				uint32_t& jump_table_offset);
+
+			/**
+			 * @brief For CFM-68K applications, stores all transition vectors into the jump table
+			 *
+			 * @param jump_table Pointer to jump table resource
+			 * @param jump_table_offset Latest offset into the jump table where the entries must start, gets updated
+			 * @param seg_loader The location of the segment loader, must be a sectioned location
+			 * @param starting_tvector An optional starting transition vector
+			 */
+			void StoreTransitionVectorEntries(
+				std::shared_ptr<JumpTableCodeResource> jump_table,
+				uint32_t& jump_table_offset,
+				Location seg_loader,
+				std::optional<TransitionVector> starting_tvector);
 
 			void CalculateValues() override;
 
