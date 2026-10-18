@@ -869,7 +869,7 @@ namespace Apple
 		/* filled in during generation */
 		std::shared_ptr<JumpTableCodeResource> jump_table;
 		std::vector<std::shared_ptr<CodeResource>> codes;
-		std::map<std::shared_ptr<Linker::Segment>, std::shared_ptr<CodeResource>> segments;
+		std::map<std::shared_ptr<Linker::Segment>, std::shared_ptr<CodeResource>> segment_to_resource_map;
 		std::shared_ptr<Linker::Segment> a5world;
 		std::shared_ptr<SizeResource> size_resource = nullptr;
 

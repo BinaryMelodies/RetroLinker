@@ -2287,7 +2287,7 @@ void PEFFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 				}
 				codeN->image = segment;
 				resource_fork->codes.push_back(codeN);
-				resource_fork->segments[segment] = codeN;
+				resource_fork->segment_to_resource_map[segment] = codeN;
 				resource_fork->AddResource(codeN);
 			}
 		}
@@ -2432,7 +2432,7 @@ void PEFFormat::ProcessRelocations(Linker::Module& module)
 				case PEFHeaderBase::M68K:
 					if(resource_fork != nullptr
 					&& rel.Resolve(module, resolution)
-					&& resource_fork->segments.find(resolution.target) != resource_fork->segments.end())
+					&& resource_fork->segment_to_resource_map.find(resolution.target) != resource_fork->segment_to_resource_map.end())
 					{
 						Linker::Debug << "Debug: Generating transition vector for " << rel << std::endl;
 						MacintoshResourceFileFormat::CodeResource::TransitionVector tvector;
@@ -2440,7 +2440,7 @@ void PEFFormat::ProcessRelocations(Linker::Module& module)
 						tvector.a5_world = MacintoshResourceFileFormat::Location::Sectioned(
 							GetSectionNumber(jump_table_section, 0),
 							jump_table_section->image->ImageSize());
-						resource_fork->segments[resolution.target]->tvector_relocations[tvector].push_back(rel);
+						resource_fork->segment_to_resource_map[resolution.target]->tvector_relocations[tvector].push_back(rel);
 						auto source_position = rel.source.GetPosition();
 						auto source_offset = source_position.address - source_position.segment->base_address;
 						auto source_section = segment_to_section_map[source_position.segment];
@@ -2571,7 +2571,7 @@ void PEFFormat::ProcessRelocations(Linker::Module& module)
 			case JumpTableEntry:
 				/* jsr method_name(a5) can be replaced by an entry */
 				Linker::Debug << "Debug: relocation from segment " << rel.source.GetPosition().segment->name << " to " << resolution.target->name << std::endl;
-				resource_fork->segments[resolution.target]->entry_relocations[resolution.value].push_back(rel);
+				resource_fork->segment_to_resource_map[resolution.target]->entry_relocations[resolution.value].push_back(rel);
 				break;
 			}
 		}
@@ -2676,7 +2676,7 @@ void PEFFormat::ProcessModule(Linker::Module& module)
 		{
 			Linker::Position position = entry.GetPosition();
 			entry_offset = position.address;
-			entry_segment = resource_fork->segments[position.segment];
+			entry_segment = resource_fork->segment_to_resource_map[position.segment];
 		}
 
 		std::shared_ptr<MacintoshResourceFileFormat::CodeResource> init_segment;
@@ -2686,7 +2686,7 @@ void PEFFormat::ProcessModule(Linker::Module& module)
 		if(module.FindGlobalSymbol(".init", init) || module.FindGlobalSymbol("init", init))
 		{
 			Linker::Position position = init.GetPosition();
-			init_segment = resource_fork->segments[position.segment];
+			init_segment = resource_fork->segment_to_resource_map[position.segment];
 			init_offset = position.address;
 		}
 		else

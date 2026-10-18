@@ -1622,7 +1622,7 @@ void MacintoshResourceFileFormat::OnNewSegment(std::shared_ptr<Linker::Segment> 
 		}
 		codeN->image = segment;
 		codes.push_back(codeN);
-		segments[segment] = codeN;
+		segment_to_resource_map[segment] = codeN;
 		AddResource(codeN);
 	}
 	else
@@ -1867,7 +1867,7 @@ void MacintoshResourceFileFormat::ProcessRelocations(Linker::Module& module)
 		case JumpTableEntry:
 			/* jsr method_name(a5) can be replaced by an entry */
 			Linker::Debug << "Debug: relocation from segment " << rel.source.GetPosition().segment->name << " to " << resolution.target->name << std::endl;
-			segments[resolution.target]->entry_relocations[resolution.value].push_back(rel);
+			segment_to_resource_map[resolution.target]->entry_relocations[resolution.value].push_back(rel);
 			break;
 		case SegmentRelative:
 			if(!use_far_segments)
@@ -1881,7 +1881,7 @@ void MacintoshResourceFileFormat::ProcessRelocations(Linker::Module& module)
 			else
 			{
 				auto position = rel.source.GetPosition();
-				segments[position.segment]->segment_relocations.insert(CodeResource::FarSegmentHeaderSize + position.address - position.segment->base_address);
+				segment_to_resource_map[position.segment]->segment_relocations.insert(CodeResource::FarSegmentHeaderSize + position.address - position.segment->base_address);
 				rel.WriteWord(resolution.value);
 			}
 			break;
@@ -1897,7 +1897,7 @@ void MacintoshResourceFileFormat::ProcessRelocations(Linker::Module& module)
 			else
 			{
 				auto position = rel.source.GetPosition();
-				segments[position.segment]->a5_relocations.insert(CodeResource::FarSegmentHeaderSize + position.address - position.segment->base_address);
+				segment_to_resource_map[position.segment]->a5_relocations.insert(CodeResource::FarSegmentHeaderSize + position.address - position.segment->base_address);
 				rel.WriteWord(resolution.value);
 			}
 			break;
@@ -2070,7 +2070,7 @@ void MacintoshResourceFileFormat::ProcessModule(Linker::Module& module)
 	{
 		Linker::Position position = entry.GetPosition();
 		entry_offset = position.address;
-		entry_segment = segments[position.segment];
+		entry_segment = segment_to_resource_map[position.segment];
 	}
 
 	if(!use_far_segments)
@@ -2086,7 +2086,7 @@ void MacintoshResourceFileFormat::ProcessModule(Linker::Module& module)
 		if(module.FindGlobalSymbol(".init", init) || module.FindGlobalSymbol("init", init))
 		{
 			Linker::Position position = init.GetPosition();
-			init_segment = segments[position.segment];
+			init_segment = segment_to_resource_map[position.segment];
 			init_offset = position.address;
 		}
 		else
