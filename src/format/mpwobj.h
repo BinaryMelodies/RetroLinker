@@ -24,6 +24,8 @@ namespace MPW
 	public:
 		class Record
 		{
+		protected:
+			static const std::map<offset_t, std::string> record_type_names;
 		public:
 			enum record_type
 			{
@@ -221,6 +223,7 @@ namespace MPW
 			static constexpr uint8_t DataFlag = 0x01;
 			static constexpr uint8_t LongFlag = 0x08;
 			static constexpr uint8_t _16Flag = 0x10;
+			static constexpr uint8_t _8Flag = 0x20;
 			static constexpr uint8_t A5RelativeFlag = 0x80;
 
 			uint8_t flags = 0;

@@ -4,6 +4,30 @@
 
 using namespace MPW;
 
+const std::map<offset_t, std::string> ObjectFormat::Record::record_type_names =
+{
+	{ Pad,               "Pad" },
+	{ First,             "First" },
+	{ Last,              "Last" },
+	{ Comment,           "Comment" },
+	{ Dictionary,        "Dictionary" },
+	{ Module,            "Module" },
+	{ EntryPoint,        "Entry Point" },
+	{ Size,              "Size" },
+	{ Contents,          "Contents" },
+	{ Reference,         "Reference" },
+	{ ComputedReference, "Computed Reference" },
+	{ Filename,          "Filename" },
+	{ SourceStatement,   "Source Statement" },
+	{ ModuleBegin,       "Module Begin" },
+	{ ModuleEnd,         "Module End" },
+	{ BlockBegin,        "Block Begin" },
+	{ BlockEnd,          "Block End" },
+	{ LocalIdentifier,   "Local Identifier" },
+	{ LocalLabel,        "Local Label" },
+	{ LocalType,         "Local Type" },
+};
+
 std::shared_ptr<ObjectFormat::Record> ObjectFormat::Record::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 {
 	std::shared_ptr<Record> record;
@@ -130,10 +154,10 @@ void ObjectFormat::Record::Dump(Dumper::Dumper& dump, offset_t record_index) con
 	switch(type)
 	{
 	case Pad:
-		record_name = "Pad";
+		record_name = "Pad record";
 		break;
 	case Last:
-		record_name = "Last";
+		record_name = "Last record";
 		break;
 	default:
 		record_name = "Unknown record";
@@ -142,6 +166,7 @@ void ObjectFormat::Record::Dump(Dumper::Dumper& dump, offset_t record_index) con
 
 	Dumper::Region record_region(record_name, record_offset, ImageSize(), 8);
 	record_region.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(record_index + 1));
+	record_region.AddField("Record type", Dumper::ChoiceDisplay::Make(record_type_names, Dumper::DecDisplay::Make()), offset_t(type));
 	if(record_name == "Unknown record")
 	{
 		record_region.AddField("Record type", Dumper::HexDisplay::Make(2), offset_t(type));
@@ -170,8 +195,9 @@ offset_t ObjectFormat::FirstRecord::WriteFile(const std::shared_ptr<Linker::Writ
 
 void ObjectFormat::FirstRecord::Dump(Dumper::Dumper& dump, offset_t record_index) const
 {
-	Dumper::Region record_region("First", record_offset, ImageSize(), 8);
+	Dumper::Region record_region("First record", record_offset, ImageSize(), 8);
 	record_region.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(record_index + 1));
+	record_region.AddField("Record type", Dumper::ChoiceDisplay::Make(record_type_names, Dumper::DecDisplay::Make()), offset_t(type));
 	record_region.AddField("Flags",
 		Dumper::BitFieldDisplay::Make(2)
 			->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("nested"), true),
@@ -213,11 +239,11 @@ offset_t ObjectFormat::CommentRecord::WriteFile(const std::shared_ptr<Linker::Wr
 
 void ObjectFormat::CommentRecord::Dump(Dumper::Dumper& dump, offset_t record_index) const
 {
-	Dumper::Region record_region("Comment", record_offset, ImageSize(), 8);
-	record_region.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(record_index + 1));
-	record_region.Display(dump, Dumper::Header);
-
-	Dumper::Block record_block("Comment", record_offset + 4, comments->AsImage(), 0, 8);
+	Dumper::Block record_block("Comment record", record_offset + 4, comments->AsImage(), 0, 8);
+	record_block.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(record_index + 1));
+	record_block.AddField("Record type", Dumper::ChoiceDisplay::Make(record_type_names, Dumper::DecDisplay::Make()), offset_t(type));
+	record_block.AddField("Record offset", Dumper::HexDisplay::Make(8), offset_t(record_offset));
+	record_block.AddField("Record size", Dumper::HexDisplay::Make(8), offset_t(ImageSize()));
 	record_block.Display(dump, Dumper::Header);
 }
 
@@ -269,8 +295,9 @@ offset_t ObjectFormat::DictionaryRecord::WriteFile(const std::shared_ptr<Linker:
 
 void ObjectFormat::DictionaryRecord::Dump(Dumper::Dumper& dump, offset_t record_index) const
 {
-	Dumper::Region record_region("Dictionary", record_offset, ImageSize(), 8);
+	Dumper::Region record_region("Dictionary record", record_offset, ImageSize(), 8);
 	record_region.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(record_index + 1));
+	record_region.AddField("Record type", Dumper::ChoiceDisplay::Make(record_type_names, Dumper::DecDisplay::Make()), offset_t(type));
 	record_region.AddField("Flags",
 		Dumper::BitFieldDisplay::Make(2)
 			->AddBitField(7, 1, Dumper::ChoiceDisplay::Make("Debug", "Link"), false),
@@ -314,8 +341,9 @@ offset_t ObjectFormat::ModuleRecord::WriteFile(const std::shared_ptr<Linker::Wri
 
 void ObjectFormat::ModuleRecord::Dump(Dumper::Dumper& dump, offset_t record_index) const
 {
-	Dumper::Region record_region("Module", record_offset, ImageSize(), 8);
+	Dumper::Region record_region("Module record", record_offset, ImageSize(), 8);
 	record_region.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(record_index + 1));
+	record_region.AddField("Record type", Dumper::ChoiceDisplay::Make(record_type_names, Dumper::DecDisplay::Make()), offset_t(type));
 	record_region.AddField("Flags",
 		Dumper::BitFieldDisplay::Make(2)
 			->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("data", "code"), false)
@@ -437,18 +465,6 @@ offset_t ObjectFormat::ContentsRecord::WriteFile(const std::shared_ptr<Linker::W
 
 void ObjectFormat::ContentsRecord::Dump(Dumper::Dumper& dump, offset_t record_index) const
 {
-	Dumper::Region record_region("Contents", record_offset, ImageSize(), 8);
-	record_region.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(record_index + 1));
-	record_region.AddField("Flags",
-		Dumper::BitFieldDisplay::Make(2)
-			->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("data", "code"), false)
-			->AddBitField(3, 1, Dumper::ChoiceDisplay::Make("partial", "complete"), false)
-			->AddBitField(4, 1, Dumper::ChoiceDisplay::Make("repeat"), true),
-		offset_t(flags));
-	record_region.AddOptionalField("Offset", Dumper::HexDisplay::Make(8), offset_t(offset));
-	record_region.AddOptionalField("Repeat", Dumper::DecDisplay::Make(), offset_t(repeat));
-	record_region.Display(dump, Dumper::Header);
-
 	uint16_t contents_offset = 4;
 	if(flags & PartialFlag)
 	{
@@ -460,34 +476,128 @@ void ObjectFormat::ContentsRecord::Dump(Dumper::Dumper& dump, offset_t record_in
 	}
 
 	Dumper::Block record_block("Contents", record_offset + contents_offset, contents->AsImage(), offset_t(offset), 8);
+	record_block.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(record_index + 1));
+	record_block.AddField("Record type", Dumper::ChoiceDisplay::Make(record_type_names, Dumper::DecDisplay::Make()), offset_t(type));
+	record_block.AddField("Record offset", Dumper::HexDisplay::Make(8), offset_t(record_offset));
+	record_block.AddField("Record size", Dumper::HexDisplay::Make(8), offset_t(ImageSize()));
+	record_block.AddField("Flags",
+		Dumper::BitFieldDisplay::Make(2)
+			->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("data", "code"), false)
+			->AddBitField(3, 1, Dumper::ChoiceDisplay::Make("partial", "complete"), false)
+			->AddBitField(4, 1, Dumper::ChoiceDisplay::Make("repeat"), true),
+		offset_t(flags));
+	record_block.AddOptionalField("Offset in module", Dumper::HexDisplay::Make(8), offset_t(offset));
+	record_block.AddOptionalField("Repeat", Dumper::DecDisplay::Make(), offset_t(repeat));
+	record_block.Display(dump, Dumper::Header);
+
 	// TODO: repeat
 	record_block.Display(dump, Dumper::Header);
 }
 
 void ObjectFormat::ReferenceRecord::ReadBody(const std::shared_ptr<Linker::Reader>& rd)
 {
-	rd->ReadUnsigned(1);
+	flags = rd->ReadUnsigned(1);
 	uint16_t record_size = rd->ReadUnsigned(2);
-	// TODO
-	Linker::Error << "Error: Unimplemented record type " << int(type) << std::endl;
-	rd->Skip(record_size - 4);
+	id = rd->ReadUnsigned(2);
+	uint16_t record_bytes = 6;
+	if(type == ComputedReference)
+	{
+		id2 = rd->ReadUnsigned(2);
+		record_bytes += 2;
+	}
+	if(record_size < record_bytes)
+	{
+		if(type == ComputedReference)
+			Linker::Error << "Error: Invalid size for Computed Reference record" << std::endl;
+		else
+			Linker::Error << "Error: Invalid size for Reference record" << std::endl;
+		return;
+	}
+	record_size -= record_bytes;
+	size_t offset_size = flags & LongFlag ? 4 : 2;
+	while(record_size >= offset_size)
+	{
+		offsets.push_back(rd->ReadUnsigned(offset_size));
+		record_size -= offset_size;
+	}
+	if(record_size)
+	{
+		Linker::Warning << "Warning: Remaining bytes in record, skipping" << std::endl;
+		rd->Skip(record_size);
+	}
 }
 
 offset_t ObjectFormat::ReferenceRecord::ImageSize() const
 {
-	// TODO
-	return offset_t(-1);
+	return (type == ComputedReference ? 8 : 6) + (flags & LongFlag ? 4 : 2) * offsets.size();
 }
 
 offset_t ObjectFormat::ReferenceRecord::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	// TODO
-	return offset_t(-1);
+	wr->WriteWord(1, type);
+	wr->WriteWord(1, flags);
+	wr->WriteWord(2, ImageSize());
+	wr->WriteWord(2, id);
+	if(type == ComputedReference)
+	{
+		wr->WriteWord(1, id2);
+	}
+	size_t offset_size = flags & LongFlag ? 4 : 2;
+	for(auto offset : offsets)
+	{
+		wr->WriteWord(offset_size, offset);
+	}
+	return ImageSize();
 }
 
 void ObjectFormat::ReferenceRecord::Dump(Dumper::Dumper& dump, offset_t record_index) const
 {
-	// TODO
+	std::string record_name;
+	switch(type)
+	{
+	case Reference:
+		record_name = "Reference record";
+		break;
+	case ComputedReference:
+		record_name = "Computed Reference record";
+		break;
+	default:
+		record_name = "Unknown record";
+		break;
+	}
+
+	Dumper::Region record_region(record_name, record_offset, ImageSize(), 8);
+	record_region.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(record_index + 1));
+	record_region.AddField("Record type", Dumper::ChoiceDisplay::Make(record_type_names, Dumper::DecDisplay::Make()), offset_t(type));
+	static const std::map<offset_t, std::string> reference_size_names =
+	{
+		{ 0, "32-bit" },
+		{ 1, "16-bit" },
+		{ 2, "8-bit" },
+	};
+	record_region.AddField("Flags",
+		Dumper::BitFieldDisplay::Make(2)
+			->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("data", "code"), false)
+			->AddBitField(3, 1, Dumper::ChoiceDisplay::Make("long", "short"), false)
+			->AddBitField(4, type == ComputedReference ? 2 : 1, "location size", Dumper::ChoiceDisplay::Make(reference_size_names), false)
+			->AddBitField(7, 1, Dumper::ChoiceDisplay::Make(type == ComputedReference ? "difference" : "A5-relative"), true),
+		offset_t(flags));
+	record_region.AddField("Reference ID", Dumper::HexDisplay::Make(4), offset_t(id));
+	if(type == ComputedReference)
+	{
+		record_region.AddField("Frame ID", Dumper::HexDisplay::Make(4), offset_t(id2));
+	}
+	record_region.Display(dump, Dumper::Header);
+	offset_t offset_index = 0;
+	offset_t offset_offset = record_offset + (type == ComputedReference ? 8 : 6);
+	for(auto offset : offsets)
+	{
+		Dumper::Entry offset_entry("Offset", offset_t(offset_index + 1), offset_t(offset_offset), 8);
+		offset_entry.AddField("Offset", Dumper::HexDisplay::Make(flags & LongFlag ? 8 : 4), offset_t(offset));
+		offset_entry.Display(dump, Dumper::Relocation);
+		offset_offset += flags & LongFlag ? 4 : 2;
+		offset_index ++;
+	}
 }
 
 void ObjectFormat::FilenameRecord::ReadBody(const std::shared_ptr<Linker::Reader>& rd)
@@ -513,8 +623,9 @@ offset_t ObjectFormat::FilenameRecord::WriteFile(const std::shared_ptr<Linker::W
 
 void ObjectFormat::FilenameRecord::Dump(Dumper::Dumper& dump, offset_t record_index) const
 {
-	Dumper::Region record_region("Filename", record_offset, ImageSize(), 8);
+	Dumper::Region record_region("Filename record", record_offset, ImageSize(), 8);
 	record_region.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(record_index + 1));
+	record_region.AddField("Record type", Dumper::ChoiceDisplay::Make(record_type_names, Dumper::DecDisplay::Make()), offset_t(type));
 	record_region.AddField("File ID", Dumper::HexDisplay::Make(4), offset_t(file_id));
 	record_region.AddField("Modification", Dumper::TimestampDisplay<Macintosh_clock>::Make(), modification);
 	record_region.Display(dump, Dumper::Header);
@@ -579,8 +690,9 @@ offset_t ObjectFormat::ModuleBeginRecord::WriteFile(const std::shared_ptr<Linker
 
 void ObjectFormat::ModuleBeginRecord::Dump(Dumper::Dumper& dump, offset_t record_index) const
 {
-	Dumper::Region record_region("Module Begin", record_offset, ImageSize(), 8);
+	Dumper::Region record_region("Module Begin record", record_offset, ImageSize(), 8);
 	record_region.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(record_index + 1));
+	record_region.AddField("Record type", Dumper::ChoiceDisplay::Make(record_type_names, Dumper::DecDisplay::Make()), offset_t(type));
 	record_region.AddField("Flags",
 		Dumper::BitFieldDisplay::Make(2)
 			->AddBitField(2, 1, Dumper::ChoiceDisplay::Make("declaration"), true)
@@ -775,8 +887,9 @@ offset_t ObjectFormat::LocalIdentifierRecord::WriteFile(const std::shared_ptr<Li
 
 void ObjectFormat::LocalIdentifierRecord::Dump(Dumper::Dumper& dump, offset_t record_index) const
 {
-	Dumper::Region record_region("Local Identifier", record_offset, ImageSize(), 8);
+	Dumper::Region record_region("Local Identifier record", record_offset, ImageSize(), 8);
 	record_region.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(record_index + 1));
+	record_region.AddField("Record type", Dumper::ChoiceDisplay::Make(record_type_names, Dumper::DecDisplay::Make()), offset_t(type));
 	record_region.AddField("Flags",
 		Dumper::BitFieldDisplay::Make(2)
 			->AddBitField(7, 1, "file offset size", Dumper::ChoiceDisplay::Make("16-bit", "32-bit"), false),
