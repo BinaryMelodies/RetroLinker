@@ -332,7 +332,7 @@ namespace MPW
 				: Record(type, record_offset)
 			{
 			}
-			static constexpr uint8_t IsDeclarationFlag = 0x04;
+			static constexpr uint8_t CodeOffset16Flag = 0x40;
 			static constexpr uint8_t FileOffset16Flag = 0x80;
 
 			uint8_t flags = 0;
