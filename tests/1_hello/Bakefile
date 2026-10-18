@@ -208,6 +208,10 @@ Target(
 	Version = "32bit",
 	output_file = "macos32")
 Target(
+	System = "macos",
+	Version = "far",
+	output_file = "macos-far")
+Target(
 	System = "macos_ppc",
 	output_file = "macos_ppc")
 Target(
