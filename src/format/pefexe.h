@@ -79,6 +79,14 @@ namespace Apple
 	public:
 		std::shared_ptr<PEFHeaderBase> header;
 
+		enum target_system_type
+		{
+			MacOS,
+			Carbon,
+			BeOS, // TODO: unimplemented
+		};
+		target_system_type system_type = MacOS;
+
 		PEFFormat(PEFHeaderBase::binary_type type = PEFHeaderBase::UnknownBinary, PEFHeaderBase::cpu_type architecture = PEFHeaderBase::PPC)
 			: header(std::make_shared<PEFHeaderBase>(type, architecture))
 		{
@@ -761,6 +769,20 @@ namespace Apple
 		offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
 		void Dump(Dumper::Dumper& dump) const override;
 
+		class PEFOptionCollector : public Linker::OptionCollector
+		{
+		public:
+			Linker::Option<bool> carbon{"carbon", "Generate Carbon binary"};
+
+			PEFOptionCollector()
+			{
+				InitializeFields(carbon);
+			}
+		};
+
+		std::shared_ptr<Linker::OptionCollector> GetOptions() override;
+		void SetOptions(std::map<std::string, std::string>& options) override;
+
 		void OnNewSegment(std::shared_ptr<Linker::Segment> segment) override;
 		std::unique_ptr<Script::List> GetScript(Linker::Module& module);
 		void Link(Linker::Module& module);
@@ -929,9 +951,45 @@ namespace Apple
 		std::map<std::string, std::string> script_options;
 
 	public:
+		// TODO: duplicated from Classic68K::DriverOptionCollector
+		// TODO: extend OutputDriver::DriverOptionCollector
+		class DriverOptionCollector : public PEFFormat::PEFOptionCollector
+		{
+		public:
+			class MacBinaryVersionEnumerator : public Linker::Enumeration<MacBinary::version_t>
+			{
+			public:
+				MacBinaryVersionEnumerator()
+					: Enumeration(
+						"1", MacBinary::MACBIN1,
+						"GETINFO", MacBinary::MACBIN1_GETINFO,
+						"2", MacBinary::MACBIN2,
+						"3", MacBinary::MACBIN3)
+				{
+					descriptions = {
+						{ MacBinary::MACBIN1, "Revision 1 (1985)" },
+						{ MacBinary::MACBIN1_GETINFO, "Revision 1 (1985) with Get Info extension" },
+						{ MacBinary::MACBIN2, "MacBinary II, Revision 2 (1987)" },
+						{ MacBinary::MACBIN3, "MacBinary III, Revision 3 (1987)" },
+					};
+				}
+			};
 
-		//std::shared_ptr<Linker::OptionCollector> GetOptions() override;
-		//void SetOptions(std::map<std::string, std::string>& options) override;
+			Linker::Option<std::optional<offset_t>> asver{"asver", "Version of the AppleSingle/AppleDouble container (recognized values: 1, 2)"};
+			Linker::Option<std::optional<offset_t>> adver{"adver", "Version of the AppleSingle/AppleDouble container (recognized values: 1, 2)"};
+			Linker::Option<std::optional<Linker::ItemOf<MacBinaryVersionEnumerator>>> mbinver{"mbinver", "Version of the MacBinary container"};
+			Linker::Option<std::optional<Linker::ItemOf<MacBinaryVersionEnumerator>>> minmbinver{"minmbinver", "Minimum required version for the MacBinary container"};
+
+			DriverOptionCollector()
+				: PEFOptionCollector()
+				// TODO: if OutputDriver::DriverOptionCollector is created, call its too constructor
+			{
+				InitializeFields(asver, adver, mbinver, minmbinver);
+			}
+		};
+
+		std::shared_ptr<Linker::OptionCollector> GetOptions() override;
+		void SetOptions(std::map<std::string, std::string>& options) override;
 
 		std::vector<Linker::OptionDescription<void>> GetMemoryModelNames() override;
 		void SetModel(std::string model) override;

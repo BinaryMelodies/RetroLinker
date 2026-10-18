@@ -102,7 +102,11 @@ message:
 .if TARGET_LINUX
 	.ascii	" Linux (32-bit PowerPC)"
 .elseif	TARGET_MACOS
+.if	!VERSION_CARBON
 	.ascii	" Mac OS (PowerPC)"
+.else
+	.ascii	" Mac OS (Carbon, PowerPC)"
+.endif	# VERSION_CARBON
 .endif
 
 	.byte	0

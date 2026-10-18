@@ -71,7 +71,7 @@ start:
 	bsrw	PutNewLine
 
 .if TARGET_MACOS
-.ifdef VERSION_FAR
+.if VERSION_FAR
 	_LoadA	text_start_relocation, a0
 	bsrw	PutString
 	move.l	#start, d0
@@ -93,7 +93,7 @@ start:
 	bsrw	PutLong
 	bsrw	PutNewLine
 
-.ifdef VERSION_FAR
+.if VERSION_FAR
 	_LoadA	text_a5_relocation, a0
 	bsrw	PutString
 	move.l	#a5world_end, d0
@@ -366,7 +366,7 @@ text_jump_table_address:
 	.asciz	"Jump table entry: "
 .endif
 
-.ifdef VERSION_FAR
+.if VERSION_FAR
 text_start_relocation:
 	.asciz	"Entry point (relocated): "
 

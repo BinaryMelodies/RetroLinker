@@ -2171,6 +2171,22 @@ void PEFFormat::Dump(Dumper::Dumper& dump) const
 	// TODO
 }
 
+std::shared_ptr<Linker::OptionCollector> PEFFormat::GetOptions()
+{
+	return std::make_shared<PEFOptionCollector>();
+}
+
+void PEFFormat::SetOptions(std::map<std::string, std::string>& options)
+{
+	PEFOptionCollector collector;
+	collector.ConsiderOptions(options);
+
+	if(collector.carbon())
+	{
+		system_type = Carbon;
+	}
+}
+
 void PEFFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 {
 	if(segment->sections.size() == 0)
@@ -3056,7 +3072,6 @@ bool PEFOutputDriver::FormatSupportsTransitionVectors() const
 	return true; // Note: only for 68K, but it could be implemented for PPC
 }
 
-#if 0
 std::shared_ptr<Linker::OptionCollector> PEFOutputDriver::GetOptions()
 {
 	return std::make_shared<DriverOptionCollector>();
@@ -3133,7 +3148,6 @@ void PEFOutputDriver::SetOptions(std::map<std::string, std::string>& options)
 
 	this->options = options;
 }
-#endif
 
 std::vector<Linker::OptionDescription<void>> PEFOutputDriver::GetMemoryModelNames()
 {
@@ -3212,7 +3226,22 @@ void PEFOutputDriver::GenerateFile(std::string filename, Linker::Module& module)
 	}
 
 	// create 'SIZE'-1
-	resource_fork->AddResource(std::make_shared<MacintoshResourceFileFormat::SizeResource>(MacintoshResourceFileFormat::SizeResource::Classic32));
+	MacintoshResourceFileFormat::SizeResource::target_type target;
+	switch(data_fork->fragments[0].pef_format->system_type)
+	{
+	case PEFFormat::MacOS:
+		target = MacintoshResourceFileFormat::SizeResource::Classic32;
+		break;
+	case PEFFormat::Carbon:
+		target = MacintoshResourceFileFormat::SizeResource::Carbon;
+		break;
+	//case PEFFormat::BeOS: // TODO: unimplemented
+	default:
+		Linker::Error << "Internal error: Unknown target system, setting 'SIZE'-1 to Classic Mac OS" << std::endl;
+		target = MacintoshResourceFileFormat::SizeResource::Classic32;
+		break;
+	}
+	resource_fork->AddResource(std::make_shared<MacintoshResourceFileFormat::SizeResource>(target));
 
 	GenerateFiles(filename, data_fork, resource_fork);
 }

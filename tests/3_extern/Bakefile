@@ -29,6 +29,11 @@ Recipe([
 		EndFor
 		], Dependency = ["../include/{include_name}.inc", "../include/common.inc"], Executable = "{output_file}{extension}"),
 	Link(Format = "{linker_format_name}", Input = ["obj/{output_file}{extension}.1.o", "obj/{output_file}{extension}.2.o"], Output = "{output_file}{extension}", Arguments = [
+		IfDefined("additional_arguments"),
+			ForAll("argument", In = "additional_arguments"),
+				"{argument}",
+			EndFor,
+		EndIf,
 		IfDefined("linker_model_name"),
 			"-M{linker_model_name}",
 		EndIf,
@@ -43,7 +48,10 @@ Recipe([
 		EndFor,
 		ForAll("parameter", In = "linker_parameters"),
 			"-P{parameter}",
-		EndFor
+		EndFor,
+		IfDefined("required_entry"),
+			"-d.entry=start",
+		EndIf,
 #		IfDefined("custom_entry"),
 #			"-d.entry=start",
 #		EndIf

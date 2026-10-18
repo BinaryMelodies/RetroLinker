@@ -914,7 +914,7 @@ DefineTarget(
 	LinkerName = "pef",
 	Versions = [
 		DefineVersion("", ModelName = "default", LinkerName = ""),
-		#DefineVersion("carbon", ModelName = "default"), # TODO
+		DefineVersion("carbon", ModelName = "default", LinkerName = "", LinkerOptions = ["carbon"]),
 	],
 	required_entry = True,
 	custom_entry = True,

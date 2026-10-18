@@ -28,21 +28,33 @@ TOC:
 .macro	__DEFSYSCALL	__syscall
 	.section	.toc
 \__syscall\()_TOC:
+.if	!VERSION_CARBON
 	.long	$$IMPORT$InterfaceLib$_\__syscall
+.else
+	.long	$$IMPORT$CarbonLib$_\__syscall
+.endif
 	.section	.text
 .endm
+.if	!VERSION_CARBON
 __DEFSYSCALL	InitGraf
 __DEFSYSCALL	InitFonts
 __DEFSYSCALL	InitWindows
 __DEFSYSCALL	InitCursor
+.endif
 __DEFSYSCALL	DrawChar
 __DEFSYSCALL	TextMode
 __DEFSYSCALL	MoveTo
+.if	!VERSION_CARBON
 __DEFSYSCALL	GetNextEvent
+.else
+__DEFSYSCALL	NewRgn
+__DEFSYSCALL	WaitNextEvent
+.endif
 __DEFSYSCALL	ExitToShell
 .endif
 
 	# Toolbox calls
+.if	!VERSION_CARBON
 .macro	__InitGraf
 .if	CPU_M68K
 	.short	0xA86E
@@ -71,6 +83,7 @@ __DEFSYSCALL	ExitToShell
 	__SYSCALL	InitCursor, 0
 .endif
 .endm
+.endif
 .macro	__DrawChar
 .if	CPU_M68K
 	.short	0xA883
@@ -92,6 +105,7 @@ __DEFSYSCALL	ExitToShell
 	__SYSCALL	MoveTo, 2
 .endif
 .endm
+.if	!VERSION_CARBON
 .macro	__GetNextEvent
 .if	CPU_M68K
 	.short	0xA970
@@ -99,6 +113,15 @@ __DEFSYSCALL	ExitToShell
 	__SYSCALL	GetNextEvent, 2
 .endif
 .endm
+.endif
+.if	VERSION_CARBON
+.macro	__NewRgn
+	__SYSCALL	NewRgn, 0
+.endm
+.macro	__WaitNextEvent
+	__SYSCALL	WaitNextEvent, 4
+.endm
+.endif
 .macro	__ExitToShell
 .if	CPU_M68K
 	.short	0xA9F4
@@ -111,6 +134,7 @@ __DEFSYSCALL	ExitToShell
 
 .macro	_StartUp
 	# Initialize basic Toolbox managers
+.if	!VERSION_CARBON
 .if	CPU_M68K
 	pea	-4(a5)
 .elseif	CPU_PPC
@@ -125,6 +149,14 @@ qd_thePort:
 	__InitFonts
 	__InitWindows
 	__InitCursor
+.endif
+
+.if	VERSION_CARBON
+	# Create a new region handle, to be used with WaitNextEvent
+	__NewRgn
+	lwz	r9, cursor_rgn_TOC - .toc(r2)
+	stw	r3, 0(r9)
+.endif
 
 	# Initialize text writing routines
 # TextMode(srcCopy)
@@ -207,7 +239,14 @@ event_TOC:
 	.section	.text
 	lwz	r4, event_TOC - .toc(r2)
 .endif
+
+.if	!VERSION_CARBON
 	__GetNextEvent
+.else
+	li	r5, 0
+	lwz	r6, cursor_rgn_TOC - .toc(r2)
+	__WaitNextEvent
+.endif
 
 .if	CPU_M68K
 	move.b	(sp), d0
@@ -250,6 +289,14 @@ event_TOC:
 .if	CPU_M68K
 	.section	.a5world, "aw", @nobits
 .elseif	CPU_PPC
+.if	VERSION_CARBON
+	.section	.toc
+cursor_rgn_TOC:
+	.long	cursor_rgn
+	.section	.bss
+cursor_rgn:
+	.skip	4
+.endif
 	.section	.toc
 current_row_TOC:
 	.long	current_row

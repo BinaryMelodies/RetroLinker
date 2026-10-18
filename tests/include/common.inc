@@ -196,6 +196,12 @@
 .set OPTION_NEWLINE_PROC, 1
 .set OPTION_CUSTOM_ENTRY, 1
 .set OPTION_NO_RELOC, 1
+.ifndef VERSION_FAR
+.set VERSION_FAR, 0
+.endif
+.ifndef VERSION_CARBON
+.set VERSION_CARBON, 0
+.endif
 .endif
 
 .ifndef TARGET_SQL
