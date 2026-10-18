@@ -1206,28 +1206,162 @@ void ObjectFormat::LocalLabelRecord::Dump(Dumper::Dumper& dump, offset_t record_
 
 void ObjectFormat::LocalTypeRecord::ReadBody(const std::shared_ptr<Linker::Reader>& rd)
 {
-	rd->ReadUnsigned(1);
+	flags = rd->ReadUnsigned(1);
 	uint16_t record_size = rd->ReadUnsigned(2);
-	// TODO
-	Linker::Error << "Error: Unimplemented record type " << int(type) << std::endl;
-	rd->Skip(record_size - 4);
+	parent_id = rd->ReadUnsigned(2);
+	first_id = rd->ReadUnsigned(2);
+	file_id = rd->ReadUnsigned(2);
+	uint32_t file_offset = rd->ReadUnsigned(flags & FileOffset16Flag ? 2 : 4);
+	uint16_t record_bytes = 10 + (flags & FileOffset16Flag ? 2 : 4);
+	if(record_size < record_bytes)
+	{
+		Linker::Error << "Error: Invalid size for Local Type record" << std::endl;
+		return;
+	}
+	record_size -= record_bytes;
+	while(true)
+	{
+		declarations.push_back(Declaration());
+		Declaration& declaration = declarations.back();
+		declaration.file_offset = file_offset;
+		// TODO: read overflow
+		uint16_t data_size = rd->ReadUnsigned(2);
+		record_size -= 2;
+		uint16_t fixup_count = rd->ReadUnsigned(2);
+		record_size -= 2;
+		declaration.physical_size = rd->ReadUnsigned(flags & _16Flag ? 2 : 4);
+		record_size -= flags & _16Flag ? 2 : 4;
+		rd->ReadData(data_size, declaration.type_data);
+		if((data_size & 1) != 0)
+		{
+			rd->Skip(1);
+		}
+		record_size -= (data_size + 1) & ~1;
+		for(uint16_t fixup_index = 0; fixup_index < fixup_count; fixup_index++)
+		{
+			Fixup fixup;
+			uint16_t data_offset = rd->ReadUnsigned(2);
+			fixup.type = data_offset >> 13;
+			fixup.data_offset = data_offset & 0x1FFF;
+			fixup.id = rd->ReadUnsigned(2);
+			declaration.fixups.push_back(fixup);
+			record_size -= 4;
+		}
+
+		if(record_size > 2)
+		{
+			int16_t file_delta = rd->ReadSigned(2);
+			file_offset += file_delta;
+		}
+		else
+		{
+			break;
+		}
+	}
+
+	if(record_size)
+	{
+		Linker::Warning << "Warning: Remaining bytes in record, skipping" << std::endl;
+		rd->Skip(record_size);
+	}
 }
 
 offset_t ObjectFormat::LocalTypeRecord::ImageSize() const
 {
-	// TODO
-	return offset_t(-1);
+	offset_t size = 10 + (flags & FileOffset16Flag ? 2 : 4) - 2 + (4 + (flags & _16Flag ? 2 : 4)) * declarations.size();
+	for(auto& declaration : declarations)
+	{
+		size += ((declaration.type_data.size() + 1) & ~1) + 4 * declaration.fixups.size();
+	}
+	return size;
 }
 
 offset_t ObjectFormat::LocalTypeRecord::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	// TODO
-	return offset_t(-1);
+	offset_t image_size = ImageSize();
+
+	wr->WriteWord(1, type);
+	wr->WriteWord(1, flags);
+	wr->WriteWord(2, image_size);
+	wr->WriteWord(2, parent_id);
+	wr->WriteWord(2, first_id);
+	wr->WriteWord(2, file_id);
+
+	bool started = false;
+	uint32_t file_offset = 0;
+	for(auto& declaration : declarations)
+	{
+		uint32_t new_file_offset = declaration.file_offset;
+
+		if(!started)
+		{
+			started = true;
+			wr->WriteWord(flags & FileOffset16Flag ? 2 : 4, new_file_offset);
+		}
+		else
+		{
+			wr->WriteWord(2, new_file_offset - file_offset);
+		}
+
+		wr->WriteWord(2, declaration.type_data.size());
+		wr->WriteWord(2, declaration.fixups.size());
+		wr->WriteWord(flags & _16Flag ? 2 : 4, declaration.physical_size);
+		wr->WriteData(declaration.type_data);
+		if((declaration.type_data.size() & 1) != 0)
+		{
+			wr->WriteWord(1, 0);
+		}
+
+		for(auto& fixup : declaration.fixups)
+		{
+			wr->WriteWord(2, fixup.data_offset | (fixup.type << 13));
+			wr->WriteWord(2, fixup.id);
+		}
+
+		file_offset = new_file_offset;
+	}
+
+	return image_size;
 }
 
 void ObjectFormat::LocalTypeRecord::Dump(Dumper::Dumper& dump, offset_t record_index) const
 {
-	// TODO
+	Dumper::Region record_region("Local Type record", record_offset, ImageSize(), 8);
+	record_region.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(record_index + 1));
+	record_region.AddField("Record type", Dumper::ChoiceDisplay::Make(record_type_names, Dumper::DecDisplay::Make()), offset_t(type));
+	record_region.AddField("Flags",
+		Dumper::BitFieldDisplay::Make(2)
+			->AddBitField(5, 1, "file offset", Dumper::ChoiceDisplay::Make("16-bit", "32-bit"), false)
+			->AddBitField(7, 1, "size width", Dumper::ChoiceDisplay::Make("16-bit", "32-bit"), false),
+		offset_t(flags));
+	record_region.AddField("Parent ID", Dumper::HexDisplay::Make(4), offset_t(parent_id));
+	record_region.AddField("File ID", Dumper::HexDisplay::Make(4), offset_t(file_id));
+	record_region.AddField("First ID", Dumper::HexDisplay::Make(4), offset_t(first_id));
+	record_region.Display(dump, Dumper::Header);
+
+	offset_t declaration_index = 0;
+	offset_t declaration_offset = record_offset + 10 + (flags & FileOffset16Flag ? 2 : 4);
+	for(auto& declaration : declarations)
+	{
+		Dumper::Entry declaration_entry("Declaration", offset_t(declaration_index + 1), offset_t(declaration_offset), 8);
+		declaration_entry.AddField("ID", Dumper::HexDisplay::Make(4), offset_t(first_id + declaration_index));
+		declaration_entry.AddField("File offset", Dumper::HexDisplay::Make(8), offset_t(declaration.file_offset));
+		declaration_entry.AddField("Data", Dumper::BlobDisplay::Make(declaration.type_data.size(), Dumper::StringDisplay::Make("'")), declaration.type_data);
+		declaration_entry.AddField("Size", Dumper::HexDisplay::Make(flags & _16Flag ? 4 : 8), offset_t(declaration.physical_size));
+		declaration_entry.Display(dump, Dumper::Symbol);
+		declaration_offset += 4 + (flags & _16Flag ? 2 : 4);
+		offset_t fixup_index = 0;
+		for(auto& fixup : declaration.fixups)
+		{
+			Dumper::Entry fixup_entry("Fixup", offset_t(fixup_index + 1), offset_t(declaration_offset), 8);
+			fixup_entry.AddField("ID", Dumper::HexDisplay::Make(4), offset_t(fixup.id));
+			fixup_entry.AddField("Data offset", Dumper::HexDisplay::Make(4), offset_t(fixup.data_offset));
+			fixup_entry.AddField("Type", Dumper::HexDisplay::Make(1), offset_t(fixup.type));
+			fixup_entry.Display(dump, Dumper::Symbol);
+			fixup_index ++;
+		}
+		declaration_index ++;
+	}
 }
 
 void ObjectFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)

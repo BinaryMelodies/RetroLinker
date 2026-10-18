@@ -444,7 +444,31 @@ namespace MPW
 				: Record(type, record_offset)
 			{
 			}
-			// TODO:
+
+			struct Fixup
+			{
+				uint8_t type : 3 = 0;
+				uint16_t data_offset : 13 = 0;
+				uint16_t id = 0;
+			};
+
+			struct Declaration
+			{
+				uint32_t file_offset = 0;
+				uint32_t physical_size = 0;
+				std::vector<uint8_t> type_data;
+				std::vector<Fixup> fixups;
+			};
+
+			static constexpr uint8_t FileOffset16Flag = 0x20;
+			static constexpr uint8_t _16Flag = 0x80;
+
+			uint8_t flags = 0;
+			uint16_t parent_id = 0;
+			uint16_t first_id = 0;
+			uint16_t file_id = 0;
+			std::vector<Declaration> declarations;
+
 			void ReadBody(const std::shared_ptr<Linker::Reader>& rd) override;
 			offset_t ImageSize() const override;
 			offset_t WriteFile(const std::shared_ptr<Linker::Writer>& wr) const override;
