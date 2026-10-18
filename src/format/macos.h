@@ -555,7 +555,7 @@ namespace Apple
 				std::shared_ptr<JumpTableCodeResource> jump_table,
 				uint32_t& jump_table_offset,
 				Location seg_loader,
-				std::optional<TransitionVector> starting_tvector);
+				std::optional<TransitionVector> starting_tvector = {});
 
 			void CalculateValues() override;
 

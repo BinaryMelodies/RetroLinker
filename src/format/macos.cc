@@ -1931,6 +1931,12 @@ void MacintoshResourceFileFormat::AllocateJumpTableEntries(JumpTableCodeResource
 				Linker::Error << "Error: entry offset out of bounds (enable far segments using -Sfar)" << std::endl;
 			}
 		}
+
+		for(auto tvector_entry : resource->tvector_relocations)
+		{
+			auto tvector = tvector_entry.first;
+			resource->transition_vectors.insert(tvector);
+		}
 	}
 }
 
@@ -2017,13 +2023,28 @@ void MacintoshResourceFileFormat::BuildCFM68KJumpTable(std::shared_ptr<CodeResou
 		resource->StoreFarSegmentNearEntries(jump_table, jump_table_offset);
 	}
 
-	// TODO: transition vectors
+	// transition vectors
 
-	jump_table->jump_table->transition_vectors.push_back(JumpTable::TransitionVector{
-		seg_loader_section, seg_loader_offset,
-		a5_section, a5_offset,
-		entry_segment->id, {}, entry_offset
-	});
+	Location seg_loader = Location::Sectioned(seg_loader_section.value_or(0), seg_loader_offset);
+	Location a5_world = Location::Sectioned(a5_section.value_or(0), a5_offset);
+
+	entry_segment->StoreTransitionVectorEntries(
+		jump_table,
+		jump_table_offset,
+		seg_loader,
+		CodeResource::TransitionVector{entry_offset, a5_world});
+
+	for(auto& resource : codes)
+	{
+		/* since the first entry is already loaded, we have to skip it */
+		if(resource == entry_segment)
+			continue;
+
+		resource->StoreTransitionVectorEntries(
+			jump_table,
+			jump_table_offset,
+			seg_loader);
+	}
 }
 
 void MacintoshResourceFileFormat::ProcessModule(Linker::Module& module)

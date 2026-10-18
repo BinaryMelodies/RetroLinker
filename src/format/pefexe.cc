@@ -734,6 +734,30 @@ void PEFFormat::RelocOpcode::Dump(Dumper::Dumper& dump, const PEFFormat& pef_for
 	reloc_entry.Display(dump, Dumper::Relocation | Dumper::Control | display_options);
 }
 
+void PEFFormat::Section::CompressData()
+{
+	switch(section_kind)
+	{
+	case UnpackedData:
+		break;
+	case PatternInitializedData:
+		Linker::Debug << "Debug: Already compressed" << std::endl;
+		break;
+	default:
+		Linker::Error << "Internal error: Only UnpackedData sections can be compressed, skipping" << std::endl;
+		return;
+	}
+
+	// trivial compression: one big copy block
+	patterns.push_back(PatternInitialization());
+	PatternInitialization& pattern = patterns.back();
+	pattern.opcode = PatternInitialization::BlockCopy;
+	offset_t image_size = image->ImageSize();
+	pattern.common_data.resize(image_size);
+	image->AsImage()->ReadData(image_size, 0, pattern.common_data.data());
+	section_kind = PatternInitializedData;
+}
+
 void PEFFormat::Section::ReadHeader(const std::shared_ptr<Linker::Reader>& rd)
 {
 	name_offset = rd->ReadUnsigned(4);
@@ -2257,6 +2281,10 @@ void PEFFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 					}
 				}
 				std::shared_ptr<MacintoshResourceFileFormat::CodeResource> codeN = std::make_shared<MacintoshResourceFileFormat::CodeResource>(segment_id, jump_table); // the runtime jump table (found in the PEF container) is different from the startup jump table (stored in 'CODE'0)
+				if(segment->name != ".init")
+				{
+					codeN->header_format = MacintoshResourceFileFormat::CodeResource::CFM_68K;
+				}
 				codeN->image = segment;
 				resource_fork->codes.push_back(codeN);
 				resource_fork->segments[segment] = codeN;
@@ -2377,16 +2405,6 @@ void PEFFormat::ProcessRelocations(Linker::Module& module)
 
 		if(segment_to_section_map.find(rel.source.GetPosition().segment) != segment_to_section_map.end())
 		{
-			switch(rel.kind)
-			{
-			case Linker::Relocation::Direct:
-				break;
-			case Linker::Relocation::TransitionVector:
-				break;
-			default:
-				Linker::Error << "Error: invalid external relocation, ignoring" << std::endl;
-				continue;
-			}
 			if(rel.size != 4)
 			{
 				Linker::Error << "Error: only 4-byte external relocation allowed, ignoring" << std::endl;
@@ -2401,6 +2419,44 @@ void PEFFormat::ProcessRelocations(Linker::Module& module)
 			if(rel.shift != 0)
 			{
 				Linker::Error << "Error: relocation shift not supported, ignoring" << std::endl;
+				continue;
+			}
+
+			switch(rel.kind)
+			{
+			case Linker::Relocation::Direct:
+				break;
+			case Linker::Relocation::TransitionVector:
+				switch(header->architecture)
+				{
+				case PEFHeaderBase::M68K:
+					if(resource_fork != nullptr
+					&& rel.Resolve(module, resolution)
+					&& resource_fork->segments.find(resolution.target) != resource_fork->segments.end())
+					{
+						Linker::Debug << "Debug: Generating transition vector for " << rel << std::endl;
+						MacintoshResourceFileFormat::CodeResource::TransitionVector tvector;
+						tvector.offset = resolution.value;
+						tvector.a5_world = MacintoshResourceFileFormat::Location::Sectioned(
+							GetSectionNumber(jump_table_section, 0),
+							jump_table_section->image->ImageSize());
+						resource_fork->segments[resolution.target]->tvector_relocations[tvector].push_back(rel);
+						auto source_position = rel.source.GetPosition();
+						auto source_offset = source_position.address - source_position.segment->base_address;
+						auto source_section = segment_to_section_map[source_position.segment];
+						source_section->relocations[source_offset] = Relocation::ToSection(jump_table_section);
+						continue;
+					}
+					Linker::Error << "Error: Unable to resolve relocation: " << rel << ", ignoring" << std::endl;
+					continue;
+				case PEFHeaderBase::PPC:
+				default:
+					Linker::Error << "Error: transition vector generation not implemented for architecture, ignoring" << std::endl;
+					break;
+				}
+				continue;
+			default:
+				Linker::Error << "Error: invalid external relocation, ignoring" << std::endl;
 				continue;
 			}
 
@@ -2657,9 +2713,9 @@ void PEFFormat::ProcessModule(Linker::Module& module)
 		jump_table->jump_table->below_a5 = a5_offset;
 
 		resource_fork->BuildCFM68KJumpTable(init_segment, init_offset, entry_segment, entry_offset,
-			segLoader_section ? std::find(sections.begin(), sections.end(), segLoader_section) - sections.begin() : 0,
+			segLoader_section ? GetSectionNumber(segLoader_section, 0) : 0,
 			segLoader_offset,
-			std::find(sections.begin(), sections.end(), jump_table_section) - sections.begin(),
+			GetSectionNumber(jump_table_section, 0),
 			a5_offset);
 
 		// generate jump table
@@ -2683,6 +2739,8 @@ void PEFFormat::ProcessModule(Linker::Module& module)
 			Linker::Position(
 				a5_offset + 32 + 8 * jump_table->jump_table->legacy_entries.size() + 16 + jump_table->jump_table->extended_entries.size() * 8,
 				jump_table_segment));
+
+		jump_table_section->CompressData();
 	}
 	else
 	{

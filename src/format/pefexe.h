@@ -473,6 +473,7 @@ namespace Apple
 				}
 			}
 
+			void CompressData();
 			void ReadHeader(const std::shared_ptr<Linker::Reader>& rd);
 			void ReadFile(PEFFormat& pef_format, const std::shared_ptr<Linker::Reader>& rd);
 			size_t GetImageSize(PEFFormat& pef_format);
@@ -748,6 +749,15 @@ namespace Apple
 
 		// temporary structure to map linker segments to PEF sections
 		std::map<std::shared_ptr<Linker::Segment>, std::shared_ptr<Section>> segment_to_section_map;
+
+		uint32_t GetSectionNumber(std::shared_ptr<Section> section, uint32_t fallback)
+		{
+			size_t result = std::find(sections.begin(), sections.end(), section) - sections.begin();
+			if(result == sections.size())
+				return fallback;
+			else
+				return result;
+		}
 
 		bool FormatSupportsLibraries() const override;
 		bool FormatSupportsResources() const override;
