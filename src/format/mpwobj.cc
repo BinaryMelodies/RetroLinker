@@ -649,28 +649,109 @@ void ObjectFormat::FilenameRecord::Dump(Dumper::Dumper& dump, offset_t record_in
 
 void ObjectFormat::SourceStatementRecord::ReadBody(const std::shared_ptr<Linker::Reader>& rd)
 {
-	rd->ReadUnsigned(1);
+	flags = rd->ReadUnsigned(1);
 	uint16_t record_size = rd->ReadUnsigned(2);
-	// TODO
-	Linker::Error << "Error: Unimplemented record type " << int(type) << std::endl;
-	rd->Skip(record_size - 4);
+	parent_id = rd->ReadUnsigned(2);
+	file_id = rd->ReadUnsigned(2);
+	uint32_t file_offset = rd->ReadUnsigned(flags & FileOffset16Flag ? 2 : 4);
+	uint32_t code_offset = rd->ReadUnsigned(flags & CodeOffset16Flag ? 2 : 4);
+	file_code_offsets.insert(std::make_tuple(file_offset, code_offset));
+	uint16_t record_bytes = 8 + (flags & FileOffset16Flag ? 2 : 4) + (flags & CodeOffset16Flag ? 2 : 4);
+	if(record_size < record_bytes)
+	{
+		Linker::Error << "Error: Invalid size for Source Statement record" << std::endl;
+		return;
+	}
+	record_size -= record_bytes;
+	while(record_size >= 2)
+	{
+		uint8_t file_delta = rd->ReadUnsigned(1);
+		uint8_t code_delta = rd->ReadUnsigned(1);
+		file_offset += file_delta;
+		code_offset += code_delta;
+		file_code_offsets.insert(std::make_tuple(file_offset, code_offset));
+		record_size -= 2;
+	}
+	if(record_size)
+	{
+		Linker::Warning << "Warning: Remaining bytes in record, skipping" << std::endl;
+		rd->Skip(record_size);
+	}
 }
 
 offset_t ObjectFormat::SourceStatementRecord::ImageSize() const
 {
-	// TODO
-	return offset_t(-1);
+	return 8 + (flags & FileOffset16Flag ? 2 : 4) + (flags & CodeOffset16Flag ? 2 : 4) + 2 * (file_code_offsets.size() - 1);
 }
 
 offset_t ObjectFormat::SourceStatementRecord::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	// TODO
-	return offset_t(-1);
+	wr->WriteWord(1, type);
+	wr->WriteWord(1, flags);
+	wr->WriteWord(2, ImageSize());
+	wr->WriteWord(2, parent_id);
+	wr->WriteWord(2, file_id);
+	bool started = false;
+	uint32_t file_offset = 0;
+	uint32_t code_offset = 0;
+	for(auto& file_code_offset : file_code_offsets)
+	{
+		uint32_t new_file_offset = std::get<0>(file_code_offset);
+		uint32_t new_code_offset = std::get<1>(file_code_offset);
+
+		if(!started)
+		{
+			started = true;
+			wr->WriteWord(flags & FileOffset16Flag ? 2 : 4, new_file_offset);
+			wr->WriteWord(flags & FileOffset16Flag ? 2 : 4, new_code_offset);
+		}
+		else
+		{
+			if(new_file_offset < file_offset || new_code_offset < code_offset)
+			{
+				Linker::FatalError("Fatal error: backtracking in offset sequence");
+			}
+			if(new_file_offset > file_offset + 0xFF
+			|| new_code_offset > code_offset + 0xFF)
+			{
+				Linker::FatalError("Fatal error: too large step in offset sequence");
+			}
+			uint8_t file_delta = new_file_offset - file_offset;
+			uint8_t code_delta = new_code_offset - code_offset;
+			wr->WriteWord(1, file_delta);
+			wr->WriteWord(1, code_delta);
+		}
+
+		file_offset = new_file_offset;
+		code_offset = new_code_offset;
+	}
+	return ImageSize();
 }
 
 void ObjectFormat::SourceStatementRecord::Dump(Dumper::Dumper& dump, offset_t record_index) const
 {
-	// TODO
+	Dumper::Region record_region("Source Statement record", record_offset, ImageSize(), 8);
+	record_region.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(record_index + 1));
+	record_region.AddField("Record type", Dumper::ChoiceDisplay::Make(record_type_names, Dumper::DecDisplay::Make()), offset_t(type));
+	record_region.AddField("Flags",
+		Dumper::BitFieldDisplay::Make(2)
+			->AddBitField(6, 1, "code offset size", Dumper::ChoiceDisplay::Make("16-bit", "32-bit"), false)
+			->AddBitField(7, 1, "file offset size", Dumper::ChoiceDisplay::Make("16-bit", "32-bit"), false),
+		offset_t(flags));
+	record_region.AddField("Parent ID", Dumper::HexDisplay::Make(4), offset_t(parent_id));
+	record_region.AddField("File ID", Dumper::HexDisplay::Make(4), offset_t(file_id));
+	record_region.Display(dump, Dumper::Header);
+	offset_t offset_index = 0;
+	offset_t offset_offset = record_offset + 8;
+	for(auto file_code_offset : file_code_offsets)
+	{
+		Dumper::Entry offset_entry("Offset", offset_t(offset_index + 1), offset_t(offset_offset), 8);
+		offset_entry.AddField("File offset", Dumper::HexDisplay::Make(8), offset_t(std::get<0>(file_code_offset)));
+		offset_entry.AddField("Code offset", Dumper::HexDisplay::Make(8), offset_t(std::get<1>(file_code_offset)));
+		offset_entry.Display(dump, Dumper::Relocation);
+		offset_offset += offset_index == 0 ? (flags & FileOffset16Flag ? 2 : 4) + (flags & CodeOffset16Flag ? 2 : 4) : 2;
+		offset_index ++;
+	}
 }
 
 void ObjectFormat::ModuleBeginRecord::ReadBody(const std::shared_ptr<Linker::Reader>& rd)
