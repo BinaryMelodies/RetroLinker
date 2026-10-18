@@ -816,7 +816,7 @@ void MacintoshResourceFileFormat::CodeResource::StoreTransitionVectorEntries(
 	if(starting_tvector.has_value())
 	{
 		assert(starting_tvector->a5_world.IsSectioned());
-		jump_table->jump_table->AddApplicationTransitionVector(seg_loader, starting_tvector->a5_world, Location::Segmented(id, starting_tvector->offset));
+		jump_table->jump_table->AddApplicationTransitionVector(seg_loader, starting_tvector->a5_world, Location::Segmented(id, CodeResource::FarSegmentHeaderSize + starting_tvector->offset));
 		jump_table_offset += 12;
 	}
 
@@ -826,7 +826,7 @@ void MacintoshResourceFileFormat::CodeResource::StoreTransitionVectorEntries(
 			continue; /* already inserted */
 
 		assert(tvector.a5_world.IsSectioned());
-		jump_table->jump_table->AddApplicationTransitionVector(seg_loader, tvector.a5_world, Location::Segmented(id, tvector.offset));
+		jump_table->jump_table->AddApplicationTransitionVector(seg_loader, tvector.a5_world, Location::Segmented(id, CodeResource::FarSegmentHeaderSize + tvector.offset));
 
 		auto tvector_iter = tvector_relocations.find(tvector);
 		if(tvector_iter != tvector_relocations.end())

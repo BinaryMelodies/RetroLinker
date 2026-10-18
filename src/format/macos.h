@@ -730,7 +730,7 @@ namespace Apple
 				uint32_t length = 0;
 				uint32_t space_id = 0;
 				uint16_t extension_count = 0;
-				uint16_t member_size = 0;
+				uint16_t member_size = 0x38;
 				std::string name;
 
 				Member(architecture_type architecture)
