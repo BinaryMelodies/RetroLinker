@@ -361,50 +361,68 @@ void ObjectFormat::EntryPointRecord::ReadBody(const std::shared_ptr<Linker::Read
 	flags = rd->ReadUnsigned(1);
 	entry_id = rd->ReadUnsigned(2);
 	offset = rd->ReadUnsigned(4);
-	// TODO
-	Linker::Error << "Error: Unimplemented record type " << int(type) << std::endl;
 }
 
 offset_t ObjectFormat::EntryPointRecord::ImageSize() const
 {
-	// TODO
-	return offset_t(-1);
+	return 8;
 }
 
 offset_t ObjectFormat::EntryPointRecord::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	// TODO
-	return offset_t(-1);
+	wr->WriteWord(1, type);
+	wr->WriteWord(1, flags);
+	wr->WriteWord(2, entry_id);
+	wr->WriteWord(4, offset);
+	return 8;
 }
 
 void ObjectFormat::EntryPointRecord::Dump(Dumper::Dumper& dump, offset_t record_index) const
 {
-	// TODO
+	Dumper::Region record_region("Entry Point record", record_offset, ImageSize(), 8);
+	record_region.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(record_index + 1));
+	record_region.AddField("Record type", Dumper::ChoiceDisplay::Make(record_type_names, Dumper::DecDisplay::Make()), offset_t(type));
+	record_region.AddField("Flags",
+		Dumper::BitFieldDisplay::Make(2)
+			->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("data", "code"), false)
+			->AddBitField(3, 1, Dumper::ChoiceDisplay::Make("extern", "local"), false)
+			->AddBitField(4, 1, Dumper::ChoiceDisplay::Make("main"), true),
+		offset_t(flags));
+	record_region.AddField("Entry ID", Dumper::HexDisplay::Make(4), offset_t(entry_id));
+	record_region.AddField("Module offset", Dumper::HexDisplay::Make(8), offset_t(offset));
+	record_region.Display(dump, Dumper::Header);
 }
 
 void ObjectFormat::SizeRecord::ReadBody(const std::shared_ptr<Linker::Reader>& rd)
 {
 	flags = rd->ReadUnsigned(1);
 	module_size = rd->ReadUnsigned(4);
-	// TODO
-	Linker::Error << "Error: Unimplemented record type " << int(type) << std::endl;
 }
 
 offset_t ObjectFormat::SizeRecord::ImageSize() const
 {
-	// TODO
-	return offset_t(-1);
+	return 6;
 }
 
 offset_t ObjectFormat::SizeRecord::WriteFile(const std::shared_ptr<Linker::Writer>& wr) const
 {
-	// TODO
-	return offset_t(-1);
+	wr->WriteWord(1, type);
+	wr->WriteWord(1, flags);
+	wr->WriteWord(4, module_size);
+	return 8;
 }
 
 void ObjectFormat::SizeRecord::Dump(Dumper::Dumper& dump, offset_t record_index) const
 {
-	// TODO
+	Dumper::Region record_region("Size record", record_offset, ImageSize(), 8);
+	record_region.InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(record_index + 1));
+	record_region.AddField("Record type", Dumper::ChoiceDisplay::Make(record_type_names, Dumper::DecDisplay::Make()), offset_t(type));
+	record_region.AddField("Flags",
+		Dumper::BitFieldDisplay::Make(2)
+			->AddBitField(0, 1, Dumper::ChoiceDisplay::Make("data", "code"), false),
+		offset_t(flags));
+	record_region.AddField("Module size", Dumper::HexDisplay::Make(8), offset_t(module_size));
+	record_region.Display(dump, Dumper::Header);
 }
 
 void ObjectFormat::ContentsRecord::ReadBody(const std::shared_ptr<Linker::Reader>& rd)
@@ -488,8 +506,6 @@ void ObjectFormat::ContentsRecord::Dump(Dumper::Dumper& dump, offset_t record_in
 		offset_t(flags));
 	record_block.AddOptionalField("Offset in module", Dumper::HexDisplay::Make(8), offset_t(offset));
 	record_block.AddOptionalField("Repeat", Dumper::DecDisplay::Make(), offset_t(repeat));
-	record_block.Display(dump, Dumper::Header);
-
 	// TODO: repeat
 	record_block.Display(dump, Dumper::Header);
 }
