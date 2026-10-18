@@ -1752,7 +1752,7 @@ void PEFFormat::CalculateValues()
 	header->exported_symbol_count = exported_symbols.size();
 
 	header->last_valid_code_resource = 0;
-	if(resource_fork != nullptr)
+	if(resource_fork != nullptr && header->architecture == PEFHeaderBase::M68K)
 	{
 		for(auto code : resource_fork->codes)
 		{
