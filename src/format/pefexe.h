@@ -576,6 +576,7 @@ namespace Apple
 
 			ImportedSymbol() = default;
 			ImportedSymbol(std::string name) : Name(name) { }
+			ImportedSymbol(std::string name, uint8_t flags) : Name(name), symbol_class(symbol_class_type(flags & 0x0F)), flags(flags & 0xF0) { }
 
 			std::weak_ptr<ImportedLibrary> library; // back link to library that includes it
 		};
@@ -589,7 +590,7 @@ namespace Apple
 			uint32_t first_imported_symbol = 0;
 			std::vector<std::shared_ptr<ImportedSymbol>> imported_symbols;
 			// only used for generation
-			std::map<std::string, std::shared_ptr<ImportedSymbol>> named_imported_symbols;
+			std::map<std::tuple<std::string, uint8_t>, std::shared_ptr<ImportedSymbol>> named_imported_symbols;
 			uint8_t options = 0;
 			uint8_t reserved_a = 0;
 			uint16_t reserved_b = 0;
@@ -597,14 +598,15 @@ namespace Apple
 			ImportedLibrary() = default;
 			ImportedLibrary(std::string name) : Name(name) { }
 
-			std::shared_ptr<ImportedSymbol> GetImportByName(std::string name)
+			std::shared_ptr<ImportedSymbol> GetImportByName(std::string name, uint8_t symbol_class = TVect)
 			{
-				auto symbol_iter = named_imported_symbols.find(name);
+				auto key = std::make_tuple(name, symbol_class);
+				auto symbol_iter = named_imported_symbols.find(key);
 				if(symbol_iter == named_imported_symbols.end())
 				{
-					auto symbol = std::make_shared<ImportedSymbol>(name);
+					auto symbol = std::make_shared<ImportedSymbol>(name, symbol_class);
 					imported_symbols.push_back(symbol);
-					named_imported_symbols[name] = symbol;
+					named_imported_symbols[key] = symbol;
 					return symbol;
 				}
 				else
@@ -851,16 +853,20 @@ namespace Apple
 
 		RSegResource(std::shared_ptr<PEFHeader> structured_data, std::shared_ptr<MacintoshResourceFileFormat::Resource> raw_data = nullptr)
 			: Resource(
-				raw_data ? raw_data->type : "rseg",
-				raw_data ? raw_data->id   : 0),
+				raw_data ? raw_data->type       : "rseg",
+				raw_data ? raw_data->id         : 0,
+				raw_data ? raw_data->name       : std::optional<std::string>{},
+				raw_data ? raw_data->attributes : 0),
 			structured_data(structured_data), raw_data(raw_data)
 		{
 		}
 
 		RSegResource(std::shared_ptr<PEFFormat> structured_data, std::shared_ptr<MacintoshResourceFileFormat::Resource> raw_data = nullptr)
 			: Resource(
-				raw_data ? raw_data->type : "rseg",
-				raw_data ? raw_data->id   : 1),
+				raw_data ? raw_data->type       : "rseg",
+				raw_data ? raw_data->id         : 1,
+				raw_data ? raw_data->name       : std::optional<std::string>{},
+				raw_data ? raw_data->attributes : 0),
 			structured_data(structured_data), raw_data(raw_data)
 		{
 		}

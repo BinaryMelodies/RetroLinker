@@ -108,8 +108,10 @@ void MacintoshResourceFileFormat::Resource::Dump(Dumper::Dumper& dump, offset_t 
 	std::unique_ptr<Dumper::Region> resource_region = CreateRegion("Resource", file_offset, ImageSize(), 8);
 	resource_region->AddField("OSType", Dumper::StringDisplay::Make(4, "'"), std::string(type, 4));
 	resource_region->AddField("ID", Dumper::HexDisplay::Make(4), offset_t(id));
-	if(name)
+	if(name.has_value())
+	{
 		resource_region->AddField("Name", Dumper::StringDisplay::Make("\""), *name);
+	}
 	resource_region->AddField("Attributes", Dumper::HexDisplay::Make(2), offset_t(attributes));
 	AddFields(dump, *resource_region, file_offset);
 	resource_region->Display(dump, GetDisplayOptions());
@@ -164,9 +166,10 @@ offset_t MacintoshResourceFileFormat::JumpTableCodeResource::JumpTableSize() con
 	case Near:
 		return 8 * jump_table->legacy_entries.size();
 	case Far:
+		return 8 + 8 * (jump_table->legacy_entries.size() + jump_table->extended_entries.size());
 	case CFM_68K_StartUp:
 	case CFM_68K:
-		return 8 + 8 * (jump_table->legacy_entries.size() + jump_table->extended_entries.size()) + 12 * jump_table->transition_vectors.size();
+		return 16 + 8 * (jump_table->legacy_entries.size() + jump_table->extended_entries.size()) + 12 * jump_table->transition_vectors.size();
 	case CFM_68K_Library:
 	case CFM_68K_Unflattened_Library:
 		return 8 + 8 * (jump_table->legacy_entries.size() + jump_table->extended_entries.size()) + 8 * jump_table->transition_vectors.size();
@@ -179,7 +182,7 @@ void MacintoshResourceFileFormat::JumpTableCodeResource::CalculateValues()
 {
 	jump_table->jump_table_offset = 32;
 	jump_table->jump_table_size = JumpTableSize();
-	jump_table->above_a5 = 0x30 + jump_table->jump_table_size;
+	jump_table->above_a5 = 0x20 + jump_table->jump_table_size;
 }
 
 offset_t MacintoshResourceFileFormat::JumpTableCodeResource::ImageSize() const
@@ -760,6 +763,7 @@ void MacintoshResourceFileFormat::CodeResource::StoreNearSegmentEntries(
 		{
 			for(auto& rel : entry_iter->second)
 			{
+				// TODO: check A5-relative!
 				rel.WriteWord(jump_table_offset + 32 + 2);
 			}
 		}
@@ -794,6 +798,7 @@ void MacintoshResourceFileFormat::CodeResource::StoreFarSegmentNearEntries(
 		{
 			for(auto& rel : entry_iter->second)
 			{
+				// TODO: what if not A5-relative?
 				rel.WriteWord(jump_table_offset + 32 + 2);
 			}
 		}
@@ -833,7 +838,8 @@ void MacintoshResourceFileFormat::CodeResource::StoreTransitionVectorEntries(
 		{
 			for(auto& rel : tvector_iter->second)
 			{
-				rel.WriteWord(jump_table_offset + 32);
+				// might be A5-relative or absolute, so we must add rel.addend
+				rel.WriteWord(rel.addend + jump_table_offset + 32);
 			}
 		}
 		jump_table_offset += 12;
@@ -863,6 +869,7 @@ void MacintoshResourceFileFormat::CodeResource::StoreFarSegmentFarEntries(
 			{
 				for(auto& rel : entry_iter->second)
 				{
+					// TODO: what if not A5-relative?
 					rel.WriteWord(jump_table_offset + 32 + 2);
 				}
 			}
@@ -881,6 +888,7 @@ void MacintoshResourceFileFormat::CodeResource::CalculateValues()
 
 	near_entry_count = near_entries.size();
 	far_entry_count = far_entries.size();
+	transition_vector_count = transition_vectors.size();
 	switch(header_format)
 	{
 	case Near:
@@ -1099,8 +1107,8 @@ void MacintoshResourceFileFormat::CodeResource::AddFields(Dumper::Dumper& dump, 
 
 	if(header_format != Near)
 	{
-		region.AddField("Far entry count", Dumper::DecDisplay::Make(), offset_t(far_entry_count));
-		region.AddField("First far entry offset", Dumper::HexDisplay::Make(8), offset_t(first_far_entry_offset));
+		region.AddField(header_format == Far ? "Far entry count" : "Entry count", Dumper::DecDisplay::Make(), offset_t(far_entry_count));
+		region.AddField(header_format == Far ? "First far entry offset" : "First entry offset", Dumper::HexDisplay::Make(8), offset_t(first_far_entry_offset));
 	}
 
 	if(header_format == Far)
@@ -1913,8 +1921,6 @@ void MacintoshResourceFileFormat::AllocateJumpTableEntries(JumpTableCodeResource
 	// allocate jump table entries
 	for(auto& resource : codes)
 	{
-		auto segment = std::dynamic_pointer_cast<Linker::Segment>(resource->image);
-
 		for(auto entry_offset : resource->entry_relocations)
 		{
 			offset_t offset = entry_offset.first;
@@ -1932,6 +1938,19 @@ void MacintoshResourceFileFormat::AllocateJumpTableEntries(JumpTableCodeResource
 			}
 		}
 
+		for(auto tvector_entry : resource->tvector_relocations)
+		{
+			auto tvector = tvector_entry.first;
+			resource->transition_vectors.insert(tvector);
+		}
+	}
+}
+
+void MacintoshResourceFileFormat::AllocateTransitionVectors(JumpTableCodeResource::JumpTableFormat format)
+{
+	// allocate jump table entries
+	for(auto& resource : codes)
+	{
 		for(auto tvector_entry : resource->tvector_relocations)
 		{
 			auto tvector = tvector_entry.first;
@@ -2027,12 +2046,17 @@ void MacintoshResourceFileFormat::BuildCFM68KJumpTable(std::shared_ptr<CodeResou
 
 	Location seg_loader = Location::Sectioned(seg_loader_section.value_or(0), seg_loader_offset);
 	Location a5_world = Location::Sectioned(a5_section.value_or(0), a5_offset);
+	CodeResource::TransitionVector entry_tvector = CodeResource::TransitionVector{entry_offset, a5_world};
+
+	entry_segment->transition_vectors.insert(entry_tvector);
+
+	AllocateTransitionVectors(JumpTableCodeResource::CFM_68K);
 
 	entry_segment->StoreTransitionVectorEntries(
 		jump_table,
 		jump_table_offset,
 		seg_loader,
-		CodeResource::TransitionVector{entry_offset, a5_world});
+		entry_tvector);
 
 	for(auto& resource : codes)
 	{
@@ -2237,7 +2261,7 @@ void MacintoshResourceFileFormat::ReadFile(const std::shared_ptr<Linker::Reader>
 			{
 				rd->Seek(file_offset + map_offset + name_list_offset + reference.name_offset);
 				uint8_t size = rd->ReadUnsigned(1);
-				reference.name = rd->ReadData(size);
+				reference.data->name = reference.name = rd->ReadData(size);
 			}
 
 			// register this resource for convenience
@@ -2441,7 +2465,6 @@ std::shared_ptr<MacintoshResourceFileFormat::Resource> MacintoshResourceFileForm
 	{
 		resource = std::make_shared<GenericResource>(type.type, reference.id);
 	}
-	resource->name = reference.name;
 	resource->ReadFile(rd, length);
 	return resource;
 }

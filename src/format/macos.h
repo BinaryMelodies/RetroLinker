@@ -100,7 +100,7 @@ namespace Apple
 				memcpy(this->type, type, 4);
 			}
 
-			Resource(const char type[4], uint16_t id, std::string name, uint8_t attributes = 0)
+			Resource(const char type[4], uint16_t id, std::optional<std::string> name, uint8_t attributes = 0)
 				: id(id), name(name), attributes(attributes)
 			{
 				memcpy(this->type, type, 4);
@@ -889,6 +889,8 @@ namespace Apple
 		void ProcessRelocations(Linker::Module& module);
 
 		void AllocateJumpTableEntries(JumpTableCodeResource::JumpTableFormat format);
+		void AllocateTransitionVectors(JumpTableCodeResource::JumpTableFormat format);
+
 		void BuildNearModelJumpTable(std::shared_ptr<CodeResource> entry_segment, uint32_t entry_offset);
 		void BuildFarModelJumpTable(std::shared_ptr<CodeResource> init_segment, uint32_t init_offset, std::shared_ptr<CodeResource> entry_segment, uint32_t entry_offset);
 		void BuildCFM68KJumpTable(std::shared_ptr<CodeResource> init_segment, uint32_t init_offset, std::shared_ptr<CodeResource> entry_segment, uint32_t entry_offset, std::optional<uint32_t> seg_loader_section, uint32_t seg_loader_offset, std::optional<uint32_t> a5_section, uint32_t a5_offset);

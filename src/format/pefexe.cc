@@ -893,7 +893,7 @@ void PEFFormat::Section::CalculateValues(PEFFormat& pef_format)
 
 	if(!name.empty())
 	{
-		name_offset = pef_format.section_name_table_end;
+		name_offset = pef_format.section_name_table_end - pef_format.GetSectionNameTableOffset();
 		pef_format.section_name_table.push_back(name);
 		pef_format.section_name_table_end += name.size() + 1;
 	}
@@ -2183,7 +2183,7 @@ void PEFFormat::Dump(Dumper::Dumper& dump) const
 		}
 	}
 
-	Dumper::Region section_names_region("Section name table", GetSectionNameTableOffset(), section_name_table_end - GetSectionNameTableOffset(), 8);
+	Dumper::Region section_names_region("Section name table", file_offset + GetSectionNameTableOffset(), section_name_table_end - GetSectionNameTableOffset(), 8);
 	// TODO: print names
 	section_names_region.Display(dump, Dumper::String);
 
@@ -2247,10 +2247,19 @@ void PEFFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 	}
 	else if(first_section->IsExecutable())
 	{
-		// the .init section contains the near segment startup code
-		// the .load section is supposed to contain the segLoader section
-		if(header->architecture == PEFHeaderBase::M68K && segment->name != ".load")
+		if(header->architecture != PEFHeaderBase::M68K)
 		{
+			sections.push_back(std::make_shared<Section>(Section::Code, Section::GlobalShare, segment));
+		}
+		else if(segment->name == ".load")
+		{
+			sections.push_back(std::make_shared<Section>(Section::ExecutableData, Section::ProcessShare, segment));
+			sections.back()->name = "%segLoader";
+		}
+		else
+		{
+			// the .init section contains the near segment startup code
+			// the .load section is supposed to contain the segLoader section
 			if(resource_fork == nullptr)
 			{
 				Linker::Error << "Error: no resource fork generated" << std::endl;
@@ -2291,10 +2300,6 @@ void PEFFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 				resource_fork->AddResource(codeN);
 			}
 		}
-		else
-		{
-			sections.push_back(std::make_shared<Section>(Section::Code, Section::GlobalShare, segment));
-		}
 	}
 	else
 	{
@@ -2302,6 +2307,7 @@ void PEFFormat::OnNewSegment(std::shared_ptr<Linker::Segment> segment)
 		if(header->architecture == PEFHeaderBase::M68K && segment->name == ".data")
 		{
 			jump_table_section = sections.back();
+			jump_table_section->name = "%A5World";
 		}
 	}
 }
@@ -2437,10 +2443,20 @@ void PEFFormat::ProcessRelocations(Linker::Module& module)
 						Linker::Debug << "Debug: Generating transition vector for " << rel << std::endl;
 						MacintoshResourceFileFormat::CodeResource::TransitionVector tvector;
 						tvector.offset = resolution.value;
+						// TODO: actual data address
 						tvector.a5_world = MacintoshResourceFileFormat::Location::Sectioned(
 							GetSectionNumber(jump_table_section, 0),
 							jump_table_section->image->ImageSize());
-						resource_fork->segment_to_resource_map[resolution.target]->tvector_relocations[tvector].push_back(rel);
+						Linker::Relocation rel2 = rel;
+						if(MacintoshResourceFileFormat::CheckA5Relative(rel))
+						{
+							rel2.addend = 0;
+						}
+						else
+						{
+							rel2.addend = jump_table_section->image->ImageSize();
+						}
+						resource_fork->segment_to_resource_map[resolution.target]->tvector_relocations[tvector].push_back(rel2);
 						auto source_position = rel.source.GetPosition();
 						auto source_offset = source_position.address - source_position.segment->base_address;
 						auto source_section = segment_to_section_map[source_position.segment];
@@ -2489,7 +2505,13 @@ void PEFFormat::ProcessRelocations(Linker::Module& module)
 
 				if(symbol->GetImportedName(library, name))
 				{
-					imported_symbol = FetchImportLibrary(library)->GetImportByName(name);
+					uint16_t hint; // we reinterpret hint to be the symbol type: 0 for code, 1 for data, 2 for transition vector, 3 for TOC symbol, 4 for glue symbol
+					if(!symbol->LoadOrdinalOrHint(hint))
+					{
+						hint = TVect; // transition vector will be the default
+					}
+
+					imported_symbol = FetchImportLibrary(library)->GetImportByName(name, hint);
 				}
 				else
 				{
@@ -2586,7 +2608,10 @@ void PEFFormat::ProcessModule(Linker::Module& module)
 {
 	Link(module);
 
-	sections.push_back(std::make_shared<Section>(Section::Loader, Section::GlobalShare, nullptr));
+	sections.push_back(std::make_shared<Section>(
+		Section::Loader,
+		header->architecture == PEFHeaderBase::M68K ? Section::ProcessShare : Section::GlobalShare,
+		nullptr));
 
 	if(header->architecture == PEFHeaderBase::M68K)
 	{
@@ -2600,6 +2625,7 @@ void PEFFormat::ProcessModule(Linker::Module& module)
 		if(!jump_table_section)
 		{
 			jump_table_section = std::make_shared<Section>(Section::UnpackedData, Section::ProcessShare, std::make_shared<Linker::Segment>(".data", 0));
+			jump_table_section->name = "%A5World";
 		}
 	}
 
@@ -2625,12 +2651,12 @@ void PEFFormat::ProcessModule(Linker::Module& module)
 			// check if there was a hint provided
 			if(hint == 0 && !symbol.first.LoadOrdinalOrHint(hint))
 			{
-				hint = 1; // data will be the default
+				hint = Data; // data will be the default
 			}
 			else if(!IsValidSymbolClass(hint))
 			{
 				Linker::Error << "Error: invalid symbol class " << hint << std::endl;
-				hint = 1; // revert to data
+				hint = Data; // revert to data
 			}
 			auto exported_symbol = std::make_shared<ExportedSymbol>(name, symbol_class_type(hint));
 			auto position = symbol.second.GetPosition();
@@ -3273,33 +3299,38 @@ void PEFOutputDriver::GenerateFile(std::string filename, Linker::Module& module)
 		{
 			auto rseg0 = std::make_shared<RSegResource>(fragment.pef_header);
 			rseg0->id = rseg_count ++; // should be 0
+			rseg0->name = "RSEG Header"; // needed for the loader to find it
 			resource_fork->AddResource(rseg0);
 
 			auto rseg1 = std::make_shared<RSegResource>(fragment.pef_format);
 			rseg1->id = rseg_count ++; // should be 1
+			rseg1->name = "PEF Container";
 			resource_fork->AddResource(rseg1);
 
 			fragment.pef_header->header->secondary_resource_id = rseg1->id;
 		}
 	}
 
-	// create 'SIZE'-1
-	MacintoshResourceFileFormat::SizeResource::target_type target;
-	switch(data_fork->fragments[0].pef_format->system_type)
+	if(data_fork->fragments[0].pef_format->header->architecture != PEFHeaderBase::M68K)
 	{
-	case PEFFormat::MacOS:
-		target = MacintoshResourceFileFormat::SizeResource::Classic32;
-		break;
-	case PEFFormat::Carbon:
-		target = MacintoshResourceFileFormat::SizeResource::Carbon;
-		break;
-	//case PEFFormat::BeOS: // TODO: unimplemented
-	default:
-		Linker::Error << "Internal error: Unknown target system, setting 'SIZE'-1 to Classic Mac OS" << std::endl;
-		target = MacintoshResourceFileFormat::SizeResource::Classic32;
-		break;
+		// create 'SIZE'-1
+		MacintoshResourceFileFormat::SizeResource::target_type target;
+		switch(data_fork->fragments[0].pef_format->system_type)
+		{
+		case PEFFormat::MacOS:
+			target = MacintoshResourceFileFormat::SizeResource::Classic32;
+			break;
+		case PEFFormat::Carbon:
+			target = MacintoshResourceFileFormat::SizeResource::Carbon;
+			break;
+		//case PEFFormat::BeOS: // TODO: unimplemented
+		default:
+			Linker::Error << "Internal error: Unknown target system, setting 'SIZE'-1 to Classic Mac OS" << std::endl;
+			target = MacintoshResourceFileFormat::SizeResource::Classic32;
+			break;
+		}
+		resource_fork->AddResource(std::make_shared<MacintoshResourceFileFormat::SizeResource>(target));
 	}
-	resource_fork->AddResource(std::make_shared<MacintoshResourceFileFormat::SizeResource>(target));
 
 	GenerateFiles(filename, data_fork, resource_fork);
 }
