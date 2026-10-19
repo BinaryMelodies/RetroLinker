@@ -261,7 +261,7 @@ void ObjectFormat::DictionaryRecord::ReadBody(const std::shared_ptr<Linker::Read
 	while(record_size > 0)
 	{
 		uint8_t length = rd->ReadUnsigned(1);
-		std::string name = rd->ReadData(std::max(offset_t(record_size - 1), offset_t(length)));
+		std::string name = rd->ReadData(std::min(offset_t(record_size - 1), offset_t(length)));
 		record_size -= 1 + name.size();
 		names.push_back(name);
 	}
