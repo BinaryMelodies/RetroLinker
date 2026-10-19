@@ -3,6 +3,7 @@
 
 	.section	.text
 
+	.global	start
 start:
 	_StartUp
 	_LoadA	message, a0
@@ -72,6 +73,13 @@ message:
 	.ascii	" AmigaOS"
 .elseif TARGET_MACOS
 	.ascii	" Mac OS"
+.if	FORMAT_PEF
+	.ascii	" (CFM-68K)"
+.elseif	VERSION_FAR
+	.ascii	" (far model, 68K)"
+.else
+	.ascii	" (near model, 68K)"
+.endif
 .elseif TARGET_SQL
 	.ascii	" Sinclair QL (QDOS)"
 .elseif TARGET_FLEXOS68K
@@ -85,20 +93,6 @@ message:
 	.section	.bss
 
 	_SysVars
-
-.if	0
-#.if	TARGET_MACOS
-# Making it 32-bit aware
-	.section	$$RSRC$_SIZE$FFFF, "a", @progbits
-# reserved, acceptSuspendResumeEvents, reserved, canBackground, doesActivateOnFGSwitch, backgroundAndForeground, dontGetFrontClicks, ignoreChildDiedEvents
-	.byte	0x58
-# is32BitCompatible, notHighLevelEventAware, onlyLocalHLEvents, notStationaryAware, dontUseTextEditServices, notDisplayManagerAware, reserved, reserved
-	.byte	0x80
-# preferred memory
-	.long	100 * 1024
-# minimum memory
-	.long	100 * 1024
-.endif
 
 .if OPTION_EXPLICIT_STACK
 	.section	.stack, "aw", @nobits

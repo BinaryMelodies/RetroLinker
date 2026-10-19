@@ -1,9 +1,10 @@
 
-.if	CPU_PPC
+.if	FORMAT_PEF
 	.section	.toc, "aw", @progbits
 	.global	TOC
 TOC:
 .macro	__SYSCALL	__syscall, __wordcount
+.if	CPU_PPC
 	# Get transition vector address
 	lwz	r12, \__syscall\()_TOC - .toc(r2)
 	# Store current global address
@@ -24,6 +25,16 @@ TOC:
 	# Restore current global address
 	lwz	r2, 0(r1)
 	la	r1, 4(r1)
+.elseif	CPU_M68K
+	# Get transition vector address
+	move.l	\__syscall\()_TOC(a5), a1
+	# Load function address
+	move.l	(a1)+, a0
+	# Jump and link to function
+	jsr	(a0)
+	# Restore current global address
+	move.l	-12(a6), a5
+.endif
 .endm
 .macro	__DEFSYSCALL	__syscall
 	.section	.toc
@@ -56,60 +67,60 @@ __DEFSYSCALL	ExitToShell
 	# Toolbox calls
 .if	!VERSION_CARBON
 .macro	__InitGraf
-.if	CPU_M68K
+.if	FORMAT_RSRC
 	.short	0xA86E
-.elseif	CPU_PPC
+.elseif	FORMAT_PEF
 	__SYSCALL	InitGraf, 1
 .endif
 .endm
 .macro	__InitFonts
-.if	CPU_M68K
+.if	FORMAT_RSRC
 	.short	0xA8FE
-.elseif	CPU_PPC
+.elseif	FORMAT_PEF
 	__SYSCALL	InitFonts, 0
 .endif
 .endm
 .macro	__InitWindows
-.if	CPU_M68K
+.if	FORMAT_RSRC
 	.short	0xA912
-.elseif	CPU_PPC
+.elseif	FORMAT_PEF
 	__SYSCALL	InitWindows, 0
 .endif
 .endm
 .macro	__InitCursor
-.if	CPU_M68K
+.if	FORMAT_RSRC
 	.short	0xA850
-.elseif	CPU_PPC
+.elseif	FORMAT_PEF
 	__SYSCALL	InitCursor, 0
 .endif
 .endm
 .endif
 .macro	__DrawChar
-.if	CPU_M68K
+.if	FORMAT_RSRC
 	.short	0xA883
-.elseif	CPU_PPC
+.elseif	FORMAT_PEF
 	__SYSCALL	DrawChar, 1
 .endif
 .endm
 .macro	__TextMode
-.if	CPU_M68K
+.if	FORMAT_RSRC
 	.short	0xA889
-.elseif	CPU_PPC
+.elseif	FORMAT_PEF
 	__SYSCALL	TextMode, 1
 .endif
 .endm
 .macro	__MoveTo
-.if	CPU_M68K
+.if	FORMAT_RSRC
 	.short	0xA893
-.elseif	CPU_PPC
+.elseif	FORMAT_PEF
 	__SYSCALL	MoveTo, 2
 .endif
 .endm
 .if	!VERSION_CARBON
 .macro	__GetNextEvent
-.if	CPU_M68K
+.if	FORMAT_RSRC
 	.short	0xA970
-.elseif	CPU_PPC
+.elseif	FORMAT_PEF
 	__SYSCALL	GetNextEvent, 2
 .endif
 .endm
@@ -123,9 +134,9 @@ __DEFSYSCALL	ExitToShell
 .endm
 .endif
 .macro	__ExitToShell
-.if	CPU_M68K
+.if	FORMAT_RSRC
 	.short	0xA9F4
-.elseif	CPU_PPC
+.elseif	FORMAT_PEF
 	__SYSCALL	ExitToShell, 0
 .endif
 .endm
@@ -136,7 +147,20 @@ __DEFSYSCALL	ExitToShell
 	# Initialize basic Toolbox managers
 .if	!VERSION_CARBON
 .if	CPU_M68K
+.if	FORMAT_PEF
+	# CFM-68K requires two empty longwords below A6
+	link	a6, #-12
+	# We will use -12(a6) as the restore location of A5
+	move.l	a5, -12(a6)
+	# We will not change A6 throughout the program
+.endif
+
+.if	!FORMAT_PEF
 	pea	-4(a5)
+.else
+	pea.l	qd + 202(a5)
+.endif
+
 .elseif	CPU_PPC
 	.section	.toc
 qd_thePort:
@@ -161,15 +185,26 @@ qd_thePort:
 	# Initialize text writing routines
 # TextMode(srcCopy)
 .if	CPU_M68K
+.if	!FORMAT_PEF
 	clr.w	-(sp)
+.else
+	# CFM-68K requires word alignment for arguments
+	clr.l	-(sp)
+.endif
 .elseif	CPU_PPC
 	li	r3, 0
 .endif
 	__TextMode
 
 .if	CPU_M68K
+.if	!FORMAT_PEF
 	clr.w	-(sp)
 	move.w	#32, -(sp)
+.else
+	# In CFM-68K, arguments are pushed on the stack in right to left order
+	move.l	#32, -(sp)
+	clr.l	-(sp)
+.endif
 .elseif	CPU_PPC
 	li	r3, 0
 	li	r4, 32
@@ -193,7 +228,12 @@ qd_thePort:
 .macro	_PutChar char
 	# Brute force output text to screen
 .if	CPU_M68K
+.if	!FORMAT_PEF
 	move.w	\char, -(sp)
+.else
+	# CFM-68K requires word alignment for arguments
+	move.l	\char, -(sp)
+.endif
 .elseif	CPU_PPC
 	mr	r3, \char
 	li	r4, 255
@@ -205,10 +245,18 @@ qd_thePort:
 .macro	_PutNewLine
 	# Advance cursor pointer to next line
 .if	CPU_M68K
+.if	!FORMAT_PEF
 	clr.w	-(sp)
 	lea	current_row(a5), a0
 	add.w	#fontHeight, (a0)
 	move.w	(a0), -(sp)
+.else
+	lea	current_row(a5), a0
+	add.w	#fontHeight, (a0)
+	move.w	(a0), -(sp)
+	clr.w	-(sp)
+	clr.l	-(sp)
+.endif
 .elseif	CPU_PPC
 	li	r3, 0
 	lwz	r9, current_row_TOC - .toc(r2)
@@ -223,12 +271,19 @@ qd_thePort:
 	# Wait for events and filter for keyboard input
 1:
 .if	CPU_M68K
+.if	!FORMAT_PEF
 # space for return value
 	subq.l	#2, sp
 # everyEvent
 	move.w	#-1, -(sp)
 # event structure
 	pea	event(a5)
+.else
+# event structure
+	pea	event(a5)
+# everyEvent
+	move.l	#-1, -(sp)
+.endif
 .elseif	CPU_PPC
 # everyEvent
 	li	r3, -1
@@ -249,8 +304,11 @@ event_TOC:
 .endif
 
 .if	CPU_M68K
+.if	!FORMAT_PEF
 	move.b	(sp), d0
 	addq.l	#2, sp
+.endif
+	# CFM-68K returns values in D0 instead of on the stack
 	tst.b	d0
 	beq	1b
 
@@ -272,23 +330,52 @@ event_TOC:
 
 .if	CPU_M68K
 .macro	_LoadA	ref, dst
+.if	!FORMAT_PEF
 	lea	\ref(pc), \dst
+.else
+	lea	\ref(a5), \dst
+.endif
 .endm
 
 .macro	_LoadL	ref, dst
+.if	!FORMAT_PEF
 	move.l	\ref(pc), \dst
+.else
+	move.l	\ref(a5), \dst
+.endif
 .endm
 
 .macro	_StoreL	src, ref
+.if	!FORMAT_PEF
 	lea	\ref(pc), a0
 	move.l	\src, (a0)
+.else
+	lea	\ref(a5), a0
+	move.l	\src, (a0)
+.endif
 .endm
 .endif
 
 .macro	_SysVars
-.if	CPU_M68K
+.if	!FORMAT_PEF
 	.section	.a5world, "aw", @nobits
-.elseif	CPU_PPC
+.else
+
+.if	CPU_M68K
+	.section	.data.end, "aw", @progbits
+	.align	4
+	# The segment loader expects the _IntEnv data variable address to be found
+	# at offset 0x10C below A5
+	.long	$$IMPORT$NuIntEnv$_IntEnv$1
+	.rept	0x108
+		.byte	0
+	.endr
+.endif
+
+	.section	.bss
+.endif
+
+.if	CPU_PPC
 .if	VERSION_CARBON
 	.section	.toc
 cursor_rgn_TOC:
@@ -302,27 +389,18 @@ current_row_TOC:
 	.long	current_row
 	.section	.bss
 .endif
+
 	# store the pixel offset for the current row
 	.global	current_row
-.if	CPU_PPC
-	.align	4 # TODO: is this necessary?
-.endif
 current_row:
 	.skip	2
 
 	# store event structure for GetNextEvent
-.if	CPU_PPC
-	.align	4 # TODO: is this necessary?
-.endif
 event:
 	.skip	16
 
 	# QD globals, must come at end
-	# TODO: use 206 instead?
-.if	CPU_PPC
-	.align	4 # TODO: is this necessary?
-.endif
 qd:
-	.skip	248
+	.skip	206
 .endm
 

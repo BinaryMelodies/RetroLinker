@@ -314,6 +314,13 @@ message:
 	.ascii	" AmigaOS"
 .elseif TARGET_MACOS
 	.ascii	" Mac OS"
+.if	FORMAT_PEF
+	.ascii	" (CFM-68K)"
+.elseif	VERSION_FAR
+	.ascii	" (far model, 68K)"
+.else
+	.ascii	" (near model, 68K)"
+.endif
 .elseif TARGET_SQL
 	.ascii	" Sinclair QL (QDOS)"
 .elseif TARGET_LINUX

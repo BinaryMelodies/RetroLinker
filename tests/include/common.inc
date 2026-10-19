@@ -196,6 +196,11 @@
 .set OPTION_NEWLINE_PROC, 1
 .set OPTION_CUSTOM_ENTRY, 1
 .set OPTION_NO_RELOC, 1
+.ifndef FORMAT_PEF
+.set OPTION_NO_INTERSEG, 0
+.else
+.set OPTION_NO_INTERSEG, 1
+.endif
 .ifndef VERSION_FAR
 .set VERSION_FAR, 0
 .endif
@@ -408,6 +413,16 @@
 .set FORMAT_X, 0
 .else
 .set OPTION_CUSTOM_ENTRY, 1
+.endif
+
+#### Macintosh formats
+
+.ifndef FORMAT_RSRC
+.set FORMAT_RSRC, 0
+.endif
+
+.ifndef FORMAT_PEF
+.set FORMAT_PEF, 0
 .endif
 
 #### CP/M-8000 formats

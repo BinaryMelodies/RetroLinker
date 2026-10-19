@@ -895,13 +895,29 @@ DefineTarget(
 	Description = "Apple Mac OS on Classic Macintosh \"CODE\" resources for Motorola 68000",
 	CPU = "m68k",
 	System = "macos",
+	FormatName = "rsrc",
 	Versions = [
 		DefineVersion("", ModelName = "default", LinkerName = ""),
 		DefineVersion("tiny", ModelName = "tiny"),
 		DefineVersion("32bit", ModelName = "default", LinkerName = "", LinkerOptions = ["32"]),
-		DefineVersion("far", ModelName = "default", LinkerName = "", LinkerOptions = ["far", "32"], additional_arguments = [ENV.get("MACFARLOAD", "../nomacfarload.o"), "-d.init=init"]), # TODO: requires an object file containing an .init section and entry named init that patches LoadSeg
+		DefineVersion("far", ModelName = "default", LinkerName = "", LinkerOptions = ["far", "32"], required_entry = True, additional_arguments = [ENV.get("MACFARLOAD", "../nomacfarload.o"), "-d.init=init"]), # TODO: requires an object file containing an .init section and entry named init that patches LoadSeg
 	],
 	c_target_options = "-mpcrel",
+	custom_entry = True,
+	additional_outputs = ('{output_file}.mbin', '%{output_file}', '.finf/{output_file}', '.rsrc/{output_file}'))
+
+DefineTarget(
+	Description = "Apple Mac OS on CFM-68K for Motorola 68000",
+	CPU = "m68k",
+	System = "cfm-68k",
+	TargetName = "macos",
+	IncludeName = "macos",
+	FormatName = "pef",
+	Versions = [
+		DefineVersion("", ModelName = "default", additional_arguments = [ENV.get("MACCFMLOAD", "../nomaccfmload.o"), "-d.init=init"]), # TODO: requires an object file containing an .init section with an entry named init and a .load section with an entry named _segLoader that patches LoadSeg
+	],
+	c_target_options = "-mpcrel",
+	required_entry = True,
 	custom_entry = True,
 	additional_outputs = ('{output_file}.mbin', '%{output_file}', '.finf/{output_file}', '.rsrc/{output_file}'))
 
@@ -912,6 +928,7 @@ DefineTarget(
 	TargetName = "macos",
 	IncludeName = "macos",
 	LinkerName = "pef",
+	FormatName = "pef",
 	Versions = [
 		DefineVersion("", ModelName = "default", LinkerName = ""),
 		DefineVersion("carbon", ModelName = "default", LinkerName = "", LinkerOptions = ["carbon"]),

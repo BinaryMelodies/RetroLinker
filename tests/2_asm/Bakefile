@@ -338,6 +338,9 @@ Target(
 	Version = "far",
 	output_file = "macos-far")
 Target(
+	System = "cfm-68k",
+	output_file = "macos-cfm")
+Target(
 	System = "sql",
 	output_file = "sql")
 Target(

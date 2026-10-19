@@ -2363,15 +2363,17 @@ for execute and not ".init"
 {
 	at 0;
 	all any
-		align 2;
-	align 2;
+		align 4;
+	align 4;
 };
 
 ".data"
 {
 	at 0;
-	all not zero and not resource and not ".init";
-	all zero and not resource and not ".init";
+	all not zero and not resource and not ".init" and not ".toc" and not ".data.end" align 4;
+	all zero and not resource and not ".init" and not ".toc" and not ".data.end" align 4;
+	all ".toc" align 4;
+	all ".data.end" align 4;
 	at align(here, ?data_section_align?);
 };
 
@@ -2384,8 +2386,8 @@ for ".init"
 {
 	at 0;
 	all ".init"
-		align 2;
-	align 2;
+		align 4;
+	align 4;
 };
 )";
 

@@ -50,7 +50,7 @@ clean: tests_clean
 	rm -rf link src/link.o dump src/dump.o $(MAIN_OFILES) $(LINKER_OFILES) $(FORMAT_OFILES) $(RUNTIME_OFILES) $(DUMPER_OFILES) $(SCRIPT_OFILES) src/script/scan.cc src/script/parse.tab.cc src/script/parse.tab.hh
 
 tests_clean:
-	rm -f nomacfarload.o
+	rm -f nomacfarload.o nomaccfmload.o
 	$(MAKE) -C tests/1_hello clean
 	$(MAKE) -C tests/2_asm clean
 	$(MAKE) -C tests/3_extern clean
@@ -77,7 +77,7 @@ distclean: clean
 	$(MAKE) -C tests/dll distclean
 	$(MAKE) -C unittest distclean
 
-tests: tests/nomacfarload.o
+tests: tests/nomacfarload.o tests/nomaccfmload.o
 	$(MAKE) -C tests/1_hello
 	$(MAKE) -C tests/2_asm
 	$(MAKE) -C tests/3_extern
@@ -121,5 +121,8 @@ src/script/parse.tab.cc: src/script/parse.yy
 	bison -d -o $@ $<
 
 tests/nomacfarload.o: tests/nomacfarload.s
+	m68k-elf-as --register-prefix-optional -m68000 $< -o $@
+
+tests/nomaccfmload.o: tests/nomaccfmload.s
 	m68k-elf-as --register-prefix-optional -m68000 $< -o $@
 
