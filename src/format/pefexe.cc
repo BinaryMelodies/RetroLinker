@@ -2610,7 +2610,7 @@ void PEFFormat::ProcessRelocations(Linker::Module& module)
 				break;
 			case JumpTableEntry:
 				/* jsr method_name(a5) can be replaced by an entry */
-				Linker::Debug << "Debug: relocation from segment " << rel.source.GetPosition().segment->name << " to " << resolution.target->name << std::endl;
+				Linker::Debug << "Debug: relocation from segment " << rel.source.GetPosition().segment->name << " (" << rel << ") to " << resolution.target->name << " (" << resolution << ")" << std::endl;
 				resource_fork->segment_to_resource_map[resolution.target]->entry_relocations[resolution.value].push_back(rel);
 				break;
 			}

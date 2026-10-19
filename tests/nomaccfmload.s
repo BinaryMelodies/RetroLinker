@@ -11,7 +11,7 @@ init:
 
 	.section	.load, "ax", @progbits
 
-	.global	_segLoad
-_segLoad:
+	.global	_segLoader
+_segLoader:
 	rts
 

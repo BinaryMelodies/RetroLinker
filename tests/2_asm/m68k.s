@@ -123,6 +123,8 @@ start:
 
 .if TARGET_MACOS
 .ifdef MODEL_DEFAULT
+.if	!FORMAT_PEF
+# TODO: implement for CFM-68K
 	bsrw	WaitForKey
 	jsr	FarFunction(a5)
 
@@ -132,6 +134,7 @@ start:
 	move.l	2(a0), d0
 	bsrw	PutLong
 	bsrw	PutNewLine
+.endif
 .endif
 .endif
 
@@ -275,6 +278,10 @@ FarPutChar:
 FarPutNewLine:
 	_PutNewLine
 	rts
+
+.if	FORMAT_PEF
+	.section	.data
+.endif
 
 far_message:
 	.ascii	"Greetings from another segment!"
