@@ -33,7 +33,7 @@ std::shared_ptr<ObjectFormat::Record> ObjectFormat::Record::ReadFile(const std::
 	std::shared_ptr<Record> record;
 	offset_t record_offset = rd->Tell();
 	uint8_t type = rd->ReadUnsigned(1);
-	Linker::Debug << "Debug: Record type " << int(type) << std::endl;
+	Linker::Debug << "Debug: Record type " << std::dec << int(type) << " at offset " << std::hex << record_offset << std::endl;
 	switch(type)
 	{
 	case Pad:

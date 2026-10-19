@@ -473,7 +473,22 @@ namespace Apple
 				}
 			}
 
+			/** @brief Represents compression algorithm to be chosen */
+			enum compression_level
+			{
+				/** @brief Do not compress data sections */
+				Compression_None,
+				/** @brief Embed data section inside a single BlockCopy command */
+				Compression_Trivial,
+			};
+			/** @brief Default compression level for data sections */
+			static compression_level DefaultCompressionLevel;
+
+			/** @brief Compress data section into PatternInitializedData section according to default level */
 			void CompressData();
+			/** @brief Compress data section into PatternInitializedData section according to level */
+			void CompressData(compression_level level);
+
 			void ReadHeader(const std::shared_ptr<Linker::Reader>& rd);
 			void ReadFile(PEFFormat& pef_format, const std::shared_ptr<Linker::Reader>& rd);
 			size_t GetImageSize(PEFFormat& pef_format);

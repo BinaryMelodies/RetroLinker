@@ -734,7 +734,14 @@ void PEFFormat::RelocOpcode::Dump(Dumper::Dumper& dump, const PEFFormat& pef_for
 	reloc_entry.Display(dump, Dumper::Relocation | Dumper::Control | display_options);
 }
 
+PEFFormat::Section::compression_level PEFFormat::Section::DefaultCompressionLevel = Compression_None;
+
 void PEFFormat::Section::CompressData()
+{
+	CompressData(DefaultCompressionLevel);
+}
+
+void PEFFormat::Section::CompressData(compression_level level)
 {
 	switch(section_kind)
 	{
@@ -748,14 +755,22 @@ void PEFFormat::Section::CompressData()
 		return;
 	}
 
-	// trivial compression: one big copy block
-	patterns.push_back(PatternInitialization());
-	PatternInitialization& pattern = patterns.back();
-	pattern.opcode = PatternInitialization::BlockCopy;
-	offset_t image_size = image->ImageSize();
-	pattern.common_data.resize(image_size);
-	image->AsImage()->ReadData(image_size, 0, pattern.common_data.data());
-	section_kind = PatternInitializedData;
+	switch(level)
+	{
+	case Compression_None:
+		break;
+	case Compression_Trivial:
+		// trivial compression: one big copy block
+		patterns.push_back(PatternInitialization());
+		PatternInitialization& pattern = patterns.back();
+		pattern.opcode = PatternInitialization::BlockCopy;
+		offset_t image_size = image->ImageSize();
+		pattern.common_data.resize(image_size);
+		image->AsImage()->ReadData(image_size, 0, pattern.common_data.data());
+		section_kind = PatternInitializedData;
+		break;
+	// TODO: better compression algorithm
+	}
 }
 
 void PEFFormat::Section::ReadHeader(const std::shared_ptr<Linker::Reader>& rd)
@@ -3304,7 +3319,7 @@ void PEFOutputDriver::GenerateFile(std::string filename, Linker::Module& module)
 
 			auto rseg1 = std::make_shared<RSegResource>(fragment.pef_format);
 			rseg1->id = rseg_count ++; // should be 1
-			rseg1->name = "PEF Container";
+			rseg1->name = "PEF Container"; // this is not required
 			resource_fork->AddResource(rseg1);
 
 			fragment.pef_header->header->secondary_resource_id = rseg1->id;
