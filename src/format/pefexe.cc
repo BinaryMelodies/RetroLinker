@@ -2592,6 +2592,7 @@ void PEFFormat::ProcessRelocations(Linker::Module& module)
 						Linker::Error << "Error: Invalid relocation: " << rel << std::endl;
 						continue;
 					}
+					resolution.value -= jump_table_section->image->ImageSize();
 				}
 				else
 				{
