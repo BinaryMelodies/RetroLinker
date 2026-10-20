@@ -763,8 +763,8 @@ void MacintoshResourceFileFormat::CodeResource::StoreNearSegmentEntries(
 		{
 			for(auto& rel : entry_iter->second)
 			{
-				// TODO: check A5-relative!
-				rel.WriteWord(jump_table_offset + 32 + 2);
+				// might be A5-relative or absolute, so we must add rel.addend
+				rel.WriteWord(rel.addend + jump_table_offset + 32 + 2);
 			}
 		}
 		jump_table_offset += 8;
@@ -798,8 +798,8 @@ void MacintoshResourceFileFormat::CodeResource::StoreFarSegmentNearEntries(
 		{
 			for(auto& rel : entry_iter->second)
 			{
-				// TODO: what if not A5-relative?
-				rel.WriteWord(jump_table_offset + 32 + 2);
+				// might be A5-relative or absolute, so we must add rel.addend
+				rel.WriteWord(rel.addend + jump_table_offset + 32 + 2);
 			}
 		}
 		jump_table_offset += 8;
@@ -1814,6 +1814,8 @@ bool MacintoshResourceFileFormat::CheckA5Relative(Linker::Relocation& rel)
 
 void MacintoshResourceFileFormat::ProcessRelocations(Linker::Module& module)
 {
+	Apple::ProcessRelocations(module, this);
+#if 0
 	for(Linker::Relocation& rel : module.GetRelocations())
 	{
 		Linker::Resolution resolution;
@@ -1914,6 +1916,7 @@ void MacintoshResourceFileFormat::ProcessRelocations(Linker::Module& module)
 			break;
 		}
 	}
+#endif
 }
 
 void MacintoshResourceFileFormat::AllocateJumpTableEntries(JumpTableCodeResource::JumpTableFormat format)

@@ -2422,6 +2422,8 @@ void PEFFormat::SortImports()
 
 void PEFFormat::ProcessRelocations(Linker::Module& module)
 {
+	Apple::ProcessRelocations(module, resource_fork.get(), this);
+#if 0
 	for(Linker::Relocation& rel : module.GetRelocations())
 	{
 		Linker::Resolution resolution;
@@ -2620,6 +2622,7 @@ void PEFFormat::ProcessRelocations(Linker::Module& module)
 			Linker::Error << "Internal error: relocation in area not assigned to a PEF section" << std::endl;
 		}
 	}
+#endif
 }
 
 void PEFFormat::ProcessModule(Linker::Module& module)
@@ -2827,6 +2830,567 @@ void PEFFormat::GenerateFile(std::string filename, Linker::Module& module)
 	linker_parameters["data_section_align"] = 0x00000010;
 
 	Linker::OutputFormat::GenerateFile(filename, module);
+}
+
+std::optional<
+	std::variant<
+		std::shared_ptr<MacintoshResourceFileFormat::CodeResource>,
+		std::shared_ptr<PEFFormat::Section>>>
+	Apple::FindSegment(std::shared_ptr<Linker::Segment> segment, MacintoshResourceFileFormat * resource_fork, PEFFormat * pef_container)
+{
+	std::shared_ptr<MacintoshResourceFileFormat::CodeResource> source_segment = nullptr;
+	std::shared_ptr<PEFFormat::Section> source_section = nullptr;
+
+	if(resource_fork != nullptr)
+	{
+		auto source_segment_iter = resource_fork->segment_to_resource_map.find(segment);
+		if(source_segment_iter != resource_fork->segment_to_resource_map.end())
+		{
+			source_segment = source_segment_iter->second;
+		}
+	}
+
+	if(pef_container != nullptr)
+	{
+		auto source_section_iter = pef_container->segment_to_section_map.find(segment);
+		if(source_section_iter != pef_container->segment_to_section_map.end())
+		{
+			source_section = source_section_iter->second;
+		}
+	}
+
+	// source cannot point to both a CODE resource or a PEF section
+	assert(!source_segment || !source_section);
+
+	if(source_segment)
+	{
+		return source_segment;
+	}
+	else if(source_section)
+	{
+		return source_section;
+	}
+	else
+	{
+		return {};
+	}
+}
+
+bool Apple::CheckSimpleRelocation(const Linker::Relocation& rel)
+{
+	if(rel.size != 4)
+	{
+		Linker::Error << "Error: only 4-byte external relocation allowed, ignoring" << std::endl;
+		return false;
+	}
+	if((rel.mask & 0xFFFFFFFF) != 0xFFFFFFFF)
+	{
+		Linker::Error << "Error: relocation mask not supported, ignoring" << std::endl;
+		Linker::Error << rel.mask << std::endl;
+		return false;
+	}
+	if(rel.shift != 0)
+	{
+		Linker::Error << "Error: relocation shift not supported, ignoring" << std::endl;
+		return false;
+	}
+	return true;
+}
+
+void Apple::ProcessRelocations(Linker::Module& module, MacintoshResourceFileFormat * resource_fork, PEFFormat * pef_container)
+{
+	using CodeResource = MacintoshResourceFileFormat::CodeResource;
+	using Section = PEFFormat::Section;
+
+	// at least one of them must be non-null
+	assert(resource_fork || pef_container);
+
+	bool is_m68k = pef_container == nullptr || pef_container->header->architecture == PEFHeaderBase::M68K;
+	bool is_cfm = pef_container != nullptr;
+
+	enum
+	{
+		// generate near model CODE resource segments
+		Model_Near_68K,
+		// generate far model CODE resource segments
+		Model_Far_68K,
+		// generate PEF sections and CFM-68K model CODE resource segments
+		Model_CFM_68K,
+		// generate PEF sections only
+		Model_CFM_PPC,
+	} build_model_type;
+
+	if(resource_fork == nullptr)
+	{
+		build_model_type = Model_CFM_PPC;
+	}
+	else if(pef_container != nullptr)
+	{
+		switch(pef_container->header->architecture)
+		{
+		case PEFHeaderBase::M68K:
+			switch(pef_container->header->type)
+			{
+			//case PEFHeaderBase::UnknownBinary:
+			default:
+			case PEFHeaderBase::Application:
+			case PEFHeaderBase::UnflattenedLibrary:
+				build_model_type = Model_CFM_68K;
+				break;
+			case PEFHeaderBase::ImportLibrary:
+				build_model_type = Model_CFM_PPC;
+				break;
+			}
+			break;
+		default:
+		case PEFHeaderBase::PPC:
+			build_model_type = Model_CFM_PPC;
+			break;
+		}
+	}
+	else if(resource_fork->use_far_segments)
+	{
+		build_model_type = Model_Far_68K;
+	}
+	else
+	{
+		build_model_type = Model_Near_68K;
+	}
+
+	std::shared_ptr<Linker::Segment> global_data_segment = nullptr;
+	switch(build_model_type)
+	{
+	case Model_Near_68K:
+	case Model_Far_68K:
+		global_data_segment = resource_fork->a5world;
+		break;
+	case Model_CFM_68K:
+	case Model_CFM_PPC:
+		if(pef_container->jump_table_section != nullptr)
+		{
+			global_data_segment = std::dynamic_pointer_cast<Linker::Segment>(pef_container->jump_table_section->image);
+			assert(global_data_segment);
+		}
+		break;
+	default:
+		assert(false);
+	}
+
+	for(Linker::Relocation& rel : module.GetRelocations())
+	{
+		enum
+		{
+			// the location is an absolute value
+			Location_Absolute,
+			// the location is in the A5 world
+			Location_GlobalData,
+			// the location is found in a 'CODE' resource segment
+			Location_Segment,
+			// the location is found in a section inside the PEF container, either a code or data section (except the main data section)
+			Location_Section,
+			// the location is found in an external library
+			Location_Library,
+		} relocation_source, relocation_target;
+
+		auto source_position = rel.source.GetPosition();
+		auto source_offset = source_position.address - source_position.segment->base_address;
+		auto source_section_segment_option = FindSegment(source_position.segment, resource_fork, pef_container);
+
+		// source must either point to a CODE resource or a PEF section
+		assert(source_section_segment_option.has_value());
+		auto source_section_segment = source_section_segment_option.value();
+
+		Linker::Resolution resolution;
+		bool is_resolved = rel.Resolve(module, resolution);
+
+		// determine if the source of the relocation is a code segment, a code section or the global data
+		if(rel.source.section->IsExecutable())
+		{
+			relocation_source = std::visit([](auto&& target)
+			{
+				using T = std::decay_t<decltype(target)>;
+				if constexpr(std::is_same_v<T, std::shared_ptr<CodeResource>>)
+				{
+					return Location_Segment;
+				}
+				else if constexpr(std::is_same_v<T, std::shared_ptr<Section>>)
+				{
+					return Location_Section;
+				}
+				else
+				{
+					static_assert(false);
+				}
+			}, source_section_segment);
+		}
+		else if(rel.source.GetPosition().segment == global_data_segment)
+		{
+			relocation_source = Location_GlobalData;
+		}
+		else
+		{
+			relocation_source = Location_Section;
+		}
+
+		std::optional<
+			std::variant<
+				std::shared_ptr<CodeResource>,
+				std::shared_ptr<Section>>>
+			target_section_segment;
+
+		// determine if the target is an absolute value, a target in a code segment, a section, the global data section or an imported library
+		switch(rel.kind)
+		{
+		case Linker::Relocation::Direct:
+			if(!is_resolved)
+			{
+				relocation_target = Location_Library;
+			}
+			else if(resolution.target != nullptr /* relocation to a specific segment */
+			&& resolution.target->sections.size() > 0)
+			{
+				auto target_section_segment = FindSegment(resolution.target, resource_fork, pef_container);
+				if(target_section_segment.has_value() && resolution.target->sections[0]->IsExecutable())
+				{
+					relocation_target = std::visit([](auto&& target)
+					{
+						using T = std::decay_t<decltype(target)>;
+						if constexpr(std::is_same_v<T, std::shared_ptr<CodeResource>>)
+						{
+							return Location_Segment;
+						}
+						else if constexpr(std::is_same_v<T, std::shared_ptr<Section>>)
+						{
+							return Location_Section;
+						}
+						else
+						{
+							static_assert(false);
+						}
+					}, target_section_segment.value());
+				}
+				else if(resolution.target == global_data_segment)
+				{
+					relocation_target = Location_GlobalData;
+				}
+				else
+				{
+					relocation_target = Location_Section;
+				}
+			}
+			else
+			{
+				relocation_target = Location_Absolute;
+			}
+			break;
+		case Linker::Relocation::TableEntry:
+			if(!is_resolved)
+			{
+				Linker::Error << "Error: jump table entry to unresolved symbol" << std::endl;
+				continue;
+			}
+			relocation_target = Location_GlobalData;
+			break;
+		case Linker::Relocation::TransitionVector:
+			if(!is_resolved)
+			{
+				Linker::Error << "Error: transition vector entry to unresolved symbol" << std::endl;
+				continue;
+			}
+			relocation_target = Location_GlobalData;
+			break;
+		default:
+			Linker::Error << "Error: invalid external relocation, ignoring" << std::endl;
+			continue;
+		}
+
+		enum
+		{
+			// requires no adjustment aside from addend
+			SimpleRelocation,
+			// points to a jump table entry
+			JumpTableEntry,
+			// points to a transition vector
+			TransitionVector,
+			// must add segment base to it
+			SegmentRelative,
+			// must add A5 or the base address of the data section to it
+			A5Relative,
+			// must add base of code section to it
+			SectionRelative,
+			// must add base of import
+			ImportedSymbol,
+		} relocation_type = SimpleRelocation;
+
+		// determine the relocation type
+		switch(relocation_target)
+		{
+		case Location_Absolute:
+			relocation_type = SimpleRelocation;
+			break;
+		case Location_Segment:
+			if(is_m68k && MacintoshResourceFileFormat::CheckA5Relative(rel))
+			{
+				// convert to jump table entry
+				relocation_type = JumpTableEntry;
+			}
+			else if(rel.source.GetPosition().segment == resolution.target)
+			{
+				relocation_type = SegmentRelative;
+			}
+			else
+			{
+				Linker::Error << "Error: Relocation from CODE resource segment to different segment/section: " << rel << std::endl;
+				continue;
+			}
+			break;
+		case Location_GlobalData:
+			switch(rel.kind)
+			{
+			case Linker::Relocation::TableEntry:
+				relocation_type = JumpTableEntry;
+				break;
+			case Linker::Relocation::TransitionVector:
+				relocation_type = TransitionVector;
+				break;
+			default:
+				if(relocation_source == Location_Segment)
+				{
+					if(MacintoshResourceFileFormat::CheckA5Relative(rel))
+					{
+						relocation_type = SimpleRelocation;
+					}
+					else
+					{
+						relocation_type = A5Relative;
+					}
+				}
+				else
+				{
+					relocation_type = SectionRelative;
+				}
+				break;
+			}
+			break;
+		case Location_Section:
+			if(relocation_source != Location_Segment)
+			{
+				relocation_type = SectionRelative;
+			}
+			else
+			{
+				Linker::Error << "Error: Relocation from CODE segment resource to PEF container section: " << rel << std::endl;
+				continue;
+			}
+			break;
+		case Location_Library:
+			relocation_type = ImportedSymbol;
+			break;
+		}
+
+		// handle the relocation type
+		switch(relocation_type)
+		{
+		case SimpleRelocation:
+			if(is_cfm && is_m68k && relocation_target == Location_GlobalData)
+			{
+				// this has to be A5 relative, readjust to it
+				resolution.value -= global_data_segment->ImageSize();
+			}
+			rel.WriteWord(resolution.value);
+			break;
+		case JumpTableEntry:
+			if(!is_m68k)
+			{
+				Linker::Error << "Error: jump tables only supported for M68K, ignoring" << std::endl;
+			}
+			else
+			{
+				/* jsr method_name(a5) can be replaced by an entry */
+				Linker::Debug << "Debug: relocation from segment " << rel.source.GetPosition().segment->name << " to " << resolution.target->name << std::endl;
+
+				auto target_section_segment = FindSegment(resolution.target, resource_fork, pef_container);
+				assert(target_section_segment.has_value());
+				auto target_segment_pointer = std::get_if<std::shared_ptr<CodeResource>>(&target_section_segment.value());
+				if(!target_segment_pointer)
+				{
+					Linker::Error << "Error: jump table entry must point to CODE resource segment, not PEF container section" << std::endl;
+					continue;
+				}
+				Linker::Relocation rel2 = rel;
+				if(!MacintoshResourceFileFormat::CheckA5Relative(rel))
+				{
+					if(relocation_source == Location_Segment)
+					{
+						if(is_cfm)
+						{
+							Linker::Error << "Error: A5 relative absolute addressing not supported for CFM-68K" << std::endl;
+						}
+						else if(build_model_type != Model_Far_68K)
+						{
+							Linker::Error << "Error: A5 relative absolute addressing only supported for far segments (enable using -Sfar)" << std::endl;
+						}
+						else if(!CheckSimpleRelocation(rel))
+						{
+							Linker::Error << "Error: invalid A5 relative relocation" << std::endl;
+						}
+						else
+						{
+							// create an A5Relative relocation
+							std::get<std::shared_ptr<CodeResource>>(source_section_segment)->
+								a5_relocations.insert(CodeResource::FarSegmentHeaderSize + source_position.address - source_position.segment->base_address);
+						}
+					}
+					else
+					{
+						// readjust with A5 offset
+						rel2.addend += global_data_segment->ImageSize();
+
+						// create an SectionRelative relocation
+						std::get<std::shared_ptr<Section>>(source_section_segment)
+							->relocations[source_offset] = PEFFormat::Relocation::ToSection(pef_container->jump_table_section);
+					}
+				}
+
+				(*target_segment_pointer)->entry_relocations[resolution.value].push_back(rel2);
+			}
+			break;
+		case TransitionVector:
+			if(!is_cfm)
+			{
+				Linker::Error << "Error: Transition vectors are only supported in CFM-68K mode" << std::endl;
+			}
+			else if(!is_m68k)
+			{
+				Linker::Error << "Error: transition vector generation not implemented for architecture, ignoring" << std::endl;
+			}
+			else
+			{
+				auto target_section_segment = FindSegment(resolution.target, resource_fork, pef_container);
+				assert(target_section_segment.has_value());
+				auto target_segment_pointer = std::get_if<std::shared_ptr<CodeResource>>(&target_section_segment.value());
+				if(!target_segment_pointer)
+				{
+					Linker::Error << "Error: transition vector entry must point to CODE resource segment, not PEF container section" << std::endl;
+					continue;
+				}
+
+				Linker::Debug << "Debug: Generating transition vector for " << rel << std::endl;
+				CodeResource::TransitionVector tvector;
+				tvector.offset = resolution.value;
+				// TODO: actual data address
+				tvector.a5_world = MacintoshResourceFileFormat::Location::Sectioned(
+					pef_container->GetSectionNumber(pef_container->jump_table_section, 0),
+					pef_container->jump_table_section->image->ImageSize());
+
+				Linker::Relocation rel2 = rel;
+				if(!MacintoshResourceFileFormat::CheckA5Relative(rel))
+				{
+					// readjust with A5 offset
+					rel2.addend += global_data_segment->ImageSize();
+					if(relocation_source == Location_Segment)
+					{
+						Linker::Error << "Error: invalid absolute relocation from CODE resource segment to global data section" << std::endl;
+					}
+					else
+					{
+						// create an SectionRelative relocation
+						std::get<std::shared_ptr<Section>>(source_section_segment)
+							->relocations[source_offset] = PEFFormat::Relocation::ToSection(pef_container->jump_table_section);
+					}
+				}
+				(*target_segment_pointer)->tvector_relocations[tvector].push_back(rel2);
+			}
+			break;
+		case SegmentRelative:
+			if(build_model_type != Model_Far_68K)
+			{
+				Linker::Error << "Error: segment relative absolute addressing only supported for far segments (enable using -Sfar)" << std::endl;
+			}
+			else if(!CheckSimpleRelocation(rel))
+			{
+				Linker::Error << "Error: invalid segment relative relocation" << std::endl;
+			}
+			else
+			{
+				std::get<std::shared_ptr<CodeResource>>(source_section_segment)
+					->segment_relocations.insert(CodeResource::FarSegmentHeaderSize + source_position.address - source_position.segment->base_address);
+				rel.WriteWord(resolution.value);
+			}
+			break;
+		case A5Relative:
+			if(build_model_type != Model_Far_68K)
+			{
+				Linker::Error << "Error: A5 relative absolute addressing only supported for far segments (enable using -Sfar)" << std::endl;
+			}
+			else if(!CheckSimpleRelocation(rel))
+			{
+				Linker::Error << "Error: invalid A5 relative relocation" << std::endl;
+			}
+			else
+			{
+				std::get<std::shared_ptr<CodeResource>>(source_section_segment)
+					->a5_relocations.insert(CodeResource::FarSegmentHeaderSize + source_position.address - source_position.segment->base_address);
+				rel.WriteWord(resolution.value);
+			}
+			break;
+		case SectionRelative:
+			rel.WriteWord(resolution.value);
+			{
+				auto target_section_segment = FindSegment(resolution.target, resource_fork, pef_container);
+				assert(target_section_segment.has_value());
+				auto target_section_pointer = std::get_if<std::shared_ptr<Section>>(&target_section_segment.value());
+				assert(target_section_pointer);
+				std::get<std::shared_ptr<Section>>(source_section_segment)
+					->relocations[source_offset] = PEFFormat::Relocation::ToSection((*target_section_pointer));
+			}
+			break;
+		case ImportedSymbol:
+			if(Linker::SymbolName * symbol = std::get_if<Linker::SymbolName>(&rel.target.target))
+			{
+				std::string library, name;
+				std::shared_ptr<PEFFormat::ImportedSymbol> imported_symbol;
+				uint32_t relative = 0;
+
+				if(symbol->GetImportedName(library, name))
+				{
+					uint16_t hint; // we reinterpret hint to be the symbol type: 0 for code, 1 for data, 2 for transition vector, 3 for TOC symbol, 4 for glue symbol
+					if(!symbol->LoadOrdinalOrHint(hint))
+					{
+						hint = PEFFormat::TVect; // transition vector will be the default
+					}
+
+					imported_symbol = pef_container->FetchImportLibrary(library)->GetImportByName(name, hint);
+				}
+				else
+				{
+					Linker::Error << "Error: undefined " << *symbol << std::endl;
+					continue;
+				}
+
+				Linker::Position reference;
+				if(!rel.reference.Lookup(module, reference))
+				{
+					Linker::Error << "Error: unable to resolve " << rel << std::endl;
+					continue;
+				}
+				else
+				{
+					relative = -reference.address;
+				}
+
+				rel.WriteWord(relative + rel.addend);
+
+				std::get<std::shared_ptr<Section>>(source_section_segment)
+					->relocations[source_offset] = PEFFormat::Relocation::ToSymbol(imported_symbol);
+			}
+			else
+			{
+				Linker::Error << "Error: Unable to resolve relocation: " << rel << ", ignoring" << std::endl;
+			}
+			break;
+		}
+	}
 }
 
 void PEFHeader::ReadFile(const std::shared_ptr<Linker::Reader>& rd)

@@ -822,6 +822,18 @@ namespace Apple
 		std::shared_ptr<MacintoshResourceFileFormat> resource_fork;
 	};
 
+	/** @brief Determines which CodeResource or PEF Section contains the specified linker segment, if any */
+	std::optional<
+		std::variant<
+			std::shared_ptr<MacintoshResourceFileFormat::CodeResource>,
+			std::shared_ptr<PEFFormat::Section>>>
+		FindSegment(std::shared_ptr<Linker::Segment> segment, MacintoshResourceFileFormat * resource_fork, PEFFormat * pef_container = nullptr);
+
+	/** @brief Determines if this is a 32-bit non-masked non-shifted relocation, the ones that can appear in a PEF file or far model Classic 68K binary */
+	bool CheckSimpleRelocation(const Linker::Relocation& rel);
+	/** @brief Unified relocation processor for both MacintoshResourceFileFormat and PEFFormat files, required for CFM-68K */
+	void ProcessRelocations(Linker::Module& module, MacintoshResourceFileFormat * resource_fork, PEFFormat * pef_container = nullptr);
+
 	/**
 	 * @brief Represents the contents of an 'rseg'0 resource in a CFM-68K binary, a cut-down version of the full PEF container
 	 */
