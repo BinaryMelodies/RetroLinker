@@ -1533,9 +1533,10 @@ void MacintoshResourceFileFormat::CodeFragmentResource::EffectFormat(MacintoshRe
 			}
 			else
 			{
-				// TODO: DropInAddition?
-				type = PEFHeaderBase::ImportLibrary;
+				// unflattened libraries are stored in a resource fork
+				type = PEFHeaderBase::UnflattenedLibrary;
 			}
+			// TODO: DropInAddition?
 
 			Apple::OSType os_type;
 			UInt32ToOSType(os_type, member->offset);

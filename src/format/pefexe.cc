@@ -1509,16 +1509,50 @@ void PEFFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 		switch(header->type)
 		{
 		default: // TODO
-		case PEFHeaderBase::UnknownBinary: // TODO
 		case PEFHeaderBase::Application:
 			jump_table->jump_table_format = MacintoshResourceFileFormat::JumpTableCodeResource::CFM_68K;
 			break;
+		case PEFHeaderBase::UnknownBinary: // this can only happen if it was parsed without a 'cfrg'0 section, so it is likely an import library
 		case PEFHeaderBase::ImportLibrary:
 			jump_table->jump_table_format = MacintoshResourceFileFormat::JumpTableCodeResource::CFM_68K_Library;
 			break;
 		case PEFHeaderBase::UnflattenedLibrary:
 			jump_table->jump_table_format = MacintoshResourceFileFormat::JumpTableCodeResource::CFM_68K_Unflattened_Library;
 			break;
+		}
+
+		auto ird = std::make_shared<Linker::ImageReader>(::BigEndian, jump_table_section->image->AsImage());
+		if(jump_table->jump_table_format == MacintoshResourceFileFormat::JumpTableCodeResource::CFM_68K_Library && a5_offset == 0)
+		{
+			// try to find the start of the jump table from the end
+			int null_long_count = 0;
+			for(offset_t offset = ird->GetImageEnd() & ~3; offset >= 4; offset -= 4)
+			{
+				ird->Seek(offset - 4);
+				uint32_t word = ird->ReadUnsigned(4);
+				if(word == 0)
+				{
+					null_long_count ++;
+				}
+				else
+				{
+					if(null_long_count >= 3 && word == 0xFFFD)
+					{
+						// this might be it
+						if(offset >= 44)
+						{
+							a5_offset = offset - 44;
+							break;
+						}
+						else
+						{
+							Linker::Warning << "Warning: No jump table found" << std::endl;
+							return;
+						}
+					}
+					null_long_count = 0;
+				}
+			}
 		}
 
 		std::map<offset_t, offset_t> section_relocations;
@@ -1531,7 +1565,6 @@ void PEFFormat::ReadFile(const std::shared_ptr<Linker::Reader>& rd)
 			}
 		}
 
-		auto ird = std::make_shared<Linker::ImageReader>(::BigEndian, jump_table_section->image->AsImage());
 		ird->Seek(a5_offset);
 		jump_table->ReadJumpTable(ird, std::max(offset_t(a5_offset), ird->GetImageEnd()) - a5_offset, MacintoshResourceFileFormat::JumpTableCodeResource::FromPEFContainer, section_relocations);
 	}
