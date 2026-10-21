@@ -802,6 +802,19 @@ void PEFFormat::Section::ReadFile(PEFFormat& pef_format, const std::shared_ptr<L
 	switch(section_kind)
 	{
 	case Code:
+		if(pef_format.header->architecture == PEFHeaderBase::M68K && packed_size >= 2)
+		{
+			// attempt to read shared library section header (same format as CFM-68K format segments)
+			rd->Seek(pef_format.file_offset + container_offset);
+			if(rd->ReadUnsigned(2) == 0xFFFD)
+			{
+				rd->Seek(pef_format.file_offset + container_offset);
+				auto code_resource = std::make_shared<MacintoshResourceFileFormat::CodeResource>(0);
+				code_resource->ReadFile(rd, packed_size);
+				image = code_resource;
+				break;
+			}
+		}
 	case UnpackedData:
 	case Constant:
 	case ExecutableData:
@@ -1862,14 +1875,28 @@ void PEFFormat::Dump(Dumper::Dumper& dump) const
 	for(uint16_t section_number = 0; section_number < sections.size(); section_number++)
 	{
 		auto section = sections[section_number];
+		// for CFM-68K libraries
+		auto code_resource = std::dynamic_pointer_cast<MacintoshResourceFileFormat::CodeResource>(section->image);
 		std::unique_ptr<Dumper::Region> section_region;
 		if(section->IsInstantiated() && section->section_kind != Section::PatternInitializedData)
 		{
-			section_region = std::make_unique<Dumper::Block>("Section",
-				file_offset + section->container_offset,
-				section->image->AsImage(),
-				section->default_address,
-				8);
+			if(code_resource == nullptr)
+			{
+				section_region = std::make_unique<Dumper::Block>("Section",
+					file_offset + section->container_offset,
+					section->image->AsImage(),
+					section->default_address,
+					8);
+			}
+			else
+			{
+				// use the parsed image to be displayed
+				section_region = std::make_unique<Dumper::Block>("Section",
+					file_offset + section->container_offset + MacintoshResourceFileFormat::CodeResource::FarSegmentHeaderSize,
+					code_resource->image->AsImage(),
+					section->default_address + MacintoshResourceFileFormat::CodeResource::FarSegmentHeaderSize,
+					8);
+			}
 		}
 		else
 		{
@@ -1881,6 +1908,10 @@ void PEFFormat::Dump(Dumper::Dumper& dump) const
 		section_region->InsertField(0, "Index", Dumper::DecDisplay::Make(), offset_t(section_number + 1));
 		section_region->AddField("Name offset", Dumper::HexDisplay::Make(8), offset_t(section->name_offset));
 		section_region->AddOptionalField("Name", Dumper::StringDisplay::Make("\""), section->name);
+		if(code_resource != nullptr)
+		{
+			section_region->AddField("Section image offset", Dumper::HexDisplay::Make(8), offset_t(file_offset + section->container_offset));
+		}
 		section_region->AddField("Total size", Dumper::HexDisplay::Make(8), offset_t(section->total_size));
 		section_region->AddField("Unpacked size", Dumper::HexDisplay::Make(8), offset_t(section->unpacked_size));
 		section_region->AddField("Packed size", Dumper::HexDisplay::Make(8), offset_t(section->packed_size));
@@ -1906,6 +1937,10 @@ void PEFFormat::Dump(Dumper::Dumper& dump) const
 		section_region->AddField("Share kind", Dumper::ChoiceDisplay::Make(share_type), offset_t(section->share_kind));
 		section_region->AddField("Alignment", Dumper::DecDisplay::Make(), offset_t(1 << section->alignment));
 		section_region->AddOptionalField("Reserved", Dumper::HexDisplay::Make(2), offset_t(section->reserved));
+		if(code_resource != nullptr)
+		{
+			code_resource->AddFields(dump, *section_region, file_offset);
+		}
 
 		if(section->section_kind == Section::PatternInitializedData)
 		{
